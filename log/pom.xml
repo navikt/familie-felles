@@ -12,7 +12,7 @@
 
     <artifactId>log</artifactId>
     <version>${revision}${sha1}${changelist}</version>
-    <name>Familie - Logging</name>
+    <name>Felles - Logging</name>
     <packaging>jar</packaging>
 
     <dependencies>
