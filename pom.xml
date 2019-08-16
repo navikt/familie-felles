@@ -7,6 +7,7 @@
     <groupId>no.nav.familie.felles</groupId>
     <artifactId>felles</artifactId>
     <name>Felles - Root</name>
+    <description>Shared components for family-related benefits</description>
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
 
@@ -254,4 +255,31 @@
             </build>
         </profile>
     </profiles>
+
+    <organization>
+        <name>no.nav</name>
+        <url>https://github.com/navikt</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <organization>NAV (Arbeids- og velferdsdirektoratet) - The Norwegian Labour and Welfare Administration
+            </organization>
+            <organizationUrl>https://www.nav.no</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <developerConnection>scm:git:git@github.com:navikt/familie-felles.git</developerConnection>
+        <connection>scm:git:git@github.com:navikt/familie-felles.git</connection>
+        <url>https://github.com/navikt/familie-felles</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>

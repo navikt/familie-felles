@@ -13,6 +13,7 @@
     <artifactId>log</artifactId>
     <version>${revision}${sha1}${changelist}</version>
     <name>Felles - Logging</name>
+    <description>Small lib for logging, MDC etc</description>
     <packaging>jar</packaging>
 
     <dependencies>
