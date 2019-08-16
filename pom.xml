@@ -7,9 +7,10 @@
     <groupId>no.nav.familie.felles</groupId>
     <artifactId>felles</artifactId>
     <name>Felles - Root</name>
-    <description>Shared components for family-related benefits</description>
     <version>${revision}${sha1}${changelist}</version>
     <packaging>pom</packaging>
+    <description>Shared components for family-related benefits</description>
+    <url>https://github.com/navikt/familie-felles</url>
 
     <properties>
         <revision>1</revision>
