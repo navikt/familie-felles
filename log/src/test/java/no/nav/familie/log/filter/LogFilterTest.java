@@ -37,13 +37,6 @@ public class LogFilterTest {
     }
 
     @Test
-    public void smoketest() throws ServletException, IOException {
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
-    }
-
-    @Test
     public void cleanupOfMDCContext() throws ServletException, IOException {
         Map<String, String> initialContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElseGet(HashMap::new);
         logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {
