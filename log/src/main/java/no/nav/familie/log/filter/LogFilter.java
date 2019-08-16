@@ -1,7 +1,6 @@
 package no.nav.familie.log.filter;
 
 import no.nav.familie.log.IdUtils;
-import no.nav.familie.log.MarkerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -80,14 +79,6 @@ public class LogFilter implements Filter {
 
         try {
             filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);
-
-            new MarkerBuilder()
-                    .field("status", httpServletResponse.getStatus())
-                    .field("method", httpServletRequest.getMethod())
-                    .field("host", httpServletRequest.getServerName())
-                    .field("path", httpServletRequest.getRequestURI())
-                    .log(log::info);
-
         } finally {
             MDC.remove(MDC_CALL_ID);
             MDC.remove(MDC_USER_ID);
