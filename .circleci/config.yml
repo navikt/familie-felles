@@ -1,0 +1,91 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore cached dependencies
+          keys:
+            - maven3-{{ checksum "pom.xml" }}
+      - run:
+          name: Resolve/Update Dependencies
+          command: mvn package dependency:resolve-plugins dependency:go-offline
+      - save_cache:
+          name: Cache Maven dependencies
+          key: maven3-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
+      - run:
+          name: Build (and run tests)
+          command: mvn clean install
+
+  deploy:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore cached dependencies
+          keys:
+            - maven3-{{ checksum "pom.xml" }}
+      - run:
+          name: Import gpg key
+          command: echo $GPG_KEY_BASE64 | base64 --decode | gpg --yes --batch --import
+      - run:
+          name: "Setting version"
+          command: |
+            sudo apt-get install libxml2-utils
+            export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
+            export GIT_COMMIT_DATE=$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')
+            export REVISION=$(xmllint --xpath '/*[local-name()="project"]//*[local-name()="revision"]/text()' pom.xml)
+            export VERSION=${REVISION}_${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}
+            echo "Setting version $VERSION"
+            mvn versions:set -DnewVersion="$VERSION"
+            mvn versions:commit
+      - run:
+          name: Deploy to Maven Central
+          command: "export GPG_TTY=$(tty) && mvn --settings .circleci/maven-settings.xml deploy -Prelease -DskipTests=true"
+
+  deploy-snapshot:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore cached dependencies
+          keys:
+            - maven3-{{ checksum "pom.xml" }}
+      - run:
+          name: Import gpg key
+          command: echo $GPG_KEY_BASE64 | base64 --decode | gpg --yes --batch --import
+      - run:
+          name: "Setting version"
+          command: |
+            sudo apt-get install libxml2-utils
+            export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
+            export GIT_COMMIT_DATE=$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')
+            export REVISION=$(xmllint --xpath '/*[local-name()="project"]//*[local-name()="revision"]/text()' pom.xml)
+            export VERSION=${REVISION}_${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}-SNAPSHOT
+            echo "Setting version $VERSION"
+            mvn versions:set -DnewVersion="$VERSION"
+            mvn versions:commit
+      - run:
+          name: Deploy to Maven Central
+          command: "export GPG_TTY=$(tty) && mvn --settings .circleci/maven-settings.xml deploy -Prelease -DskipTests=true"
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          context: Maven Central Release
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
