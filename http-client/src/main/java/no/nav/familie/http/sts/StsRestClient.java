@@ -21,7 +21,7 @@ import static java.time.LocalTime.now;
 
 public class StsRestClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StsRestClient.class);
+    private static final Logger log = LoggerFactory.getLogger(StsRestClient.class);
     private final HttpClient client;
     private final URI stsUrl;
     private final String stsUsername;
@@ -32,7 +32,7 @@ public class StsRestClient {
     public StsRestClient(ObjectMapper mapper, URI stsUrl, String stsUsername, String stsPassword) {
         this.mapper = mapper;
         this.client = HttpClientUtil.create();
-        this.stsUrl = URI.create(stsUrl + "/rest/v1/sts/token?grant_type=client_credentials&scope=openid");
+        this.stsUrl = stsUrl;
         this.stsUsername = stsUsername;
         this.stsPassword = stsPassword;
     }
@@ -46,7 +46,7 @@ public class StsRestClient {
             return false;
         }
 
-        LOG.info("Tokenet løper ut: {}. Tiden nå er: {}", Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(), now(ZoneId.systemDefault()));
+        log.debug("Tokenet løper ut: {}. Tiden nå er: {}", Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(), now(ZoneId.systemDefault()));
         return Instant.ofEpochMilli(cachedToken.getExpires_in())
                 .atZone(ZoneId.systemDefault())
                 .toLocalTime()
@@ -56,11 +56,11 @@ public class StsRestClient {
 
     public String getSystemOIDCToken() {
         if (isTokenValid()) {
-            LOG.info("Henter token fra cache");
+            log.info("Henter token fra cache");
             return cachedToken.getAccess_token();
         }
 
-        LOG.info("Henter token fra STS");
+        log.info("Henter token fra STS");
         HttpRequest request = HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
                 .uri(stsUrl)
                 .header("Content-Type", "application/json")
