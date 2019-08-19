@@ -1,6 +1,6 @@
 package no.nav.familie.http.client;
 
-import no.nav.familie.http.mdc.MDCConstants;
+import no.nav.familie.log.mdc.MDCConstants;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

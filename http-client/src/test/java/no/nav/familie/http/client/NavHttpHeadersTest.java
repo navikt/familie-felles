@@ -1,6 +1,6 @@
 package no.nav.familie.http.client;
 
-import no.nav.familie.http.filter.LogFilter;
+import no.nav.familie.log.filter.LogFilter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
