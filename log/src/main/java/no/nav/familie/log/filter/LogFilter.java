@@ -49,7 +49,8 @@ public class LogFilter implements Filter {
     }
 
     public static String resolveCallId(HttpServletRequest httpServletRequest) {
-        return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
+        return Arrays.stream(NAV_CALL_ID_HEADER_NAMES)
+                .map(httpServletRequest::getHeader)
                 .filter(it -> it != null && !it.isEmpty())
                 .findFirst()
                 .orElseGet(IdUtils::generateId);
