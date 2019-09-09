@@ -48,49 +48,49 @@ public class StsRestClient {
 
         log.debug("Tokenet løper ut: {}. Tiden nå er: {}", Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(), now(ZoneId.systemDefault()));
         return Instant.ofEpochMilli(cachedToken.getExpires_in())
-                .atZone(ZoneId.systemDefault())
-                .toLocalTime()
-                .minusMinutes(15)
-                .isAfter(now(ZoneId.systemDefault()));
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+            .minusMinutes(15)
+            .isAfter(now(ZoneId.systemDefault()));
     }
 
     public String getSystemOIDCToken() {
         if (isTokenValid()) {
-            log.info("Henter token fra cache");
+            log.debug("Henter token fra cache");
             return cachedToken.getAccess_token();
         }
 
-        log.info("Henter token fra STS");
+        log.debug("Henter token fra STS");
         HttpRequest request = HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
-                .uri(stsUrl)
-                .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(30))
-                .build();
+            .uri(stsUrl)
+            .header("Content-Type", "application/json")
+            .timeout(Duration.ofSeconds(30))
+            .build();
 
         AccessTokenResponse accessTokenResponse;
         try {
             accessTokenResponse = client
-                    .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body)
-                    .thenApply(it -> {
-                        try {
-                            return mapper.readValue(it, AccessTokenResponse.class);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return null;
-                    }).get();
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenApply(this::håndterRespons)
+                .get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return "";
+            throw new StsAccessTokenFeilException("Feil i tilkobling", e);
         }
 
         if (accessTokenResponse != null) {
             this.cachedToken = accessTokenResponse;
             return accessTokenResponse.getAccess_token();
         } else {
-            return "";
+            throw new StsAccessTokenFeilException("Manglende token");
+        }
+    }
+
+    private AccessTokenResponse håndterRespons(String it) {
+        try {
+            return mapper.readValue(it, AccessTokenResponse.class);
+        } catch (IOException e) {
+            throw new StsAccessTokenFeilException("Parsing av respons feilet", e);
         }
     }
 }
