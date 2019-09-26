@@ -16,7 +16,7 @@ public final class HttpRequestUtil {
         return HttpRequest.newBuilder()
                 .header("Authorization", authorizationHeader)
                 .header(NavHttpHeaders.NAV_CALLID.asString(), hentEllerOpprettCallId())
-                .timeout(Duration.ofSeconds(30));
+                .timeout(Duration.ofSeconds(60));
     }
 
     private static String hentEllerOpprettCallId() {
