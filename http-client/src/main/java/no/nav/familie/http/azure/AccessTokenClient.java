@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.ZoneId;
@@ -45,29 +46,37 @@ public class AccessTokenClient {
             .isAfter(now(ZoneId.systemDefault()));
     }
 
-    public String getAccessToken(String resource) {
+    public AccessTokenDto getAccessToken(String resource) {
         if (isTokenValid()) {
             logger.debug("Henter token fra cache");
-            return cachedToken.getAccess_token();
+            return cachedToken;
         }
 
         logger.debug("Henter token fra azure");
 
         AccessTokenRequestBody accessTokenRequestBody = new AccessTokenRequestBody(clientId, resource, grantType, clientSecret);
         HttpEntity<AccessTokenRequestBody> httpEntity = new HttpEntity<>(accessTokenRequestBody);
-        ResponseEntity<AccessTokenDto> accessTokenResponse = restTemplate.exchange(aadAccessTokenUrl, HttpMethod.POST, httpEntity, AccessTokenDto.class);
 
-        if (accessTokenResponse.getStatusCode() == HttpStatus.OK) {
-            AccessTokenDto accessToken = accessTokenResponse.getBody();
+        try {
+            ResponseEntity<AccessTokenDto> accessTokenResponse = restTemplate.exchange(aadAccessTokenUrl, HttpMethod.POST, httpEntity, AccessTokenDto.class);
 
-            if (accessToken != null) {
-                this.cachedToken = accessToken;
-                return accessToken.access_token;
+            if (accessTokenResponse.getStatusCode() == HttpStatus.OK) {
+                AccessTokenDto accessToken = accessTokenResponse.getBody();
+
+                if (accessToken != null) {
+                    this.cachedToken = accessToken;
+                    return accessToken;
+                } else {
+                    logger.warn("Manglende token fra azure ad");
+                    throw new AzureAccessTokenException("Manglende token fra azure ad");
+                }
             } else {
-                throw new AzureAccessTokenException("Manglende token");
+                logger.warn("Kall mot azure ad for å hente token feilet");
+                throw new AzureAccessTokenException("Kall mot azure ad for å hente token feilet" );
             }
-        } else {
-            throw new AzureAccessTokenException("Kall for å hente azure token feilet");
+        } catch (RestClientException e) {
+            logger.warn("Kall mot azure ad for å hente token feilet");
+            throw new AzureAccessTokenException("Kall mot azure ad for å hente token feilet", e);
         }
     }
 }
