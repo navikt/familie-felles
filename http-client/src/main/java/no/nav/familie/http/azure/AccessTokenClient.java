@@ -2,28 +2,28 @@ package no.nav.familie.http.azure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.time.ZoneId;
 
 import static java.time.LocalTime.now;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 public class AccessTokenClient {
     private static final Logger logger = LoggerFactory.getLogger(AccessTokenClient.class);
-    private final String grantType = "client_credentials";
-    private String aadAccessTokenUrl;
+    private URI aadAccessTokenUrl;
     private String clientId;
     private String clientSecret;
 
     private RestTemplate restTemplate;
     private AccessTokenDto cachedToken;
 
-    public AccessTokenClient(String aadAccessTokenUrl,
+    public AccessTokenClient(URI aadAccessTokenUrl,
                              String clientId,
                              String clientSecret,
                              RestTemplate restTemplate) {
@@ -54,10 +54,18 @@ public class AccessTokenClient {
 
         logger.debug("Henter token fra azure");
 
-        AccessTokenRequestBody accessTokenRequestBody = new AccessTokenRequestBody(clientId, resource, grantType, clientSecret);
-        HttpEntity<AccessTokenRequestBody> httpEntity = new HttpEntity<>(accessTokenRequestBody);
-
         try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("client_id", clientId);
+            body.add("resource", resource);
+            body.add("grant_type", "client_credentials");
+            body.add("client_secret", clientSecret);
+
+            HttpEntity<MultiValueMap> httpEntity = new HttpEntity<>(body, headers);
+
             ResponseEntity<AccessTokenDto> accessTokenResponse = restTemplate.exchange(aadAccessTokenUrl, HttpMethod.POST, httpEntity, AccessTokenDto.class);
 
             if (accessTokenResponse.getStatusCode() == HttpStatus.OK) {
