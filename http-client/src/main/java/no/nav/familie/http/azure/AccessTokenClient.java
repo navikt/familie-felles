@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.time.ZoneId;
 
 import static java.time.LocalTime.now;
@@ -15,14 +16,14 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 public class AccessTokenClient {
     private static final Logger logger = LoggerFactory.getLogger(AccessTokenClient.class);
-    private String aadAccessTokenUrl;
+    private URI aadAccessTokenUrl;
     private String clientId;
     private String clientSecret;
 
     private RestTemplate restTemplate;
     private AccessTokenDto cachedToken;
 
-    public AccessTokenClient(String aadAccessTokenUrl,
+    public AccessTokenClient(URI aadAccessTokenUrl,
                              String clientId,
                              String clientSecret,
                              RestTemplate restTemplate) {
