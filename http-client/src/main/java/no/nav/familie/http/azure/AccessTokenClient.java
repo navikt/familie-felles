@@ -45,7 +45,7 @@ public class AccessTokenClient {
             .isAfter(now(ZoneId.systemDefault()));
     }
 
-    public AccessTokenDto getAccessToken(String resource) {
+    public AccessTokenDto getAccessToken() {
         if (isTokenValid()) {
             logger.debug("Henter token fra cache");
             return cachedToken;
