@@ -59,7 +59,7 @@ public class AccessTokenClient {
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("client_id", clientId);
-            body.add("resource", resource);
+            body.add("scope", "https://graph.microsoft.com/.default");
             body.add("grant_type", "client_credentials");
             body.add("client_secret", clientSecret);
 
