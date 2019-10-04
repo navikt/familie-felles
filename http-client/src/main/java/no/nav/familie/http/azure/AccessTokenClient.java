@@ -46,7 +46,7 @@ public class AccessTokenClient {
             .isAfter(now(ZoneId.systemDefault()));
     }
 
-    public AccessTokenDto getAccessToken(String resource) {
+    public AccessTokenDto getAccessToken(String scope) {
         if (isTokenValid()) {
             logger.debug("Henter token fra cache");
             return cachedToken;
@@ -60,7 +60,7 @@ public class AccessTokenClient {
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("client_id", clientId);
-            body.add("scope", resource);
+            body.add("scope", scope);
             body.add("grant_type", "client_credentials");
             body.add("client_secret", clientSecret);
 
