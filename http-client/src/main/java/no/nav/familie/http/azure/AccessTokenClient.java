@@ -9,9 +9,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import static java.time.LocalTime.now;
+import static java.time.LocalDateTime.now;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 public class AccessTokenClient {
@@ -22,6 +23,7 @@ public class AccessTokenClient {
 
     private RestTemplate restTemplate;
     private AccessTokenDto cachedToken;
+    private LocalDateTime cachedTokenExpiresOn;
 
     public AccessTokenClient(URI aadAccessTokenUrl,
                              String clientId,
@@ -38,12 +40,8 @@ public class AccessTokenClient {
             return false;
         }
 
-        logger.debug("Tokenet løper ut: {}. Tiden nå er: {}", cachedToken.getExpires_on().atZone(ZoneId.systemDefault()).toLocalTime(), now(ZoneId.systemDefault()));
-        return cachedToken.getExpires_on()
-            .atZone(ZoneId.systemDefault())
-            .toLocalTime()
-            .minusMinutes(15)
-            .isAfter(now(ZoneId.systemDefault()));
+        logger.debug("Tokenet løper ut: {}. Tiden nå er: {}", cachedTokenExpiresOn, now(ZoneId.systemDefault()));
+        return cachedTokenExpiresOn.minusMinutes(5).isAfter(now(ZoneId.systemDefault()));
     }
 
     public AccessTokenDto getAccessToken(String scope) {
@@ -73,6 +71,7 @@ public class AccessTokenClient {
 
                 if (accessToken != null) {
                     this.cachedToken = accessToken;
+                    this.cachedTokenExpiresOn = LocalDateTime.now(ZoneId.systemDefault()).plusSeconds(accessToken.getExpires_in());
                     return accessToken;
                 } else {
                     logger.warn("Manglende token fra azure ad");
