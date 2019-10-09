@@ -65,9 +65,13 @@ public class LogFilter implements Filter {
         }
 
         String consumerId = httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME);
-        String callId = resolveCallId(httpServletRequest);
+        String callId = MDC.get(MDC_CALL_ID);
 
-        MDC.put(MDC_CALL_ID, callId);
+        if (callId == null) {
+            callId = resolveCallId(httpServletRequest);
+            MDC.put(MDC_CALL_ID, callId);
+        }
+
         MDC.put(MDC_USER_ID, userId);
         MDC.put(MDC_CONSUMER_ID, consumerId);
         MDC.put(MDC_REQUEST_ID, generateId());
