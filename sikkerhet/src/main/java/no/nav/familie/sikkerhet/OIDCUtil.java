@@ -4,8 +4,11 @@ import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
 import no.nav.security.token.support.core.jwt.JwtTokenClaims;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +17,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class OIDCUtil {
+
+    @Autowired
+    private Environment environment;
 
     private final TokenValidationContextHolder ctxHolder;
 
@@ -30,6 +36,22 @@ public class OIDCUtil {
     public String autentisertBruker() {
         return Optional.ofNullable(getSubject())
                        .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke subject", getExpiryDate()));
+    }
+
+    public String getClaim(String claim) {
+        boolean erDevProfil = Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
+
+        if (erDevProfil) {
+            return Optional.ofNullable(claimSet())
+                .map(c -> c.get(claim))
+                .map(Object::toString)
+                .orElse("DEV_" + claim);
+        } else {
+            return Optional.ofNullable(claimSet())
+               .map(c -> c.get(claim))
+               .map(Object::toString)
+               .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke claim '" + claim + "' i tokenet", getExpiryDate()));
+        }
     }
 
     public String getNavIdent() {
