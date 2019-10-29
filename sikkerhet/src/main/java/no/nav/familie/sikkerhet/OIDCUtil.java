@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -51,6 +48,16 @@ public class OIDCUtil {
                .map(c -> c.get(claim))
                .map(Object::toString)
                .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke claim '" + claim + "' i tokenet", getExpiryDate()));
+        }
+    }
+
+    public List<String> getClaimAsList(String claim) {
+        boolean erDevProfil = Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
+
+        if (erDevProfil) {
+            return Collections.singletonList("group1");
+        } else {
+            return claimSet().getAsList(claim);
         }
     }
 
