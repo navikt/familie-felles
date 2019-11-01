@@ -36,9 +36,7 @@ public class OIDCUtil {
     }
 
     public String getClaim(String claim) {
-        boolean erDevProfil = Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
-
-        if (erDevProfil) {
+        if (erDevProfil()) {
             return Optional.ofNullable(claimSet())
                 .map(c -> c.get(claim))
                 .map(Object::toString)
@@ -52,9 +50,7 @@ public class OIDCUtil {
     }
 
     public List<String> getClaimAsList(String claim) {
-        boolean erDevProfil = Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
-
-        if (erDevProfil) {
+        if (erDevProfil()) {
             return Collections.singletonList("group1");
         } else {
             return claimSet().getAsList(claim);
@@ -62,10 +58,14 @@ public class OIDCUtil {
     }
 
     public String getNavIdent() {
-        return Optional.ofNullable(claimSet())
-                       .map(c -> c.get("NAVident"))
-                       .map(Object::toString)
-                       .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke NAVident", getExpiryDate()));
+        if (erDevProfil()) {
+            return "TEST_Z123";
+        } else {
+            return Optional.ofNullable(claimSet())
+                .map(c -> c.get("NAVident"))
+                .map(Object::toString)
+                .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke NAVident", getExpiryDate()));
+        }
     }
 
     public List<String> getGroups() {
@@ -103,6 +103,10 @@ public class OIDCUtil {
             return new Date(Number.class.cast(value).longValue() * 1000L);
         }
         return null;
+    }
+
+    private boolean erDevProfil() {
+        return Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
     }
 
 }
