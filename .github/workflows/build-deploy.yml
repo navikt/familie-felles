@@ -1,0 +1,56 @@
+name: Build-Deploy
+on:
+  push:
+    branches:
+      - '*'
+      - '*/*'
+jobs:
+  deploy-artifact:
+    name: Build and deploy to github package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+
+      - name: Resolve/Update Dependencies
+        run: mvn package dependency:resolve-plugins dependency:go-offline
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@preview
+        id: cache
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build (and run tests)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: mvn clean install
+
+      - name: Save test results
+        run: |
+          mkdir -p ~/test-results/junit/
+          find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+
+      - name: Setting version
+        run: |
+          sudo apt-get install libxml2-utils
+          export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
+          export GIT_COMMIT_DATE=$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')
+          export REVISION=$(xmllint --xpath '/*[local-name()="project"]//*[local-name()="revision"]/text()' pom.xml)
+          export VERSION=${REVISION}_${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}
+          echo "Setting version $VERSION"
+          mvn versions:set -DnewVersion="$VERSION"
+          mvn versions:commit
+
+      - name: Deploy to Github Package
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn --settings .github/maven-settings.xml deploy -DskipTests=true -e
