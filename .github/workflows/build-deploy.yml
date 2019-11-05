@@ -2,8 +2,7 @@ name: Build-Deploy
 on:
   push:
     branches:
-      - '*'
-      - '*/*'
+      - master
 jobs:
   deploy-artifact:
     name: Build and deploy to github package
