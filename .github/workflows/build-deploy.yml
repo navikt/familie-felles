@@ -1,10 +1,13 @@
 name: Build-Deploy
 on:
   push:
-    branches:
+    branches-ignore:
       - master
+  pull_request:
+    types: [closed]
+
 jobs:
-  deploy-artifact:
+  build-and-deploy-artifact:
     name: Build and deploy to github package
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +41,7 @@ jobs:
           find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
 
       - name: Setting version
+        if: github.base_ref == 'master'
         run: |
           sudo apt-get install libxml2-utils
           export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
@@ -49,7 +53,8 @@ jobs:
           mvn versions:commit
 
       - name: Deploy to Github Package
+        if: github.base_ref == 'master'
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn --settings .github/maven-settings.xml deploy -DskipTests=true -e
+        run: mvn --settings .github/maven-settings.xml deploy -DskipTests=true
