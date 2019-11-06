@@ -17,7 +17,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <token-validation-spring.version>1.0.1</token-validation-spring.version>
     </properties>
 
     <dependencies>

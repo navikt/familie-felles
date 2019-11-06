@@ -20,7 +20,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <oidc-support.version>0.2.18</oidc-support.version>
+        <token-validation-spring.version>1.1.2</token-validation-spring.version>
     </properties>
 
     <modules>
