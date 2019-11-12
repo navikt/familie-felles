@@ -27,15 +27,11 @@
         <module>log</module>
         <module>http-client</module>
         <module>sikkerhet</module>
+        <module>prosessering</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>5.1.8.RELEASE</version>
-            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
