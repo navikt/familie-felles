@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,23 +23,28 @@ public class TaskExecutorService {
     private TaskExecutor taskExecutor;
     private TaskRepository taskProsesseringRepository;
 
+    private final int maxAntall;
+    private final int minCapacity;
+
     @Autowired
-    public TaskExecutorService(TaskWorker worker,
+    public TaskExecutorService(@Value("${prosessering.maxAntall:10}") int maxAntall,
+                               @Value("${prosessering.minCapacity:2}") int minCapacity,
+                               TaskWorker worker,
                                @Qualifier("taskExecutor") TaskExecutor taskExecutor,
                                TaskRepository taskRepository) {
         this.worker = worker;
         this.taskExecutor = taskExecutor;
         this.taskProsesseringRepository = taskRepository;
+        this.maxAntall = maxAntall;
+        this.minCapacity = minCapacity;
     }
 
     @Scheduled(fixedDelay = POLLING_DELAY)
     @Transactional
     public void pollAndExecute() {
         log.debug("Poller etter nye tasks");
-        final var maxAntall = 10;
         final var pollingSize = calculatePollingSize(maxAntall);
 
-        final var minCapacity = 2;
         if (pollingSize > minCapacity) {
             final var tasks = taskProsesseringRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize));
             log.trace("Pollet {} tasks med max {}", tasks.size(), maxAntall);

@@ -55,12 +55,12 @@ class TaskWorker {
 
     @Async("taskExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void doTask(Long henvendelseId) {
-        Objects.requireNonNull(henvendelseId, "id kan ikke være null");
-        doActualWork(henvendelseId);
+    public void doTask(Long taskId) {
+        Objects.requireNonNull(taskId, "taskId kan ikke være null");
+        doActualWork(taskId);
     }
 
-    // For testing
+    // For Unit testing
     void doActualWork(Long henvendelseId) {
         final var startTidspunkt = System.currentTimeMillis();
         Integer maxAntallFeil = 0;

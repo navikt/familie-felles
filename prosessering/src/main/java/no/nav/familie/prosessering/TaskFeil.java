@@ -79,7 +79,6 @@ public class TaskFeil {
 
         this.taskName = taskInfo.getType();
         this.taskId = taskInfo.getId() == null ? null : taskInfo.getId().toString();
-//        this.callId = taskInfo.getPropertyValue(MDCOperations.MDC_CALL_ID);
     }
 
     public static String readFrom(String str) throws IOException {
