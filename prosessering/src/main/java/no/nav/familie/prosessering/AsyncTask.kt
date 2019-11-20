@@ -1,15 +1,15 @@
-package no.nav.familie.prosessering;
+package no.nav.familie.prosessering
 
-import no.nav.familie.prosessering.domene.Task;
+import no.nav.familie.prosessering.domene.Task
 
-public interface AsyncTask {
+interface AsyncTask {
 
     /**
      * Caster exception hvis ikke oppfylt.
      *
      * @param task Henvendelsen som skal vurderes
      */
-    default void preCondition(Task task) {
+    fun preCondition(task: Task) {
         // Do nothing by default
     }
 
@@ -18,7 +18,7 @@ public interface AsyncTask {
      *
      * @param task Henvendelsen som skal vurderes
      */
-    default void postCondition(Task task) {
+    fun postCondition(task: Task) {
         // Do nothing by default
     }
 
@@ -28,7 +28,7 @@ public interface AsyncTask {
      * @param task Hendelsen
      * @throws RuntimeException exception vil markere saken som feilende
      */
-    void doTask(Task task);
+    fun doTask(task: Task)
 
     /**
      * Eventuelle oppgaver som må utføres etter at tasken har kjørt OK.
@@ -36,7 +36,7 @@ public interface AsyncTask {
      *
      * @param task Henvendelsen som skal vurderes
      */
-    default void onCompletion(Task task) {
+    fun onCompletion(task: Task) {
         // Do nothing by default
     }
 }

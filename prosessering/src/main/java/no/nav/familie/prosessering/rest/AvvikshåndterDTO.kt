@@ -1,4 +1,4 @@
-package no.nav.familie.ks.mottak.app.rest
+package no.nav.familie.prosessering.rest
 
 import no.nav.familie.prosessering.domene.Avvikstype
 

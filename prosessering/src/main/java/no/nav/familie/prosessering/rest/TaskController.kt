@@ -1,9 +1,8 @@
 package no.nav.familie.prosessering.rest
 
 import no.nav.familie.ks.kontrakter.sak.Ressurs
-import no.nav.familie.ks.mottak.app.rest.AvvikshåndterDTO
-import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.familie.prosessering.domene.Status
+import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -35,6 +34,9 @@ class TaskController(
 
     @PutMapping(path = ["/task/avvikshaandter"])
     fun avvikshåndterTask(@RequestParam taskId: Long, @RequestBody avvikshåndterDTO: AvvikshåndterDTO): ResponseEntity<Ressurs> {
-        return ResponseEntity.ok(restTaskService.avvikshåndterTask(taskId, avvikshåndterDTO.avvikstype, avvikshåndterDTO.årsak, hentBrukernavn()))
+        return ResponseEntity.ok(restTaskService.avvikshåndterTask(taskId,
+                                                                   avvikshåndterDTO.avvikstype,
+                                                                   avvikshåndterDTO.årsak,
+                                                                   hentBrukernavn()))
     }
 }
