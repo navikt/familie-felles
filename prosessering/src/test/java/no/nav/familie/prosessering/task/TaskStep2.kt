@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit
 
 @Service @TaskStepBeskrivelse(taskStepType = TaskStep2.TASK_2, beskrivelse = "Dette er task 2")
 class TaskStep2 : AsyncTaskStep {
+
     override fun doTask(task: Task) {
         try {
             TimeUnit.MICROSECONDS.sleep(1)

@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api")
 @ProtectedWithClaims(issuer = "azuread")
-class TaskController(
-        private val restTaskService: RestTaskService, private val oidcUtil: OIDCUtil) {
+class TaskController(private val restTaskService: RestTaskService, private val oidcUtil: OIDCUtil) {
 
     fun hentBrukernavn(): String {
         return oidcUtil.getClaim("preferred_username")
