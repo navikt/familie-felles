@@ -16,16 +16,11 @@
     <description>Prosesseringsmotor</description>
     <packaging>jar</packaging>
 
-    <properties>
-        <kotlin.version>1.3.50</kotlin.version>
-        <mockk.version>1.9.3</mockk.version>
-    </properties>
-
     <dependencies>
-
         <dependency>
-            <groupId>no.nav.familie.ks</groupId>
+            <groupId>no.nav.familie.felles</groupId>
             <artifactId>kontrakt</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -71,7 +66,6 @@
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
-            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -161,7 +155,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.9.9</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

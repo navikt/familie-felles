@@ -1,10 +1,10 @@
 package no.nav.familie.prosessering.rest
 
-import no.nav.familie.ks.kontrakter.sak.Ressurs
 import no.nav.familie.prosessering.domene.Avvikstype
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
+import no.nav.familie.sak.kontrakt.Ressurs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -15,7 +15,7 @@ import java.util.*
 class RestTaskService(private val taskRepository: TaskRepository,
                       private val restTaskMapper: RestTaskMapper) {
 
-    fun hentTasks(status: Status, saksbehandlerId: String): Ressurs {
+    fun hentTasks(status: Status, saksbehandlerId: String): Ressurs<List<RestTask>> {
         logger.info("$saksbehandlerId henter feilede tasker")
 
         return Result.runCatching {
@@ -32,7 +32,7 @@ class RestTaskService(private val taskRepository: TaskRepository,
     }
 
     @Transactional
-    fun rekjørTask(taskId: Long, saksbehandlerId: String): Ressurs {
+    fun rekjørTask(taskId: Long, saksbehandlerId: String): Ressurs<String> {
         val task: Optional<Task> = taskRepository.findById(taskId)
 
         return when (task.isPresent) {
@@ -48,7 +48,7 @@ class RestTaskService(private val taskRepository: TaskRepository,
     }
 
     @Transactional
-    fun rekjørTasks(status: Status, saksbehandlerId: String): Ressurs {
+    fun rekjørTasks(status: Status, saksbehandlerId: String): Ressurs<String> {
         logger.info("$saksbehandlerId rekjører alle tasks med status $status")
 
         return Result.runCatching {
@@ -64,7 +64,7 @@ class RestTaskService(private val taskRepository: TaskRepository,
     }
 
     @Transactional
-    fun avvikshåndterTask(taskId: Long, avvikstype: Avvikstype, årsak: String, saksbehandlerId: String): Ressurs {
+    fun avvikshåndterTask(taskId: Long, avvikstype: Avvikstype, årsak: String, saksbehandlerId: String): Ressurs<String> {
         val task: Optional<Task> = taskRepository.findById(taskId)
 
         return when (task.isPresent) {

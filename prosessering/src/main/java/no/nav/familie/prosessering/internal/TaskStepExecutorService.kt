@@ -15,11 +15,11 @@ import java.util.function.Consumer
 import kotlin.math.min
 
 @Service
-class TaskExecutorService(@Value("\${prosessering.maxAntall:10}") private val maxAntall: Int,
-                          @Value("\${prosessering.minCapacity:2}") private val minCapacity: Int,
-                          private val worker: TaskWorker,
-                          @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
-                          private val taskProsesseringRepository: TaskRepository) {
+class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private val maxAntall: Int,
+                              @Value("\${prosessering.minCapacity:2}") private val minCapacity: Int,
+                              private val worker: TaskWorker,
+                              @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
+                              private val taskRepository: TaskRepository) {
 
     @Scheduled(fixedDelay = POLLING_DELAY)
     @Transactional
@@ -28,7 +28,7 @@ class TaskExecutorService(@Value("\${prosessering.maxAntall:10}") private val ma
         val pollingSize = calculatePollingSize(maxAntall)
 
         if (pollingSize > minCapacity) {
-            val tasks = taskProsesseringRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize))
+            val tasks = taskRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize))
             log.trace("Pollet {} tasks med max {}", tasks.size, maxAntall)
 
             tasks.forEach(Consumer<Task> { this.executeWork(it) })
@@ -47,12 +47,12 @@ class TaskExecutorService(@Value("\${prosessering.maxAntall:10}") private val ma
 
     private fun executeWork(task: Task) {
         task.plukker()
-        taskProsesseringRepository.saveAndFlush(task)
-        worker.doTask(task.id!!)
+        taskRepository.saveAndFlush(task)
+        worker.doTaskStep(task.id!!)
     }
 
     companion object {
         const val POLLING_DELAY = 30000L
-        private val log = LoggerFactory.getLogger(TaskExecutorService::class.java)
+        private val log = LoggerFactory.getLogger(TaskStepExecutorService::class.java)
     }
 }

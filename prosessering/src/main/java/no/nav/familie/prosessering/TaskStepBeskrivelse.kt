@@ -7,7 +7,7 @@ import java.lang.annotation.*
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 @Inherited
-annotation class TaskBeskrivelse(
+annotation class TaskStepBeskrivelse(
         /**
          * Antall retries på tasken før den settes til feilet
          *
@@ -15,13 +15,13 @@ annotation class TaskBeskrivelse(
          */
         val maxAntallFeil: Int = 3,
         /**
-         * Task typen
+         * TaskStep-typen
          *
          * @return typen
          */
-        val tasktype: String,
+        val taskStepType: String,
         /**
-         * Beskrivelse for task typen
+         * Beskrivelse for taskStep
          *
          * @return beskrivelsen
          */

@@ -3,8 +3,8 @@ package no.nav.familie.prosessering.internal
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
-import no.nav.familie.prosessering.AsyncTask
-import no.nav.familie.prosessering.TaskBeskrivelse
+import no.nav.familie.prosessering.AsyncTaskStep
+import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.TaskFeil
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
@@ -19,34 +19,34 @@ import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class TaskWorker(private val taskRepository: TaskRepository, taskTyper: List<AsyncTask>) {
+class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List<AsyncTaskStep>) {
 
-    private val tasktypeMap: Map<String, AsyncTask>
+    private val taskStepMap: Map<String, AsyncTaskStep>
     private val maxAntallFeilMap: Map<String, Int>
-    private val feiltellereForTasker: Map<String, Counter>
+    private val feiltellereForTaskSteps: Map<String, Counter>
 
     init {
-        val tasksTilTaskBeskrivelse: Map<AsyncTask, TaskBeskrivelse> = taskTyper.associateWith { task ->
+        val tasksTilTaskStepBeskrivelse: Map<AsyncTaskStep, TaskStepBeskrivelse> = taskStepTyper.associateWith { task ->
             val aClass = AopProxyUtils.ultimateTargetClass(task)
-            val annotation = AnnotationUtils.findAnnotation(aClass, TaskBeskrivelse::class.java)
+            val annotation = AnnotationUtils.findAnnotation(aClass, TaskStepBeskrivelse::class.java)
             requireNotNull(annotation) { "annotasjon mangler" }
             annotation
         }
-        tasktypeMap = tasksTilTaskBeskrivelse.entries.associate { it.value.tasktype to it.key }
-        maxAntallFeilMap = tasksTilTaskBeskrivelse.values.associate { it.tasktype to it.maxAntallFeil }
-        feiltellereForTasker = tasksTilTaskBeskrivelse.values.associate {
-            it.tasktype to Metrics.counter("mottak.kontantstotte.feilede.tasks",
-                                           "status",
-                                           it.tasktype,
-                                           "beskrivelse",
-                                           it.beskrivelse)
+        taskStepMap = tasksTilTaskStepBeskrivelse.entries.associate { it.value.taskStepType to it.key }
+        maxAntallFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.maxAntallFeil }
+        feiltellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
+            it.taskStepType to Metrics.counter("mottak.feilede.tasks",
+                                               "status",
+                                               it.taskStepType,
+                                               "beskrivelse",
+                                               it.beskrivelse)
         }
     }
 
 
     @Async("taskExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun doTask(taskId: Long?) {
+    fun doTaskStep(taskId: Long?) {
         requireNotNull(taskId, { "taskId kan ikke være null" })
         doActualWork(taskId)
     }
@@ -55,43 +55,43 @@ class TaskWorker(private val taskRepository: TaskRepository, taskTyper: List<Asy
     fun doActualWork(TaskId: Long) {
         val startTidspunkt = System.currentTimeMillis()
         var maxAntallFeil = 0
-        var taskDetails = taskRepository.findById(TaskId).orElseThrow()
+        var task = taskRepository.findById(TaskId).orElseThrow()
 
-        initLogContext(taskDetails)
+        initLogContext(task)
         try {
 
-            secureLog.trace("Behandler task='{}'", taskDetails)
-            taskDetails.behandler()
-            taskDetails = taskRepository.saveAndFlush(taskDetails)
+            secureLog.trace("Behandler task='{}'", task)
+            task.behandler()
+            task = taskRepository.saveAndFlush(task)
 
             // finn tasktype
-            val task = finnTask(taskDetails.type)
-            maxAntallFeil = finnMaxAntallFeil(taskDetails.type)
+            val taskStep = finnTaskStep(task.taskStepType)
+            maxAntallFeil = finnMaxAntallFeil(task.taskStepType)
 
             // execute
-            task.preCondition(taskDetails)
-            task.doTask(taskDetails)
-            task.postCondition(taskDetails)
-            task.onCompletion(taskDetails)
+            taskStep.preCondition(task)
+            taskStep.doTask(task)
+            taskStep.postCondition(task)
+            taskStep.onCompletion(task)
 
-            taskDetails.ferdigstill()
-            secureLog.trace("Ferdigstiller task='{}'", taskDetails)
-            taskRepository.saveAndFlush(taskDetails)
+            task.ferdigstill()
+            secureLog.trace("Ferdigstiller task='{}'", task)
+            taskRepository.saveAndFlush(task)
             taskRepository.flush()
             secureLog.info("Fullført kjøring av task '{}', kjøretid={} ms",
-                           taskDetails,
+                           task,
                            System.currentTimeMillis() - startTidspunkt)
         } catch (e: Exception) {
-            taskDetails.feilet(TaskFeil(taskDetails, e), maxAntallFeil)
+            task.feilet(TaskFeil(task, e), maxAntallFeil)
             // lager metrikker på tasks som har feilet max antall ganger.
-            if (taskDetails.status == Status.FEILET) {
-                finnFeilteller(taskDetails.type).increment()
+            if (task.status == Status.FEILET) {
+                finnFeilteller(task.taskStepType).increment()
             }
             secureLog.warn("Fullført kjøring av task '{}', kjøretid={} ms, feilmelding='{}'",
-                           taskDetails,
+                           task,
                            System.currentTimeMillis() - startTidspunkt,
                            e)
-            taskRepository.save(taskDetails)
+            taskRepository.save(task)
         } finally {
             clearLogContext()
         }
@@ -104,15 +104,15 @@ class TaskWorker(private val taskRepository: TaskRepository, taskTyper: List<Asy
 
     private fun initLogContext(taskDetails: Task) {
         MDC.put(MDC_CALL_ID, taskDetails.callId)
-        LOG_CONTEXT.add("task", taskDetails.type)
+        LOG_CONTEXT.add("task", taskDetails.taskStepType)
     }
 
-    private fun finnTask(taskType: String): AsyncTask {
-        return tasktypeMap[taskType] ?: error("Ukjent tasktype $taskType")
+    private fun finnTaskStep(taskType: String): AsyncTaskStep {
+        return taskStepMap[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
     private fun finnFeilteller(taskType: String): Counter {
-        return feiltellereForTasker[taskType] ?: error("Ukjent tasktype $taskType")
+        return feiltellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
     private fun finnMaxAntallFeil(taskType: String): Int {

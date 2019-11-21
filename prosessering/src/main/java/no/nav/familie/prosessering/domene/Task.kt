@@ -36,7 +36,7 @@ data class Task(
         val triggerTid: LocalDateTime? = null,
 
         @Column(name = "type", nullable = false, updatable = false)
-        val type: String,
+        val taskStepType: String,
 
         @Convert(converter = PropertiesToStringConverter::class)
         @Column(name = "metadata")
@@ -54,7 +54,7 @@ data class Task(
 
 
     private constructor (type: String, payloadId: String) :
-            this(type = type,
+            this(taskStepType = type,
                  payloadId = payloadId,
                  metadata = Properties().apply {
                      this[MDCConstants.MDC_CALL_ID] =
@@ -65,7 +65,7 @@ data class Task(
     private constructor (type: String,
                          payloadId: String,
                          triggerTidspunkt: LocalDateTime) :
-            this(type = type,
+            this(taskStepType = type,
                  payloadId = payloadId,
                  triggerTid = triggerTidspunkt,
                  metadata = Properties().apply {
@@ -149,7 +149,7 @@ data class Task(
             |avvikstype=$avvikstype, 
             |opprettetTidspunkt=$opprettetTidspunkt, 
             |triggerTid=$triggerTid, 
-            |type='$type', 
+            |type='$taskStepType', 
             |metadata=$metadata)""".trimMargin()
     }
 

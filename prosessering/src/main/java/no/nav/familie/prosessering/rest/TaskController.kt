@@ -1,7 +1,7 @@
 package no.nav.familie.prosessering.rest
 
-import no.nav.familie.ks.kontrakter.sak.Ressurs
 import no.nav.familie.prosessering.domene.Status
+import no.nav.familie.sak.kontrakt.Ressurs
 import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -18,22 +18,23 @@ class TaskController(
     }
 
     @GetMapping(path = ["/task"])
-    fun task(@RequestHeader status: Status): ResponseEntity<Ressurs> {
+    fun task(@RequestHeader status: Status): ResponseEntity<Ressurs<List<RestTask>>> {
         return ResponseEntity.ok(restTaskService.hentTasks(status, hentBrukernavn()))
     }
 
     @PutMapping(path = ["/task/rekjor"])
-    fun rekjørTask(@RequestParam taskId: Long): ResponseEntity<Ressurs> {
+    fun rekjørTask(@RequestParam taskId: Long): ResponseEntity<Ressurs<String>> {
         return ResponseEntity.ok(restTaskService.rekjørTask(taskId, hentBrukernavn()))
     }
 
     @PutMapping(path = ["task/rekjorAlle"])
-    fun rekjørTasks(@RequestHeader status: Status): ResponseEntity<Ressurs> {
+    fun rekjørTasks(@RequestHeader status: Status): ResponseEntity<Ressurs<String>> {
         return ResponseEntity.ok(restTaskService.rekjørTasks(status, hentBrukernavn()))
     }
 
     @PutMapping(path = ["/task/avvikshaandter"])
-    fun avvikshåndterTask(@RequestParam taskId: Long, @RequestBody avvikshåndterDTO: AvvikshåndterDTO): ResponseEntity<Ressurs> {
+    fun avvikshåndterTask(@RequestParam taskId: Long,
+                          @RequestBody avvikshåndterDTO: AvvikshåndterDTO): ResponseEntity<Ressurs<String>> {
         return ResponseEntity.ok(restTaskService.avvikshåndterTask(taskId,
                                                                    avvikshåndterDTO.avvikstype,
                                                                    avvikshåndterDTO.årsak,

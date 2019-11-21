@@ -1,13 +1,8 @@
 package no.nav.familie.prosessering
 
-import no.nav.familie.ks.kontrakter.sak.Ressurs
-import no.nav.familie.ks.kontrakter.sak.Ressurs.Companion.ikkeTilgang
-import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.domene.TaskRepository
 import no.nav.familie.prosessering.rest.RestTask
 import no.nav.familie.prosessering.rest.RestTaskMapper
-import no.nav.familie.prosessering.rest.RestTaskService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.boot.SpringBootConfiguration

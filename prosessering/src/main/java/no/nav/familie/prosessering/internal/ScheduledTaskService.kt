@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 import no.nav.familie.prosessering.domene.TaskLogg.Companion.BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES
 
 @Service
-class ScheduledTasksService(private val taskRepository: TaskRepository) {
+class ScheduledTaskService(private val taskRepository: TaskRepository) {
 
     @Scheduled(cron = "0 0 8 1/1 * ?")
     @Transactional

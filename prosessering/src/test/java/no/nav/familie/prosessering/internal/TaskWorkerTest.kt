@@ -6,8 +6,8 @@ import no.nav.familie.prosessering.TestAppConfig
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task.Companion.nyTask
 import no.nav.familie.prosessering.domene.TaskRepository
-import no.nav.familie.prosessering.task.Task1
-import no.nav.familie.prosessering.task.Task2
+import no.nav.familie.prosessering.task.TaskStep1
+import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner
 class TaskWorkerTest {
 
     @MockkBean(relaxUnitFun = true)
-    lateinit var task: Task2
+    lateinit var task: TaskStep2
 
     @Autowired
     private lateinit var repository: TaskRepository
@@ -34,7 +34,7 @@ class TaskWorkerTest {
     @Test
     fun `skal behandle task`() {
         var task1 =
-                nyTask(Task1.TASK_1, "{'a'='b'}")
+                nyTask(TaskStep1.TASK_1, "{'a'='b'}")
         repository.saveAndFlush(task1)
         assertThat(task1.status)
                 .isEqualTo(Status.UBEHANDLET)
@@ -48,7 +48,7 @@ class TaskWorkerTest {
 
     @Test
     fun `skal håndtere feil`() {
-        var task2 = nyTask(Task2.TASK_2, "{'a'='b'}")
+        var task2 = nyTask(TaskStep2.TASK_2, "{'a'='b'}")
         repository.saveAndFlush(task2)
         assertThat(task2.status).isEqualTo(Status.UBEHANDLET)
         every { task.doTask(any()) } throws (IllegalStateException())

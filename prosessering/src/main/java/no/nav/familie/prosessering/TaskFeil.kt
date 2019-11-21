@@ -44,7 +44,7 @@ data class TaskFeil(
 ) {
 
     constructor(taskInfo: Task, feil: Exception?) : this(taskInfo.id,
-                                                         taskInfo.type,
+                                                         taskInfo.taskStepType,
                                                          feil?.cause?.javaClass?.name,
                                                          feil?.cause?.message,
                                                          feil?.message,

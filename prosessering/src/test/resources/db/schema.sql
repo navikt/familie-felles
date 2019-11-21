@@ -34,5 +34,3 @@ CREATE INDEX IF NOT EXISTS henvendelse_logg_henvendelse_id_idx
 
 CREATE SEQUENCE task_seq;
 CREATE SEQUENCE task_logg_seq;
-
-
