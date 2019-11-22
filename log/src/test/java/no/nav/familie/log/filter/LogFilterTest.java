@@ -1,6 +1,6 @@
-package no.nav.familie.sikkerhet.filter;
+package no.nav.familie.log.filter;
 
-import no.nav.familie.log.filter.LogFilter;
+import no.nav.familie.log.NavHttpHeaders;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static no.nav.familie.log.filter.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -45,7 +44,7 @@ public class LogFilterTest {
         logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {
         });
 
-        assertThat(httpServletResponse.getHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME)).isNotEmpty();
+        assertThat(httpServletResponse.getHeader(NavHttpHeaders.NAV_CALL_ID.asString())).isNotEmpty();
         assertThat(httpServletResponse.getHeader("Server")).isNull();
     }
 

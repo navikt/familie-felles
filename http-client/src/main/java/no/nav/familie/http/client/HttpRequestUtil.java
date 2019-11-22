@@ -1,6 +1,7 @@
 package no.nav.familie.http.client;
 
 import no.nav.familie.log.IdUtils;
+import no.nav.familie.log.NavHttpHeaders;
 import no.nav.familie.log.mdc.MDCConstants;
 import org.slf4j.MDC;
 
@@ -17,7 +18,7 @@ public final class HttpRequestUtil {
     public static HttpRequest.Builder createRequest(String authorizationHeader) {
         return HttpRequest.newBuilder()
                           .header("Authorization", authorizationHeader)
-                          .header(NavHttpHeaders.NAV_CALLID.asString(), hentEllerOpprettCallId())
+                          .header(NavHttpHeaders.NAV_CALL_ID.asString(), hentEllerOpprettCallId())
                           .timeout(Duration.ofSeconds(SECONDS_IN_MINUTE));
     }
 

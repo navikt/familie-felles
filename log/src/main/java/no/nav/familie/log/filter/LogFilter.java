@@ -1,6 +1,7 @@
 package no.nav.familie.log.filter;
 
 import no.nav.familie.log.IdUtils;
+import no.nav.familie.log.NavHttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -18,14 +19,12 @@ import static no.nav.familie.log.mdc.MDCConstants.*;
 
 public class LogFilter implements Filter {
 
-    public static final String CONSUMER_ID_HEADER_NAME = "Nav-Consumer-Id";
     // there is no consensus in NAV about header-names for correlation ids, so we support 'em all!
     // https://nav-it.slack.com/archives/C9UQ16AH4/p1538488785000100
-    public static final String PREFERRED_NAV_CALL_ID_HEADER_NAME = "Nav-Call-Id";
     private static final String[] NAV_CALL_ID_HEADER_NAMES = {
-        PREFERRED_NAV_CALL_ID_HEADER_NAME,
-        "Nav-CallId",
-        "X-Correlation-Id"
+        NavHttpHeaders.NAV_CALL_ID.asString(),
+            "Nav-CallId",
+            "X-Correlation-Id"
     };
     private static final Logger log = LoggerFactory.getLogger(LogFilter.class);
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
@@ -68,7 +67,7 @@ public class LogFilter implements Filter {
             generateUserIdCookie(httpServletResponse);
         }
 
-        String consumerId = httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME);
+        String consumerId = httpServletRequest.getHeader(NavHttpHeaders.NAV_CONSUMER_ID.asString());
         String callId = resolveCallId(httpServletRequest);
 
         MDC.put(MDC_CALL_ID, callId);
@@ -76,7 +75,7 @@ public class LogFilter implements Filter {
         MDC.put(MDC_CONSUMER_ID, consumerId);
         MDC.put(MDC_REQUEST_ID, generateId());
 
-        httpServletResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+        httpServletResponse.setHeader(NavHttpHeaders.NAV_CALL_ID.asString(), callId);
 
         if (serverName != null) {
             httpServletResponse.setHeader("Server", serverName);
