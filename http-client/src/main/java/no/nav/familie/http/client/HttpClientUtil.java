@@ -10,7 +10,7 @@ public final class HttpClientUtil {
 
     public static HttpClient create() {
         return HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
+                         .connectTimeout(Duration.ofSeconds(10))
+                         .build();
     }
 }

@@ -44,7 +44,6 @@
             <groupId>no.nav.familie.felles</groupId>
             <artifactId>log</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

@@ -26,7 +26,7 @@ public class StsRestClient {
     private final URI stsUrl;
     private final String stsUsername;
     private final String stsPassword;
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
     private AccessTokenResponse cachedToken;
 
     public StsRestClient(ObjectMapper mapper, URI stsUrl, String stsUsername, String stsPassword) {
@@ -46,12 +46,14 @@ public class StsRestClient {
             return false;
         }
 
-        log.debug("Tokenet løper ut: {}. Tiden nå er: {}", Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(), now(ZoneId.systemDefault()));
+        log.debug("Tokenet løper ut: {}. Tiden nå er: {}",
+                  Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(),
+                  now(ZoneId.systemDefault()));
         return Instant.ofEpochMilli(cachedToken.getExpires_in())
-            .atZone(ZoneId.systemDefault())
-            .toLocalTime()
-            .minusMinutes(15)
-            .isAfter(now(ZoneId.systemDefault()));
+                      .atZone(ZoneId.systemDefault())
+                      .toLocalTime()
+                      .minusMinutes(15)
+                      .isAfter(now(ZoneId.systemDefault()));
     }
 
     public String getSystemOIDCToken() {
@@ -62,10 +64,10 @@ public class StsRestClient {
 
         log.debug("Henter token fra STS");
         HttpRequest request = HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
-            .uri(stsUrl)
-            .header("Content-Type", "application/json")
-            .timeout(Duration.ofSeconds(30))
-            .build();
+                                             .uri(stsUrl)
+                                             .header("Content-Type", "application/json")
+                                             .timeout(Duration.ofSeconds(30))
+                                             .build();
 
         AccessTokenResponse accessTokenResponse;
         try {
@@ -81,9 +83,8 @@ public class StsRestClient {
         if (accessTokenResponse != null) {
             this.cachedToken = accessTokenResponse;
             return accessTokenResponse.getAccess_token();
-        } else {
-            throw new StsAccessTokenFeilException("Manglende token");
         }
+        throw new StsAccessTokenFeilException("Manglende token");
     }
 
     private AccessTokenResponse håndterRespons(String it) {

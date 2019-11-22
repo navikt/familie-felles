@@ -16,12 +16,13 @@ import static java.time.LocalDateTime.now;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 public class AccessTokenClient {
-    private static final Logger logger = LoggerFactory.getLogger(AccessTokenClient.class);
-    private URI aadAccessTokenUrl;
-    private String clientId;
-    private String clientSecret;
 
-    private RestTemplate restTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(AccessTokenClient.class);
+    private final URI aadAccessTokenUrl;
+    private final String clientId;
+    private final String clientSecret;
+
+    private final RestTemplate restTemplate;
     private AccessTokenDto cachedToken;
     private LocalDateTime cachedTokenExpiresOn;
 
@@ -62,25 +63,25 @@ public class AccessTokenClient {
             body.add("grant_type", "client_credentials");
             body.add("client_secret", clientSecret);
 
-            HttpEntity<MultiValueMap> httpEntity = new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(body, headers);
 
-            ResponseEntity<AccessTokenDto> accessTokenResponse = restTemplate.exchange(aadAccessTokenUrl, HttpMethod.POST, httpEntity, AccessTokenDto.class);
+            ResponseEntity<AccessTokenDto> accessTokenResponse =
+                restTemplate.exchange(aadAccessTokenUrl, HttpMethod.POST, httpEntity, AccessTokenDto.class);
 
             if (accessTokenResponse.getStatusCode() == HttpStatus.OK) {
                 AccessTokenDto accessToken = accessTokenResponse.getBody();
 
                 if (accessToken != null) {
                     this.cachedToken = accessToken;
-                    this.cachedTokenExpiresOn = LocalDateTime.now(ZoneId.systemDefault()).plusSeconds(accessToken.getExpires_in());
+                    this.cachedTokenExpiresOn =
+                        LocalDateTime.now(ZoneId.systemDefault()).plusSeconds(accessToken.getExpires_in());
                     return accessToken;
-                } else {
-                    logger.warn("Manglende token fra azure ad");
-                    throw new AzureAccessTokenException("Manglende token fra azure ad");
                 }
-            } else {
-                logger.warn("Kall mot azure ad for å hente token feilet");
-                throw new AzureAccessTokenException("Kall mot azure ad for å hente token feilet" );
+                logger.warn("Manglende token fra azure ad");
+                throw new AzureAccessTokenException("Manglende token fra azure ad");
             }
+            logger.warn("Kall mot azure ad for å hente token feilet");
+            throw new AzureAccessTokenException("Kall mot azure ad for å hente token feilet");
         } catch (RestClientException e) {
             logger.warn("Kall mot azure ad for å hente token feilet");
             throw new AzureAccessTokenException("Kall mot azure ad for å hente token feilet", e);
