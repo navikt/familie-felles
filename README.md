@@ -2,4 +2,5 @@
 
 Fellesbiblioteker for familieområdet.
 
-[![CircleCI](https://circleci.com/gh/navikt/familie-felles.svg?style=svg)](https://circleci.com/gh/navikt/familie-felles)
+
+![](https://github.com/navikt/familie-felles/workflows/Build-Deploy/badge.svg)

@@ -1,5 +1,6 @@
-package no.nav.familie.log.filter;
+package no.nav.familie.sikkerhet.filter;
 
+import no.nav.familie.log.filter.LogFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
