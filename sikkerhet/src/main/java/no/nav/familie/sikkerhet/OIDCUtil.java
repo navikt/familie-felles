@@ -36,36 +36,30 @@ public class OIDCUtil {
     }
 
     public String getClaim(String claim) {
-        if (erDevProfil()) {
-            return Optional.ofNullable(claimSet())
-                .map(c -> c.get(claim))
-                .map(Object::toString)
-                .orElse("DEV_" + claim);
-        } else {
-            return Optional.ofNullable(claimSet())
-               .map(c -> c.get(claim))
-               .map(Object::toString)
-               .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke claim '" + claim + "' i tokenet", getExpiryDate()));
-        }
+        return erDevProfil()
+            ? Optional.ofNullable(claimSet())
+                      .map(c -> c.get(claim))
+                      .map(Object::toString)
+                      .orElse("DEV_" + claim)
+            : Optional.ofNullable(claimSet())
+                      .map(c -> c.get(claim))
+                      .map(Object::toString)
+                      .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke claim '" + claim + "' i tokenet",
+                                                                        getExpiryDate()));
     }
 
     public List<String> getClaimAsList(String claim) {
-        if (erDevProfil()) {
-            return Collections.singletonList("group1");
-        } else {
-            return claimSet().getAsList(claim);
-        }
+        return erDevProfil() ? Collections.singletonList("group1") : claimSet().getAsList(claim);
     }
 
     public String getNavIdent() {
-        if (erDevProfil()) {
-            return "TEST_Z123";
-        } else {
-            return Optional.ofNullable(claimSet())
-                .map(c -> c.get("NAVident"))
-                .map(Object::toString)
-                .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke NAVident", getExpiryDate()));
-        }
+        return erDevProfil()
+            ? "TEST_Z123"
+            : Optional.ofNullable(claimSet())
+                      .map(c -> c.get("NAVident"))
+                      .map(Object::toString)
+                      .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke NAVident",
+                                                                        getExpiryDate()));
     }
 
     public List<String> getGroups() {
@@ -91,22 +85,22 @@ public class OIDCUtil {
     public Date getExpiryDate() {
         return Optional.ofNullable(claimSet())
                        .map(c -> c.get("exp"))
-                       .map(this::getDateClaim)
+                       .map(OIDCUtil::getDateClaim)
                        .orElse(null);
     }
 
-    public Date getDateClaim(Object value) {
+    public static Date getDateClaim(Object value) {
         if (value instanceof Date) {
-            return Date.class.cast(value);
+            return (Date) value;
         }
         if (value instanceof Number) {
-            return new Date(Number.class.cast(value).longValue() * 1000L);
+            return new Date(((Number) value).longValue() * 1000L);
         }
         return null;
     }
 
     private boolean erDevProfil() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> str.trim().equals("dev"));
+        return Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> "dev".equals(str.trim()));
     }
 
 }

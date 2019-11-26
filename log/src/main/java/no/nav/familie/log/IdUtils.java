@@ -3,6 +3,7 @@ package no.nav.familie.log;
 import java.util.UUID;
 
 public final class IdUtils {
+
     private IdUtils() {
     }
 
