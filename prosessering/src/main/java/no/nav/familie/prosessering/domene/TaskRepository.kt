@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.LockModeType
 
@@ -26,4 +27,7 @@ interface TaskRepository : JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t WHERE t.status IN :status")
     fun finnTasksTilFrontend(status: Status): List<Task>
+
+    @Query("SELECT t FROM Task t WHERE t.status = 'FERDIG' AND t.triggerTid < :eldreEnnDato")
+    fun finnTasksKlarForSletting(eldreEnnDato: LocalDateTime): List<Task>
 }
