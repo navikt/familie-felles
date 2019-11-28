@@ -45,7 +45,8 @@ data class Task(
         // Setter fetch til eager fordi AsyncTask ikke får lastet disse hvis ikke den er prelastet.
         @OneToMany(mappedBy = "task",
                    fetch = FetchType.EAGER,
-                   cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
+                   cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
+                   orphanRemoval = true)
         val logg: MutableList<TaskLogg> = ArrayList()
 ) {
 
