@@ -32,5 +32,5 @@ ALTER TABLE task_logg
 CREATE INDEX IF NOT EXISTS henvendelse_logg_henvendelse_id_idx
     ON task_logg (task_id);
 
-CREATE SEQUENCE task_seq;
-CREATE SEQUENCE task_logg_seq;
+CREATE SEQUENCE task_seq INCREMENT BY 50;;
+CREATE SEQUENCE task_logg_seq INCREMENT BY 50;;
