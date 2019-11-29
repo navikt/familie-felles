@@ -4,7 +4,7 @@ import no.nav.familie.prosessering.domene.Avvikstype
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
-import no.nav.familie.sak.kontrakt.Ressurs
+import no.nav.familie.kontrakt.Ressurs
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
