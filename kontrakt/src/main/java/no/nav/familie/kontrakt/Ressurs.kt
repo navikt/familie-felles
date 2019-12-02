@@ -1,4 +1,4 @@
-package no.nav.familie.sak.kontrakt
+package no.nav.familie.kontrakt
 
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -17,17 +17,18 @@ data class Ressurs<T>(
 
         fun <T> success(data: T, melding: String? = null): Ressurs<T> =
                 Ressurs(data,
-                        Status.SUKSESS,
-                        melding ?: "Innhenting av data var vellykket",
-                        null)
+                                                                   Status.SUKSESS,
+                                                                   melding ?: "Innhenting av data var vellykket",
+                                                                   null)
 
         fun <T> failure(errorMessage: String? = null, error: Throwable? = null): Ressurs<T> =
                 Ressurs(null,
-                        Status.FEILET,
-                        errorMessage ?: "Kunne ikke hente data: ${error?.message}",
-                        error?.textValue())
+                                                                   Status.FEILET,
+                                                                   errorMessage ?: "Kunne ikke hente data: ${error?.message}",
+                                                                   error?.textValue())
 
-        fun <T> ikkeTilgang(melding: String): Ressurs<T> = Ressurs(null,
+        fun <T> ikkeTilgang(melding: String): Ressurs<T> =
+                Ressurs(null,
                                                                    Status.IKKE_TILGANG,
                                                                    melding,
                                                                    null)
