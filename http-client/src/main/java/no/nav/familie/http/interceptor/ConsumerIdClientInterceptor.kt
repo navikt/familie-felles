@@ -9,13 +9,11 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class MdcValuesPropagatingClientInterceptor() : ClientHttpRequestInterceptor {
+class ConsumerIdClientInterceptor(private val consumerId: String) : ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
 
-        val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
-        request.headers.add(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
-
+        request.headers.add(NavHttpHeaders.NAV_CONSUMER_ID.asString(), consumerId)
         return execution.execute(request, body)
     }
 }
