@@ -10,4 +10,11 @@ object UriUtil {
             .pathSegment(path)
             .build()
             .toUri()
+
+    fun uri(base: URI, path: String, query: String): URI = UriComponentsBuilder
+            .fromUri(base)
+            .pathSegment(path)
+            .query(query)
+            .build()
+            .toUri()
 }
