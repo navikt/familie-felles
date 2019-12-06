@@ -23,7 +23,7 @@ class TaskStep1 @Autowired constructor(private val taskRepository: TaskRepositor
 
     override fun onCompletion(task: Task) {
         val nesteTask =
-                nyTask(TaskStep2.TASK_2, task.payloadId)
+                nyTask(TaskStep2.TASK_2, task.payload)
         taskRepository.save(nesteTask)
     }
 
