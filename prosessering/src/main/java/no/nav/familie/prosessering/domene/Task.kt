@@ -19,7 +19,7 @@ data class Task(
         val id: Long? = null,
 
         @Column(name = "payload", updatable = false, columnDefinition = "text")
-        val payloadId: String,
+        val payload: String,
 
         @Enumerated(EnumType.STRING)
         @Column(name = "status", nullable = false)
@@ -47,16 +47,16 @@ data class Task(
                    fetch = FetchType.EAGER,
                    cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
                    orphanRemoval = true)
-        val logg: MutableList<TaskLogg> = ArrayList()
+        val logg: MutableList<TaskLogg> = ArrayList<TaskLogg>()
 ) {
 
     val callId: String
         get() = this.metadata.getProperty(MDCConstants.MDC_CALL_ID)
 
 
-    private constructor (type: String, payloadId: String) :
+    private constructor (type: String, payload: String) :
             this(taskStepType = type,
-                 payloadId = payloadId,
+                 payload = payload,
                  metadata = Properties().apply {
                      this[MDCConstants.MDC_CALL_ID] =
                              MDC.get(MDCConstants.MDC_CALL_ID)
@@ -64,10 +64,10 @@ data class Task(
                  })
 
     private constructor (type: String,
-                         payloadId: String,
+                         payload: String,
                          triggerTidspunkt: LocalDateTime) :
             this(taskStepType = type,
-                 payloadId = payloadId,
+                 payload = payload,
                  triggerTid = triggerTidspunkt,
                  metadata = Properties().apply {
                      this[MDCConstants.MDC_CALL_ID] =
@@ -145,7 +145,7 @@ data class Task(
 
     override fun toString(): String {
         return """Task(id=$id, 
-            |payloadId='$payloadId', 
+            |payload='$payload', 
             |status=$status, 
             |avvikstype=$avvikstype, 
             |opprettetTidspunkt=$opprettetTidspunkt, 
@@ -157,8 +157,12 @@ data class Task(
 
     companion object {
 
-        fun nyTask(type: String, payloadId: String): Task {
-            return Task(type, payloadId, LocalDateTime.now())
+        fun nyTask(type: String, payload: String): Task {
+            return Task(type, payload, LocalDateTime.now())
+        }
+
+        fun nyTaskMedTriggerTid(type: String, payload: String, triggerTid: LocalDateTime): Task {
+            return Task(type, payload, triggerTid)
         }
     }
 }
