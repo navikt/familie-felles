@@ -19,7 +19,7 @@ public class AccessTokenDto {
         return token_type;
     }
 
-    String getAccess_token() {
+    public String getAccess_token() {
         return access_token;
     }
 
