@@ -33,7 +33,7 @@ data class Task(
         var opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
 
         @Column(name = "trigger_tid", nullable = true, updatable = true)
-        val triggerTid: LocalDateTime? = null,
+        var triggerTid: LocalDateTime? = null,
 
         @Column(name = "type", nullable = false, updatable = false)
         val taskStepType: String,
