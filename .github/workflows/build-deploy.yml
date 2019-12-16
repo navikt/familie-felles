@@ -23,7 +23,7 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        run: mvn package dependency:resolve-plugins dependency:go-offline
+        run: mvn --settings .m2/maven-settings.xml package dependency:resolve-plugins dependency:go-offline
 
       - name: Cache Maven dependencies
         uses: actions/cache@preview
@@ -39,7 +39,7 @@ jobs:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
         if: steps.cache.outputs.cache-hit != 'true'
-        run: mvn clean install
+        run: mvn --settings .m2/maven-settings.xml clean install
 
       - name: Save test results
         run: |
@@ -58,8 +58,8 @@ jobs:
           export REVISION=$(xmllint --xpath '/*[local-name()="project"]//*[local-name()="revision"]/text()' pom.xml)
           export VERSION=${REVISION}_${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}
           echo "Setting version $VERSION"
-          mvn versions:set -DnewVersion="$VERSION"
-          mvn versions:commit
+          mvn --settings .m2/maven-settings.xml versions:set -DnewVersion="$VERSION"
+          mvn --settings .m2/maven-settings.xml versions:commit
 
       - name: Deploy to Github Package
         if: github.base_ref == 'master'
