@@ -175,7 +175,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/familie-felles</url>
+            <url>https://maven.pkg.github.com/navikt/familie-kontrakter</url>
         </repository>
     </repositories>
 
