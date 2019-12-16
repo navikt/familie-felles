@@ -26,9 +26,8 @@
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.familie.felles</groupId>
-            <artifactId>kontrakt</artifactId>
-            <version>${project.version}</version>
+            <groupId>no.nav.familie.kontrakter</groupId>
+            <artifactId>felles</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
