@@ -1,21 +1,19 @@
 package no.nav.familie.http.interceptor
 
-import no.nav.familie.log.IdUtils
-import no.nav.familie.log.NavHttpHeaders
-import no.nav.familie.log.mdc.MDCConstants
-import org.slf4j.MDC
+import no.nav.familie.http.sts.StsRestClient
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class MdcValuesPropagatingClientInterceptor() : ClientHttpRequestInterceptor {
+class StsBearerTokenClientInterceptor(private val stsRestClient: StsRestClient) : ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-
-        val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
-        request.headers.add(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
-
+        val systembrukerToken = stsRestClient.systemOIDCToken
+        request.headers.setBearerAuth(systembrukerToken)
         return execution.execute(request, body)
     }
+
 }
+
