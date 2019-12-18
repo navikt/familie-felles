@@ -28,7 +28,14 @@
         <spring.boot.version>2.2.0.RELEASE</spring.boot.version>
         <spring.data.version>2.2.2.RELEASE</spring.data.version>
         <mockk.version>1.9.3</mockk.version>
-    </properties>
+
+        <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
+        <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
+        <sonar.organization>navit</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!--suppress UnresolvedMavenProperty Ligger som secret i github-->
+        <sonar.login>${SONAR_LOGIN}</sonar.login>
+        </properties>
 
     <modules>
         <module>log</module>
@@ -170,6 +177,16 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.1.1</version>
@@ -276,6 +293,35 @@
 
     <profiles>
         <profile>
+            <id>coverage</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+
             <id>release</id>
             <activation>
                 <property>

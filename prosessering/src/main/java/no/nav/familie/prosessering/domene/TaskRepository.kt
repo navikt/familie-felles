@@ -30,6 +30,7 @@ interface TaskRepository : JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t WHERE t.status IN :status")
     fun finnTasksTilFrontend(status: Status): List<Task>
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Task t WHERE t.status = 'FERDIG' AND t.triggerTid < :eldreEnnDato")
     fun finnTasksKlarForSletting(eldreEnnDato: LocalDateTime): List<Task>
 }
