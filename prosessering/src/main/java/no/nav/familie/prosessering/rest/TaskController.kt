@@ -1,7 +1,7 @@
 package no.nav.familie.prosessering.rest
 
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.kontrakt.Ressurs
+import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
