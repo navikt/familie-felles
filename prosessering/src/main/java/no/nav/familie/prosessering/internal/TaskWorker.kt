@@ -4,8 +4,8 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
 import no.nav.familie.prosessering.AsyncTaskStep
-import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.TaskFeil
+import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.aop.framework.AopProxyUtils
 import org.springframework.core.annotation.AnnotationUtils
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -52,10 +53,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     }
 
     // For Unit testing
-    fun doActualWork(TaskId: Long) {
+    fun doActualWork(taskId: Long) {
         val startTidspunkt = System.currentTimeMillis()
         var maxAntallFeil = 0
-        var task = taskRepository.findById(TaskId).orElseThrow()
+        var task = taskRepository.findByIdOrNull(taskId) ?: error("Kunne ikke finne task med id $taskId")
 
         initLogContext(task)
         try {
