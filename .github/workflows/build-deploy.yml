@@ -66,4 +66,4 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-        run: mvn --settings .m2/maven-settings.xml deploy -DskipTests=true -Dmaven.wagon.http.pool=false
+        run: mvn --settings .m2/maven-settings.xml source:jar-no-fork deploy -DskipTests=true -Dmaven.wagon.http.pool=false
