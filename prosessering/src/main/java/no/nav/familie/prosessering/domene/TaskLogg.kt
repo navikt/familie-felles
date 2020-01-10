@@ -1,5 +1,6 @@
 package no.nav.familie.prosessering.domene
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -14,6 +15,7 @@ data class TaskLogg(
 
         @ManyToOne
         @JoinColumn(name = "task_id")
+        @JsonIgnore
         val task: Task,
 
         @Column(name = "endret_av", nullable = false, updatable = false)
