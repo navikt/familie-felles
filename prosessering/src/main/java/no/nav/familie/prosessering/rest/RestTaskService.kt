@@ -21,7 +21,7 @@ class RestTaskService(private val taskRepository: TaskRepository,
         logger.info("$saksbehandlerId henter feilede tasker")
 
         return Result.runCatching {
-            taskRepository.finnTasksTilFrontend(status, PageRequest.of(page, taskLimit))
+            taskRepository.finnTasksTilFrontend(status, PageRequest.of(page, TASK_LIMIT))
                     .map { restTaskMapper.toDto(it) }
         }
                 .fold(
@@ -92,6 +92,6 @@ class RestTaskService(private val taskRepository: TaskRepository,
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RestTaskService::class.java)
-        val taskLimit: Int = 1000
+        const val TASK_LIMIT: Int = 1000
     }
 }
