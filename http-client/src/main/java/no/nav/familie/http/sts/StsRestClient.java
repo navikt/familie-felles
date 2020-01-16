@@ -42,7 +42,7 @@ public class StsRestClient {
     }
 
     private boolean isTokenValid() {
-        if (cachedToken == null) {
+        if (cachedToken == null || cachedToken.getExpires_in() == null) {
             return false;
         }
 
