@@ -26,7 +26,7 @@ data class Task(
         var status: Status = Status.UBEHANDLET,
 
         @Enumerated(EnumType.STRING)
-        @Column(name = "avvikstype", updatable = false)
+        @Column(name = "avvikstype", updatable = true)
         var avvikstype: Avvikstype? = null,
 
         @Column(name = "opprettet_tid", nullable = false, updatable = false)
