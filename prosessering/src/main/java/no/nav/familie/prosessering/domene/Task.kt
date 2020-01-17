@@ -132,6 +132,10 @@ data class Task(
             this.logg.add(TaskLogg(this, Loggtype.FEILET))
         }
 
+        if (this.status == Status.MANUELL_OPPFØGLING) {
+            return this
+        }
+
         val antallFeilendeForsøk = logg
                 .filter { it.type == Loggtype.FEILET }
                 .size
