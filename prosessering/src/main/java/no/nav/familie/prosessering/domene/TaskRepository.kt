@@ -28,7 +28,7 @@ interface TaskRepository : JpaRepository<Task, Long> {
     fun finnAlleFeiledeTasks(): List<Task>
 
     @Query("SELECT t FROM Task t WHERE t.status IN :status")
-    fun finnTasksTilFrontend(status: Status): List<Task>
+    fun finnTasksTilFrontend(status: Status, page: Pageable): List<Task>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Task t WHERE t.status = 'FERDIG' AND t.triggerTid < :eldreEnnDato")

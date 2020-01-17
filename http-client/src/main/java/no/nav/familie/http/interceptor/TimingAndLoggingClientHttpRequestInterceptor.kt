@@ -27,9 +27,9 @@ class TimingAndLoggingClientHttpRequestInterceptor : ClientHttpRequestIntercepto
 
         private fun log(request: HttpRequest, code: HttpStatus, timer: StopWatch) {
             if (hasError(code)) {
-                LOG.warn("{} - {} - ({}). Dette tok {}ms", request.methodValue, request.uri.path, code, timer.totalTimeMillis)
+                LOG.warn("{} - {} - ({}). Dette tok {}ms", request.methodValue, request.uri, code, timer.totalTimeMillis)
             } else {
-                LOG.info("{} - {} - ({}). Dette tok {}ms", request.methodValue, request.uri.path, code, timer.totalTimeMillis)
+                LOG.info("{} - {} - ({}). Dette tok {}ms", request.methodValue, request.uri, code, timer.totalTimeMillis)
             }
         }
 
