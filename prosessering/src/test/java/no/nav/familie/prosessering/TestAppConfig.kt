@@ -21,7 +21,7 @@ class TestAppConfig {
     fun restTaskMapper(): RestTaskMapper {
         return object : RestTaskMapper {
             override fun toDto(task: Task): RestTask {
-                return RestTask(task, "", "", "")
+                return RestTask(task, linkedMapOf("" to ""))
             }
         }
     }
