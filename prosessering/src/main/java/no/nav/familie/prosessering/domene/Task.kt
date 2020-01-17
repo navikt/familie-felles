@@ -123,6 +123,15 @@ data class Task(
     }
 
     fun feilet(feil: TaskFeil, maxAntallFeil: Int): Task {
+        if (this.status == Status.MANUELL_OPPFØLGING) {
+            logg.add(TaskLogg(
+                    task = this,
+                    type = Loggtype.MANUELL_OPPFØLGING,
+                    melding = feil.writeValueAsString(),
+                    endretAv = BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES))
+            return this
+        }
+
         try {
             this.logg.add(TaskLogg(task = this,
                                    type = Loggtype.FEILET,
