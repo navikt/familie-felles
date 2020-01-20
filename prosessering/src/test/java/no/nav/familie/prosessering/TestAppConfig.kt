@@ -1,8 +1,6 @@
 package no.nav.familie.prosessering
 
 import no.nav.familie.prosessering.domene.Task
-import no.nav.familie.prosessering.rest.RestTask
-import no.nav.familie.prosessering.rest.RestTaskMapper
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.boot.SpringBootConfiguration
@@ -16,15 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EntityScan("no.nav.familie")
 @ComponentScan("no.nav.familie")
 class TestAppConfig {
-
-    @Bean
-    fun restTaskMapper(): RestTaskMapper {
-        return object : RestTaskMapper {
-            override fun toDto(task: Task): RestTask {
-                return RestTask(task, linkedMapOf("" to ""))
-            }
-        }
-    }
 
     @Bean
     fun tokenValidationContextHolder(): TokenValidationContextHolder {

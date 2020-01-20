@@ -14,15 +14,13 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
-class RestTaskService(private val taskRepository: TaskRepository,
-                      private val restTaskMapper: RestTaskMapper) {
+class RestTaskService(private val taskRepository: TaskRepository) {
 
-    fun hentTasks(status: Status, saksbehandlerId: String, page: Int): Ressurs<List<RestTask>> {
+    fun hentTasks(status: Status, saksbehandlerId: String, page: Int): Ressurs<List<Task>> {
         logger.info("$saksbehandlerId henter feilede tasker")
 
         return Result.runCatching {
             taskRepository.finnTasksTilFrontend(status, PageRequest.of(page, TASK_LIMIT))
-                    .map { restTaskMapper.toDto(it) }
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = it) },

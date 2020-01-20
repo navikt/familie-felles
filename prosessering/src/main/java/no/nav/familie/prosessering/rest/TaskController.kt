@@ -2,6 +2,7 @@ package no.nav.familie.prosessering.rest
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.prosessering.domene.Status
+import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -17,8 +18,8 @@ class TaskController(private val restTaskService: RestTaskService, private val o
     }
 
     @GetMapping(path = ["/task"])
-    fun task(@RequestHeader status: Status, @RequestHeader(required = false)
-    page: Int?): ResponseEntity<Ressurs<List<RestTask>>> {
+    fun task(@RequestHeader status: Status,
+             @RequestHeader(required = false) page: Int?): ResponseEntity<Ressurs<List<Task>>> {
         return ResponseEntity.ok(restTaskService.hentTasks(status, hentBrukernavn(), page ?: 0))
     }
 
