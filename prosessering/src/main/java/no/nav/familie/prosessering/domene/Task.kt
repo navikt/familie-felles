@@ -54,10 +54,10 @@ data class Task(
         get() = this.metadata.getProperty(MDCConstants.MDC_CALL_ID)
 
 
-    private constructor (type: String, payload: String) :
+    private constructor (type: String, payload: String, properties: Properties) :
             this(taskStepType = type,
                  payload = payload,
-                 metadata = Properties().apply {
+                 metadata = properties.apply {
                      this[MDCConstants.MDC_CALL_ID] =
                              MDC.get(MDCConstants.MDC_CALL_ID)
                              ?: IdUtils.generateId()
@@ -65,11 +65,12 @@ data class Task(
 
     private constructor (type: String,
                          payload: String,
-                         triggerTidspunkt: LocalDateTime) :
+                         triggerTidspunkt: LocalDateTime,
+                         properties: Properties) :
             this(taskStepType = type,
                  payload = payload,
                  triggerTid = triggerTidspunkt,
-                 metadata = Properties().apply {
+                 metadata = properties.apply {
                      this[MDCConstants.MDC_CALL_ID] =
                              MDC.get(MDCConstants.MDC_CALL_ID)
                              ?: IdUtils.generateId()
@@ -166,12 +167,15 @@ data class Task(
 
     companion object {
 
-        fun nyTask(type: String, payload: String): Task {
-            return Task(type, payload, LocalDateTime.now())
+        fun nyTask(type: String, payload: String, properties: Properties = Properties()): Task {
+            return Task(type, payload, LocalDateTime.now(), properties)
         }
 
-        fun nyTaskMedTriggerTid(type: String, payload: String, triggerTid: LocalDateTime): Task {
-            return Task(type, payload, triggerTid)
+        fun nyTaskMedTriggerTid(type: String,
+                                payload: String,
+                                triggerTid: LocalDateTime,
+                                properties: Properties = Properties()): Task {
+            return Task(type, payload, triggerTid, properties)
         }
     }
 }
