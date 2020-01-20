@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Abstract klasse for å kalle rest-tjenester med metrics og utpakking av ev. body.
  */
-abstract class AbstractRestClient(protected val operations: RestOperations,
+abstract class AbstractRestClient(val operations: RestOperations,
                                   metricsPrefix: String) {
 
     protected val responstid: Timer = Metrics.timer("$metricsPrefix.tid")
