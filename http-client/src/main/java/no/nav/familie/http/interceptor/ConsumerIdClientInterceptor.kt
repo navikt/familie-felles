@@ -1,15 +1,13 @@
 package no.nav.familie.http.interceptor
 
-import no.nav.familie.log.IdUtils
 import no.nav.familie.log.NavHttpHeaders
-import no.nav.familie.log.mdc.MDCConstants
-import org.slf4j.MDC
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class ConsumerIdClientInterceptor(private val consumerId: String) : ClientHttpRequestInterceptor {
+class ConsumerIdClientInterceptor(@Value("\${application.name}") private val consumerId: String) : ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
 
