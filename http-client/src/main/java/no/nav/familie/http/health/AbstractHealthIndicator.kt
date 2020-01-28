@@ -25,7 +25,7 @@ internal abstract class AbstractHealthIndicator(private val pingable: Pingable,
             Health.up().build()
         } catch (e: Exception) {
             failureCounter.increment()
-            log.info("Feil ved helsesjekk", e)
+            log.info("Feil ved helsesjekk ${this::class.simpleName}", e)
             Health.status(statusCode)
                     .withDetail("Feilmelding", NestedExceptionUtils.getMostSpecificCause(e).javaClass.name + ": " + e.message)
                     .build()
