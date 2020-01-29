@@ -7,7 +7,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "TASK_LOGG")
 data class TaskLogg(
-
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "task_logg_seq")
         @SequenceGenerator(name = "task_logg_seq")
@@ -32,15 +31,8 @@ data class TaskLogg(
         val melding: String? = null,
 
         @Column(name = "opprettet_tid", nullable = false, updatable = false)
-        private var opprettetTidspunkt: LocalDateTime? = LocalDateTime.now()
-
+        val opprettetTidspunkt: LocalDateTime = LocalDateTime.now()
 ) {
-
-    @PrePersist
-    fun onCreate() {
-        this.opprettetTidspunkt = LocalDateTime.now()
-    }
-
     override fun toString(): String {
         return """TaskLogg(id=$id, 
             |endretAv=$endretAv, 
@@ -53,7 +45,6 @@ data class TaskLogg(
     constructor(task: Task, type: Loggtype) : this(endretAv = BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES,
                                                    task = task,
                                                    type = type)
-
 
     companion object {
 
