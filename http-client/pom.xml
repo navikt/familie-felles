@@ -45,6 +45,7 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -85,12 +86,12 @@
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-client-core</artifactId>
-            <version>1.1.2</version>
+            <version>${nav.security.token.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-client-spring</artifactId>
-            <version>1.1.2</version>
+            <version>${nav.security.token.version}</version>
         </dependency>
     </dependencies>
 
