@@ -7,11 +7,13 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class ConsumerIdClientInterceptor(@Value("\${application.name}") private val consumerId: String) : ClientHttpRequestInterceptor {
+class ConsumerIdClientInterceptor(@Value("\${application.name}") private val appName: String,
+                                  @Value("\${credential.username:}") private val serviceUser: String) :
+        ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
 
-        request.headers.add(NavHttpHeaders.NAV_CONSUMER_ID.asString(), consumerId)
+        request.headers.add(NavHttpHeaders.NAV_CONSUMER_ID.asString(), if (!serviceUser.isBlank()) serviceUser else appName)
         return execution.execute(request, body)
     }
 }
