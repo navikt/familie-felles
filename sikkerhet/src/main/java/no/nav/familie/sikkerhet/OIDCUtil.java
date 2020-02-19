@@ -100,7 +100,8 @@ public class OIDCUtil {
     }
 
     private boolean erDevProfil() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(str -> "dev".equals(str.trim()));
+        return Arrays.stream(environment.getActiveProfiles())
+                     .anyMatch(str -> "dev".equals(str.trim()) || "mock-auth".equals(str.trim()));
     }
 
 }
