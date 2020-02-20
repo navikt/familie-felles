@@ -43,6 +43,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>no.nav.familie.felles</groupId>
+            <artifactId>sikkerhet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>${micrometer.version}</version>
