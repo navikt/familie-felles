@@ -46,7 +46,8 @@ enum class AuditLoggerType(val httpMethod: HttpMethod) {
     READ(HttpMethod.GET),
     UPDATE(HttpMethod.PUT),
     CREATE(HttpMethod.POST),
-    DELETE(HttpMethod.DELETE);
+    DELETE(HttpMethod.DELETE),
+    PATCH(HttpMethod.PATCH);
 
     companion object {
         fun hentType(method: String): AuditLoggerType {
