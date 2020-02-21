@@ -1,4 +1,4 @@
-package no.nav.familie.http.auditlogger
+package no.nav.familie.log.auditlogger
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod

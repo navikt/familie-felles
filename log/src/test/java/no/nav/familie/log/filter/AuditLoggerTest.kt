@@ -1,18 +1,18 @@
-package no.nav.familie.http.client
+package no.nav.familie.log.filter
 
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import no.nav.familie.http.auditlogger.AuditLogger
-import no.nav.familie.http.auditlogger.AuditLoggerType
-import no.nav.familie.http.auditlogger.Sporingsdata
-import no.nav.familie.http.auditlogger.SporingsloggId
+import no.nav.familie.log.auditlogger.AuditLogger
+import no.nav.familie.log.auditlogger.AuditLoggerType
+import no.nav.familie.log.auditlogger.Sporingsdata
+import no.nav.familie.log.auditlogger.SporingsloggId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.slf4j.LoggerFactory
 
 
-class AuditLoggerTest() {
+class AuditLoggerTest {
 
     @Test
     fun `Skal auditlogge henting av fagsak`() {

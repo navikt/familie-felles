@@ -1,6 +1,6 @@
 package no.nav.familie.http.interceptor
 
-import no.nav.familie.http.auditlogger.AuditLogger
+import no.nav.familie.log.auditlogger.AuditLogger
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.slf4j.LoggerFactory
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
