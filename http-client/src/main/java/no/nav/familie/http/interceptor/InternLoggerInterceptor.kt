@@ -3,6 +3,7 @@ package no.nav.familie.http.interceptor
 import no.nav.familie.log.auditlogger.AuditLogger
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -23,7 +24,7 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
                                response: HttpServletResponse,
                                ansvarligSaksbehandler: String?) {
             val melding = "$ansvarligSaksbehandler - ${request.method}: ${request.requestURI} (${response.status})"
-            if (hasError(response.status)) {
+            if (!HttpStatus.valueOf(response.status).isError) {
                 LOG.warn(melding)
             } else {
                 LOG.info(melding)

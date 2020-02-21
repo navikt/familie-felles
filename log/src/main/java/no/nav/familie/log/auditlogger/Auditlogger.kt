@@ -1,10 +1,9 @@
 package no.nav.familie.log.auditlogger
 
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import javax.servlet.http.HttpServletRequest
-
-private const val SPACE_SEPARATOR = ' '
 
 object AuditLogger {
     fun log(clazz: Class<Any>, sporingsdata: Sporingsdata, type: AuditLoggerType, action: String) {
@@ -21,13 +20,13 @@ object AuditLogger {
 
     private fun opprettMelding(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String): String {
         val msg: StringBuilder = StringBuilder()
-                .append("action=").append(action).append(SPACE_SEPARATOR)
+                .append("action=").append(action).append(StringUtils.SPACE)
                 .append("actionType=").append(type)
-                .append(SPACE_SEPARATOR)
+                .append(StringUtils.SPACE)
 
         sporingsdata.verdier.map {
             msg.append(it.key).append('=').append(it.value)
-                    .append(SPACE_SEPARATOR)
+                    .append(StringUtils.SPACE)
         }
 
         return msg.toString().replace("([\\r\\n])".toRegex(), "").trim()
