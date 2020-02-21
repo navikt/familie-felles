@@ -2,34 +2,18 @@ package no.nav.familie.http.interceptor
 
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.OAuth2GrantType
-import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import org.springframework.http.HttpRequest
-import org.springframework.http.client.ClientHttpRequestExecution
-import org.springframework.http.client.ClientHttpRequestInterceptor
-import org.springframework.http.client.ClientHttpResponse
-import java.net.URI
 
-class JwtBearerInterceptor(private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-                           private val clientConfigurationProperties: ClientConfigurationProperties)
-    : ClientHttpRequestInterceptor {
+/**
+ * Subklasse av BearerTokenClientInterceptor, som kun har clientProperties av grantType JWT_BEARER.
+ * Brukes i prosjekter som gjør kall med både CLIENT_CREDENTIALS og JWT_BEARER mot samme base uri.
+ */
+class JwtBearerInterceptor(oAuth2AccessTokenService: OAuth2AccessTokenService,
+                           clientConfigurationProperties: ClientConfigurationProperties)
+    : BearerTokenClientInterceptor(oAuth2AccessTokenService, clientConfigurationProperties) {
 
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-        val clientProperties = clientPropertiesFor(request.uri)
-        val response: OAuth2AccessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        request.headers.setBearerAuth(response.accessToken)
-        return execution.execute(request, body)
+    override fun grantTypeFilter(clientProperties: ClientProperties): Boolean {
+        return clientProperties.grantType == OAuth2GrantType.JWT_BEARER
     }
-
-    private fun clientPropertiesFor(uri: URI): ClientProperties {
-        return clientConfigurationProperties
-                       .registration
-                       .values
-                       .filter { it.grantType == OAuth2GrantType.JWT_BEARER }
-                       .firstOrNull { uri.toString().startsWith(it.resourceUrl.toString()) }
-               ?: error("could not find oauth2 client config for uri=$uri")
-    }
-
 }
