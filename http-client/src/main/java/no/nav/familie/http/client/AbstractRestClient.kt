@@ -63,7 +63,7 @@ abstract class AbstractRestClient(val operations: RestOperations,
         if (!respons.statusCode.is2xxSuccessful) {
             secureLogger.info("Kall mot $uri feilet:  ${respons.body}")
             log.info("Kall mot $uri feilet: ${respons.statusCode}")
-            throw HttpServerErrorException(respons.statusCode, "",  respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
+            throw HttpServerErrorException(respons.statusCode, "", respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
         }
         return respons.body
     }

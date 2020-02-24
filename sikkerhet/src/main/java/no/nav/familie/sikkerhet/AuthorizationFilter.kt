@@ -8,7 +8,8 @@ import javax.servlet.http.HttpServletResponse
 class AuthorizationFilter(
         private val oidcUtil: OIDCUtil,
         private val acceptedClients: List<String>
-): OncePerRequestFilter() {
+) : OncePerRequestFilter() {
+
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         when (acceptedClient()) {
             true -> filterChain.doFilter(request, response)
