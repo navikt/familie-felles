@@ -9,10 +9,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestOperations
-import org.springframework.web.client.exchange
+import org.springframework.web.client.*
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -26,7 +23,7 @@ abstract class AbstractRestClient(val operations: RestOperations,
     protected val responsSuccess: Counter = Metrics.counter("$metricsPrefix.response", "status", "success")
     protected val responsFailure: Counter = Metrics.counter("$metricsPrefix.response", "status", "failure")
 
-    protected val secureLogger = LoggerFactory.getLogger("secureLogger")
+    protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     protected inline fun <reified T : Any> getForEntity(uri: URI): T {
@@ -79,6 +76,9 @@ abstract class AbstractRestClient(val operations: RestOperations,
             responsSuccess.increment()
             return validerOgPakkUt(responseEntity, uri)
         } catch (e: RestClientResponseException) {
+            responsFailure.increment()
+            throw e
+        } catch (e: HttpClientErrorException) {
             responsFailure.increment()
             throw e
         } catch (e: Exception) {
