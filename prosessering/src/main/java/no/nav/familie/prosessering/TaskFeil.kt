@@ -8,11 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectReader
 import com.fasterxml.jackson.databind.ObjectWriter
 import no.nav.familie.prosessering.domene.Task
-
-import javax.persistence.Embeddable
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
+import javax.persistence.Embeddable
 
 /**
  * Json struktur for feil som kan oppstå. Dupliserer noen properties for enkelthetsskyld til senere prosessering.

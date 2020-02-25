@@ -1,6 +1,5 @@
 package no.nav.familie.prosessering
 
-import no.nav.familie.prosessering.domene.Task
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.boot.SpringBootConfiguration

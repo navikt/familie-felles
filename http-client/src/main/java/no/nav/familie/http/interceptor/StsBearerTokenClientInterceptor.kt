@@ -1,7 +1,6 @@
 package no.nav.familie.http.interceptor
 
 import no.nav.familie.http.sts.StsRestClient
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor

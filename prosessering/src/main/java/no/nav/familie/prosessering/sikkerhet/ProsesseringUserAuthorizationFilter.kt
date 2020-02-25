@@ -10,14 +10,15 @@ import javax.servlet.http.HttpServletResponse
 class ProsesseringUserAuthorizationFilter(
         private val påkrevdRolle: String,
         private val oidcUtil: OIDCUtil
-): OncePerRequestFilter() {
+) : OncePerRequestFilter() {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         when {
             ourIssuer() == null -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No value for `ourIssuer`")
             currentUserGroups() == null -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No user-groups in JWT")
-            !currentUserGroups().contains(påkrevdRolle) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing group $påkrevdRolle in JWT")
-            else -> filterChain.doFilter(request,response)
+            !currentUserGroups().contains(påkrevdRolle) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                                                                              "Missing group $påkrevdRolle in JWT")
+            else -> filterChain.doFilter(request, response)
         }
     }
 
@@ -29,6 +30,6 @@ class ProsesseringUserAuthorizationFilter(
         return !path.startsWith("/api/task")
     }
 
-    private fun ourIssuer () = oidcUtil.getClaimAsList("groups")
+    private fun ourIssuer() = oidcUtil.getClaimAsList("groups")
     private fun currentUserGroups() = ourIssuer()
 }

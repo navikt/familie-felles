@@ -1,7 +1,7 @@
 package no.nav.familie.prosessering
 
 
-import java.lang.annotation.*
+import java.lang.annotation.Inherited
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)

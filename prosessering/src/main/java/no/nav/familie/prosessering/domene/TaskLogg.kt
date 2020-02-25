@@ -33,6 +33,7 @@ data class TaskLogg(
         @Column(name = "opprettet_tid", nullable = false, updatable = false)
         val opprettetTidspunkt: LocalDateTime = LocalDateTime.now()
 ) {
+
     override fun toString(): String {
         return """TaskLogg(id=$id, 
             |endretAv=$endretAv, 
