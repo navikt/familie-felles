@@ -16,14 +16,13 @@ class AuditLoggerTest {
 
     @Test
     fun `Skal auditlogge henting av fagsak`() {
-        val logger: Logger = LoggerFactory.getLogger("auditLogger" + "." + this::class.java.name) as Logger
+        val logger: Logger = LoggerFactory.getLogger("auditLogger") as Logger
 
         val listAppender = ListAppender<ILoggingEvent>()
         listAppender.start()
 
         logger.addAppender(listAppender)
-        AuditLogger.log(this.javaClass,
-                        Sporingsdata(mapOf(SporingsloggId.ANSVALIG_SAKSBEHANDLER to "ansvarligSaksbehandler")),
+        AuditLogger.log(Sporingsdata(mapOf(SporingsloggId.ANSVALIG_SAKSBEHANDLER to "ansvarligSaksbehandler")),
                         AuditLoggerType.READ,
                         "FAGSAK")
 

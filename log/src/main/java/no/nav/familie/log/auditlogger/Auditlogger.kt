@@ -6,8 +6,8 @@ import org.springframework.http.HttpMethod
 import javax.servlet.http.HttpServletRequest
 
 object AuditLogger {
-    fun log(clazz: Class<Any>, sporingsdata: Sporingsdata, type: AuditLoggerType, action: String) {
-        LoggerFactory.getLogger("auditLogger" + "." + clazz.name).info(opprettMelding(sporingsdata, type, action))
+    fun log(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String) {
+        LoggerFactory.getLogger("auditLogger").info(opprettMelding(sporingsdata, type, action))
     }
 
     fun logRequest(request: HttpServletRequest, ansvarligSaksbehandler: String) {
