@@ -5,9 +5,11 @@ import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
+import org.springframework.stereotype.Component
 
 import java.net.URI
 
+@Component
 class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String, String>>) : ClientHttpRequestInterceptor {
 
     private val logger = LoggerFactory.getLogger(ApiKeyInjectingClientInterceptor::class.java)

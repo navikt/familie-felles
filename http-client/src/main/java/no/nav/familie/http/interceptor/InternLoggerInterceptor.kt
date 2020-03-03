@@ -4,11 +4,13 @@ import no.nav.familie.log.auditlogger.AuditLogger
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Component
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+@Component
 class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptorAdapter() {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil = oidcUtil) ?: "VL"
