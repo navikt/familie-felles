@@ -1,107 +1,67 @@
-package no.nav.familie.sikkerhet;
+package no.nav.familie.sikkerhet
 
-import no.nav.security.token.support.core.context.TokenValidationContext;
-import no.nav.security.token.support.core.context.TokenValidationContextHolder;
-import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
-import no.nav.security.token.support.core.jwt.JwtTokenClaims;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
+import no.nav.security.token.support.core.jwt.JwtTokenClaims
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.env.Environment
+import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
-public class OIDCUtil {
+class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
 
     @Autowired
-    private Environment environment;
+    private lateinit var environment: Environment
 
-    private final TokenValidationContextHolder ctxHolder;
+    val subject: String?
+        get() = claimSet()?.subject
 
-    public OIDCUtil(TokenValidationContextHolder ctxHolder) {
-        this.ctxHolder = ctxHolder;
+    fun autentisertBruker(): String {
+        return subject ?: jwtError("Fant ikke subject")
     }
 
-    public String getSubject() {
-        return Optional.ofNullable(claimSet())
-                       .map(JwtTokenClaims::getSubject)
-                       .orElse(null);
+    fun jwtError(message: String): Nothing {
+        throw JwtTokenValidatorException(message, expiryDate)
     }
 
-    public String autentisertBruker() {
-        return Optional.ofNullable(getSubject())
-                       .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke subject", getExpiryDate()));
+
+    fun getClaim(claim: String): String {
+        return if (erDevProfil())
+            claimSet()?.get(claim)?.toString() ?: "DEV_$claim"
+        else
+            claimSet()?.get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
     }
 
-    public String getClaim(String claim) {
-        return erDevProfil()
-            ? Optional.ofNullable(claimSet())
-                      .map(c -> c.get(claim))
-                      .map(Object::toString)
-                      .orElse("DEV_" + claim)
-            : Optional.ofNullable(claimSet())
-                      .map(c -> c.get(claim))
-                      .map(Object::toString)
-                      .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke claim '" + claim + "' i tokenet",
-                                                                        getExpiryDate()));
+    fun getClaimAsList(claim: String): List<String>? {
+        return if (erDevProfil()) listOf("group1") else claimSet()?.getAsList(claim)
     }
 
-    public List<String> getClaimAsList(String claim) {
-        return erDevProfil() ? Collections.singletonList("group1") : claimSet().getAsList(claim);
+    val navIdent: String
+        get() = if (erDevProfil()) "TEST_Z123" else
+            claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
+
+
+    val groups: List<String>?
+        get() = (claimSet()?.get("groups") as List<*>?)
+                ?.filterNotNull()
+                ?.map { it.toString() }
+
+    fun claimSet(): JwtTokenClaims? {
+        return context()?.getClaims("azuread")
     }
 
-    public String getNavIdent() {
-        return erDevProfil()
-            ? "TEST_Z123"
-            : Optional.ofNullable(claimSet())
-                      .map(c -> c.get("NAVident"))
-                      .map(Object::toString)
-                      .orElseThrow(() -> new JwtTokenValidatorException("Fant ikke NAVident",
-                                                                        getExpiryDate()));
+    private fun context(): TokenValidationContext? {
+        return ctxHolder.tokenValidationContext
     }
 
-    public List<String> getGroups() {
-        return Optional.ofNullable(claimSet())
-                       .map(c -> c.get("groups"))
-                       .stream()
-                       .map(Object::toString)
-                       .collect(Collectors.toList());
+    val expiryDate: Date?
+        get() = claimSet()?.expirationTime
 
-    }
-
-    public JwtTokenClaims claimSet() {
-        return Optional.ofNullable(context())
-                       .map(s -> s.getClaims("azuread"))
-                       .orElse(null);
-    }
-
-    private TokenValidationContext context() {
-        return Optional.ofNullable(ctxHolder.getTokenValidationContext())
-                       .orElse(null);
-    }
-
-    public Date getExpiryDate() {
-        return Optional.ofNullable(claimSet())
-                       .map(c -> c.get("exp"))
-                       .map(OIDCUtil::getDateClaim)
-                       .orElse(null);
-    }
-
-    public static Date getDateClaim(Object value) {
-        if (value instanceof Date) {
-            return (Date) value;
+    private fun erDevProfil(): Boolean {
+        return environment.activeProfiles.any {
+            listOf("dev", "mock-auth").contains(it.trim(' '))
         }
-        if (value instanceof Number) {
-            return new Date(((Number) value).longValue() * 1000L);
-        }
-        return null;
     }
-
-    private boolean erDevProfil() {
-        return Arrays.stream(environment.getActiveProfiles())
-                     .anyMatch(str -> "dev".equals(str.trim()) || "mock-auth".equals(str.trim()));
-    }
-
 }
