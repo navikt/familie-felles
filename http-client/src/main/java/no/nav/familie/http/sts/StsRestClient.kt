@@ -1,97 +1,88 @@
-package no.nav.familie.http.sts;
+package no.nav.familie.http.sts
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.familie.http.client.HttpClientUtil;
-import no.nav.familie.http.client.HttpRequestUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.familie.http.client.HttpClientUtil
+import no.nav.familie.http.client.HttpRequestUtil
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+import java.io.IOException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpResponse
+import java.time.*
+import java.util.*
+import java.util.concurrent.ExecutionException
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Base64;
-import java.util.concurrent.ExecutionException;
+@Component
 
-import static java.time.LocalTime.now;
+class StsRestClient(private val mapper: ObjectMapper,
+                    private val stsUrl: URI,
+                    private val stsUsername: String,
+                    private val stsPassword: String) {
 
-public class StsRestClient {
+    private val client: HttpClient = HttpClientUtil.create()
 
-    private static final Logger log = LoggerFactory.getLogger(StsRestClient.class);
-    private final HttpClient client;
-    private final URI stsUrl;
-    private final String stsUsername;
-    private final String stsPassword;
-    private final ObjectMapper mapper;
-    private AccessTokenResponse cachedToken;
+    private var cachedToken: AccessTokenResponse? = null
 
-    public StsRestClient(ObjectMapper mapper, URI stsUrl, String stsUsername, String stsPassword) {
-        this.mapper = mapper;
-        this.client = HttpClientUtil.create();
-        this.stsUrl = stsUrl;
-        this.stsUsername = stsUsername;
-        this.stsPassword = stsPassword;
-    }
+    private val isTokenValid: Boolean
+        get() {
+            if (cachedToken == null) {
+                return false
+            }
+            log.debug("Tokenet løper ut: {}. Tiden nå er: {}",
+                      Instant.ofEpochMilli(cachedToken!!.expires_in).atZone(ZoneId.systemDefault()).toLocalTime(),
+                      LocalTime.now(ZoneId.systemDefault()))
 
-    private static String basicAuth(String username, String password) {
-        return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
-    }
-
-    private boolean isTokenValid() {
-        if (cachedToken == null || cachedToken.getExpires_in() == null) {
-            return false;
+            return cachedToken!!.expires_in - MILLISEKUNDER_I_KVARTER > LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         }
 
-        log.debug("Tokenet løper ut: {}. Tiden nå er: {}",
-                  Instant.ofEpochMilli(cachedToken.getExpires_in()).atZone(ZoneId.systemDefault()).toLocalTime(),
-                  now(ZoneId.systemDefault()));
-        return Instant.ofEpochMilli(cachedToken.getExpires_in())
-                      .atZone(ZoneId.systemDefault())
-                      .toLocalTime()
-                      .minusMinutes(15)
-                      .isAfter(now(ZoneId.systemDefault()));
-    }
+    val systemOIDCToken: String
+        get() {
+            if (isTokenValid) {
+                log.debug("Henter token fra cache")
+                return cachedToken!!.access_token
+            }
+            log.debug("Henter token fra STS")
+            val request =
+                    HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
+                            .uri(stsUrl)
+                            .header("Content-Type", "application/json")
+                            .timeout(Duration.ofSeconds(30))
+                            .build()
 
-    public String getSystemOIDCToken() {
-        if (isTokenValid()) {
-            log.debug("Henter token fra cache");
-            return cachedToken.getAccess_token();
+            val accessTokenResponse = try {
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .thenApply { obj: HttpResponse<String?> -> obj.body() }
+                        .thenApply { it: String? ->
+                            håndterRespons(it)
+                        }
+                        .get()
+            } catch (e: InterruptedException) {
+                throw StsAccessTokenFeilException("Feil i tilkobling", e)
+            } catch (e: ExecutionException) {
+                throw StsAccessTokenFeilException("Feil i tilkobling", e)
+            }
+            if (accessTokenResponse != null) {
+                cachedToken = accessTokenResponse
+                return accessTokenResponse.access_token
+            }
+            throw StsAccessTokenFeilException("Manglende token")
         }
 
-        log.debug("Henter token fra STS");
-        HttpRequest request = HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
-                                             .uri(stsUrl)
-                                             .header("Content-Type", "application/json")
-                                             .timeout(Duration.ofSeconds(30))
-                                             .build();
-
-        AccessTokenResponse accessTokenResponse;
-        try {
-            accessTokenResponse = client
-                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenApply(this::håndterRespons)
-                .get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new StsAccessTokenFeilException("Feil i tilkobling", e);
-        }
-
-        if (accessTokenResponse != null) {
-            this.cachedToken = accessTokenResponse;
-            return accessTokenResponse.getAccess_token();
-        }
-        throw new StsAccessTokenFeilException("Manglende token");
-    }
-
-    private AccessTokenResponse håndterRespons(String it) {
-        try {
-            return mapper.readValue(it, AccessTokenResponse.class);
-        } catch (IOException e) {
-            throw new StsAccessTokenFeilException("Parsing av respons feilet", e);
+    private fun håndterRespons(it: String?): AccessTokenResponse {
+        return try {
+            mapper.readValue(it, AccessTokenResponse::class.java)
+        } catch (e: IOException) {
+            throw StsAccessTokenFeilException("Parsing av respons feilet", e)
         }
     }
+
+    companion object {
+        private const val MILLISEKUNDER_I_KVARTER = 15 * 60 * 1000
+        private val log = LoggerFactory.getLogger(StsRestClient::class.java)
+        private fun basicAuth(username: String, password: String): String {
+            return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+        }
+    }
+
 }

@@ -1,20 +1,5 @@
-package no.nav.familie.http.sts;
+package no.nav.familie.http.sts
 
-class AccessTokenResponse {
-
-    private String access_token;
-    private String token_type;
-    private Long expires_in;
-
-    String getAccess_token() {
-        return access_token;
-    }
-
-    public String getToken_type() {
-        return token_type;
-    }
-
-    Long getExpires_in() {
-        return expires_in;
-    }
-}
+class AccessTokenResponse(val access_token: String,
+                          val token_type: String,
+                          val expires_in: Long)
