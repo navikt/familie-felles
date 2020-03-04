@@ -1,6 +1,7 @@
 package no.nav.familie.http.interceptor
 
 import no.nav.familie.http.sts.StsRestClient
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
