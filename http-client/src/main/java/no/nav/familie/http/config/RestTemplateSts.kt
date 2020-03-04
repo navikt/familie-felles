@@ -1,6 +1,5 @@
 package no.nav.familie.http.config
 
-import no.nav.familie.http.interceptor.BearerTokenClientInterceptor
 import no.nav.familie.http.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.http.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.http.interceptor.StsBearerTokenClientInterceptor
@@ -14,8 +13,7 @@ import org.springframework.web.client.RestOperations
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-@ComponentScan("no.nav.familie.http.interceptor")
-@Import(RestTemplateBuilder::class)
+@Import(RestTemplateBuilderBean::class, StsBearerTokenClientInterceptor::class, ConsumerIdClientInterceptor::class)
 class RestTemplateSts {
 
     @Bean("sts")

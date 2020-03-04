@@ -15,11 +15,11 @@ import org.springframework.web.client.RestOperations
 @Suppress("SpringFacetCodeInspection")
 @Configuration
 @Import(NaisProxyCustomizer::class)
-class RestTemplateBuilder {
+class RestTemplateBuilderBean {
 
     @Bean
     fun restTemplateBuilderJwtBearer(naisProxyCustomizer: NaisProxyCustomizer): RestTemplateBuilder {
-        return RestTemplateBuilder().additionalCustomizers(naisProxyCustomizer)
+        return RestTemplateBuilder(naisProxyCustomizer)
     }
 }
 
