@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.familie.http.client.HttpClientUtil
 import no.nav.familie.http.client.HttpRequestUtil
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.net.URI
@@ -14,11 +15,10 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 @Component
-
 class StsRestClient(private val mapper: ObjectMapper,
-                    private val stsUrl: URI,
-                    private val stsUsername: String,
-                    private val stsPassword: String) {
+                    @Value("\${STS_URL}") private val stsUrl: URI,
+                    @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
+                    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String) {
 
     private val client: HttpClient = HttpClientUtil.create()
 
