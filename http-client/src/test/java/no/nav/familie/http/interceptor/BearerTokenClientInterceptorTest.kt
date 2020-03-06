@@ -1,7 +1,6 @@
 package no.nav.familie.http.interceptor
 
 
-import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod
 import io.mockk.every
 import io.mockk.mockk
@@ -11,9 +10,6 @@ import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.OAuth2GrantType
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.junit.Before
 import org.junit.Test
 import org.springframework.http.HttpRequest
@@ -24,7 +20,7 @@ class BearerTokenClientInterceptorTest {
 
     private lateinit var bearerTokenClientInterceptor: BearerTokenClientInterceptor
 
-    private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>()
+    private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>(relaxed = true )
 
     @Before
     fun setup() {
@@ -33,26 +29,15 @@ class BearerTokenClientInterceptorTest {
     }
 
     @Test
-    fun `intercept`() {
-        val tokenValidationContext = mockk<TokenValidationContext>()
-        every { tokenValidationContext.getClaims("azuread") }
-                .returns(JwtTokenClaims(JWTClaimsSet.Builder()
-                                                .issuer("azure")
-                                                .claim("preferred_username", "bob")
-                                                .build()))
-        SpringTokenValidationContextHolder().tokenValidationContext = mockk()
-        val req = mockk<HttpRequest>()
-        every { req.uri }.returns(URI("http://firstResource.no"))
+    fun `intercept bruker grant type client credentials når det ikke er noen request context`() {
+        val req = mockk<HttpRequest>(relaxed = true, relaxUnitFun = true)
+        every { req.uri } returns(URI("http://firstResource.no"))
         val execution = mockk<ClientHttpRequestExecution>(relaxed = true)
-        every { execution.execute(any(), any()) }.returns(mockk())
 
         bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution)
 
-
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]) }
-
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]) }
     }
-
 
     private val clientConfigurationProperties =
             ClientConfigurationProperties(
@@ -81,6 +66,4 @@ class BearerTokenClientInterceptorTest {
                                                                                  null),
                                                   URI("http://secondResource.no")))
             )
-
-
 }
