@@ -6,7 +6,9 @@ import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
+import org.springframework.stereotype.Component
 
+@Component
 class ConsumerIdClientInterceptor(@Value("\${application.name}") private val appName: String,
                                   @Value("\${credential.username:}") private val serviceUser: String) :
         ClientHttpRequestInterceptor {
