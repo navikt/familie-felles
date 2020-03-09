@@ -19,8 +19,8 @@ import org.springframework.web.client.RestOperations
 class RestTemplateBuilderBean {
 
     @Bean
-    fun restTemplateBuilder(naisProxyCustomizer: RestTemplateCustomizer): RestTemplateBuilder {
-        return RestTemplateBuilder(naisProxyCustomizer)
+    fun restTemplateBuilder(iNaisProxyCustomizer: INaisProxyCustomizer): RestTemplateBuilder {
+        return RestTemplateBuilder(iNaisProxyCustomizer)
     }
 }
 
