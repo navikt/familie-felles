@@ -59,6 +59,15 @@ abstract class AbstractRestClient(val operations: RestOperations,
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
     }
 
+    protected inline fun <reified T : Any> deleteForEntity(uri: URI, payload: Any? = null): T? {
+        return deleteForEntity(uri, payload, null)
+    }
+
+    protected inline fun <reified T : Any> deleteForEntity(uri: URI, payload: Any?, httpHeaders: HttpHeaders?): T? {
+        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
+    }
+
+
     private fun <T> validerOgPakkUt(respons: ResponseEntity<T>, uri: URI): T? {
         if (!respons.statusCode.is2xxSuccessful) {
             secureLogger.info("Kall mot $uri feilet:  ${respons.body}")
