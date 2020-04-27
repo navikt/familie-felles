@@ -87,6 +87,7 @@ class LogFilter(
         private val NAV_CALL_ID_HEADER_NAMES =
                 arrayOf(NavHttpHeaders.NAV_CALL_ID.asString(),
                         "Nav-CallId",
+                        "Nav-Callid",
                         "X-Correlation-Id")
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
