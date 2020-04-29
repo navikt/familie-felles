@@ -44,7 +44,7 @@ class BearerTokenClientInterceptor(private val oAuth2AccessTokenService: OAuth2A
     private fun preferredUsername(): Any? {
         return try {
             SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
-        } catch (e: Error) {
+        } catch (e: Throwable) {
             // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
             null
         }
