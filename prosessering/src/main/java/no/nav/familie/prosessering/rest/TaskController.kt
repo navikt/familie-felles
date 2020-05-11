@@ -18,9 +18,10 @@ class TaskController(private val restTaskService: RestTaskService, private val o
     }
 
     @GetMapping(path = ["/task"])
-    fun task(@RequestHeader status: Status,
+    fun task(@RequestHeader status: Status?,
              @RequestHeader(required = false) page: Int?): ResponseEntity<Ressurs<List<Task>>> {
-        return ResponseEntity.ok(restTaskService.hentTasks(status, hentBrukernavn(), page ?: 0))
+        val statuser: List<Status> = status?.let { listOf(it) } ?: Status.values().toList()
+        return ResponseEntity.ok(restTaskService.hentTasks(statuser, hentBrukernavn(), page ?: 0))
     }
 
     @PutMapping(path = ["/task/rekjor"])

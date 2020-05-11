@@ -16,17 +16,17 @@ import java.util.*
 @Service
 class RestTaskService(private val taskRepository: TaskRepository) {
 
-    fun hentTasks(status: Status, saksbehandlerId: String, page: Int): Ressurs<List<Task>> {
-        logger.info("$saksbehandlerId henter feilede tasker")
+    fun hentTasks(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<List<Task>> {
+        logger.info("$saksbehandlerId henter tasker med status $statuses")
 
         return Result.runCatching {
-            taskRepository.finnTasksTilFrontend(status, PageRequest.of(page, TASK_LIMIT))
+            taskRepository.finnTasksTilFrontend(statuses, PageRequest.of(page, TASK_LIMIT))
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = it) },
                         onFailure = { e ->
                             logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure("Henting av tasker med status '$status', feilet.", e)
+                            Ressurs.failure("Henting av tasker med status '$statuses', feilet.", e)
                         }
                 )
     }
@@ -52,7 +52,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
         logger.info("$saksbehandlerId rekjører alle tasks med status $status")
 
         return Result.runCatching {
-            taskRepository.finnTasksTilFrontend(status, Pageable.unpaged())
+            taskRepository.finnTasksTilFrontend(listOf(status), Pageable.unpaged())
                     .map { taskRepository.save(it.klarTilPlukk(saksbehandlerId)) }
         }
                 .fold(
