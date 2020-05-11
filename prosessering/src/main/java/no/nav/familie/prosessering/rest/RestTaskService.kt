@@ -90,6 +90,6 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RestTaskService::class.java)
-        const val TASK_LIMIT: Int = 1000
+        const val TASK_LIMIT: Int = 100
     }
 }
