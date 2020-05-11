@@ -14,6 +14,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 
@@ -30,6 +31,43 @@ class TaskWorkerTest {
 
     @Autowired
     private lateinit var worker: TaskWorker
+
+    @Test
+    fun `skal hente ut alle tasker uavhengig av status`() {
+        val ubehandletTask = nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksTilFrontend(Status.values().toList(), PageRequest.of(0, 1000));
+        assertThat(alleTasks.size).isEqualTo(3)
+        assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
+        assertThat(alleTasks.count { it.status == Status.UBEHANDLET }).isEqualTo(1)
+    }
+
+    @Test
+    fun `skal hente ut alle tasker gitt en status`() {
+        val ubehandletTask = nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1000));
+        assertThat(alleTasks.size).isEqualTo(2)
+        assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
+    }
 
     @Test
     fun `skal behandle task`() {
