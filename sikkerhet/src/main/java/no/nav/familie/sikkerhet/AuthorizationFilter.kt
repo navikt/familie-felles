@@ -7,11 +7,12 @@ import javax.servlet.http.HttpServletResponse
 
 class AuthorizationFilter(
         private val oidcUtil: OIDCUtil,
-        private val acceptedClients: List<String>
+        private val acceptedClients: List<String>,
+        private val disabled: Boolean = false
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        when (acceptedClient()) {
+        when (disabled || acceptedClient()) {
             true -> filterChain.doFilter(request, response)
             false -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authenticated, but unauthorized application")
         }
