@@ -17,11 +17,13 @@ import kotlin.math.min
 @Service
 class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private val maxAntall: Int,
                               @Value("\${prosessering.minCapacity:2}") private val minCapacity: Int,
+                              @Value("\${prosessering.fixedDelayString.in.milliseconds:30000}")
+                              private val fixedDelayString: String,
                               private val worker: TaskWorker,
                               @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
                               private val taskRepository: TaskRepository) {
 
-    @Scheduled(fixedDelay = POLLING_DELAY)
+    @Scheduled(fixedDelayString = "\${prosessering.fixedRate.in.milliseconds:30000}")
     @Transactional
     fun pollAndExecute() {
         log.debug("Poller etter nye tasks")
@@ -35,7 +37,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
         } else {
             log.trace("Pollet ingen tasks siden kapasiteten var {} < {}", pollingSize, minCapacity)
         }
-        log.trace("Ferdig med polling, venter {} ms til neste kjøring.", POLLING_DELAY)
+        log.trace("Ferdig med polling, venter {} ms til neste kjøring.", fixedDelayString)
     }
 
     private fun calculatePollingSize(maxAntall: Int): Int {
@@ -52,7 +54,6 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
     }
 
     companion object {
-        const val POLLING_DELAY = 30000L
         private val log = LoggerFactory.getLogger(TaskStepExecutorService::class.java)
     }
 }
