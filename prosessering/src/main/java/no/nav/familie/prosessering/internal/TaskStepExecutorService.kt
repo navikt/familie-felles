@@ -23,7 +23,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
                               @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
                               private val taskRepository: TaskRepository) {
 
-    @Scheduled(fixedDelayString = "\${prosessering.fixedRate.in.milliseconds:30000}")
+    @Scheduled(fixedDelayString = "\${prosessering.fixedDelayString.in.milliseconds:30000}")
     @Transactional
     fun pollAndExecute() {
         log.debug("Poller etter nye tasks")
