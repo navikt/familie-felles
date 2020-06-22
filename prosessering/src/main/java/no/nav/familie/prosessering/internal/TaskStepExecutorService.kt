@@ -21,7 +21,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
                               @Value("\${prosessering.minCapacity:2}") private val minCapacity: Int,
                               @Value("\${prosessering.fixedDelayString.in.milliseconds:30000}")
                               private val fixedDelayString: String,
-                              private val worker: TaskWorker,
+                              private val taskStepRunner: TaskStepRunner,
                               @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
                               private val taskRepository: TaskRepository) {
 
@@ -67,7 +67,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
     private fun executeWork(task: Task) {
         task.plukker()
         taskRepository.saveAndFlush(task)
-        worker.doTaskStep(task.id!!)
+        taskStepRunner.doTaskStep(task.id!!)
     }
 
     companion object {

@@ -45,14 +45,12 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     }
 
 
-    @Async("taskExecutor")
+    // For Unit testing
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun doTaskStep(taskId: Long?) {
-        requireNotNull(taskId, { "taskId kan ikke være null" })
+    fun doWork(taskId: Long) {
         doActualWork(taskId)
     }
 
-    // For Unit testing
     fun doActualWork(taskId: Long) {
         val startTidspunkt = System.currentTimeMillis()
         var maxAntallFeil = 0
