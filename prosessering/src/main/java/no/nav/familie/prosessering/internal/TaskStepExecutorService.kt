@@ -1,5 +1,6 @@
 package no.nav.familie.prosessering.internal
 
+import no.nav.familie.leader.LeaderClient
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.function.Consumer
 import kotlin.math.min
+
 
 @Service
 class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private val maxAntall: Int,
@@ -30,10 +32,25 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
         val pollingSize = calculatePollingSize(maxAntall)
 
         if (pollingSize > minCapacity) {
-            val tasks = taskRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize))
+            val tasks =
+                    when (LeaderClient.isLeader()) {
+                        true -> {
+                            log.info("Kjører som leader")
+                            taskRepository.finnAlleTasksKlareForProsesseringUtenLock(PageRequest.of(0, pollingSize))
+                        }
+                        false -> {
+                            log.info("Er ikke leader")
+                            emptyList()
+                        }
+                        null -> {
+                            log.info("Leader election ikke satt opp")
+                            taskRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize))
+                        }
+                    }
+
             log.trace("Pollet {} tasks med max {}", tasks.size, maxAntall)
 
-            tasks.forEach(Consumer<Task> { this.executeWork(it) })
+            tasks.forEach(Consumer { this.executeWork(it) })
         } else {
             log.trace("Pollet ingen tasks siden kapasiteten var {} < {}", pollingSize, minCapacity)
         }

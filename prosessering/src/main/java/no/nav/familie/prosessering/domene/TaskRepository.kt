@@ -23,6 +23,10 @@ interface TaskRepository : JpaRepository<Task, Long> {
            "AND  (t.triggerTid < CURRENT_TIMESTAMP OR t.triggerTid IS NULL) ORDER BY t.opprettetTidspunkt DESC")
     fun finnAlleTasksKlareForProsessering(page: Pageable): List<Task>
 
+    @Query("SELECT t FROM Task t WHERE t.status IN ('KLAR_TIL_PLUKK', 'UBEHANDLET')  " +
+           "AND  (t.triggerTid < CURRENT_TIMESTAMP OR t.triggerTid IS NULL) ORDER BY t.opprettetTidspunkt DESC")
+    fun finnAlleTasksKlareForProsesseringUtenLock(page: Pageable): List<Task>
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Task t WHERE t.status IN ('FEILET')")
     fun finnAlleFeiledeTasks(): List<Task>
