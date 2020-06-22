@@ -93,6 +93,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
                            System.currentTimeMillis() - startTidspunkt,
                            e)
             taskRepository.save(task)
+            secureLog.info("Feilhåndtering lagret ok {}", task)
         } finally {
             clearLogContext()
         }
