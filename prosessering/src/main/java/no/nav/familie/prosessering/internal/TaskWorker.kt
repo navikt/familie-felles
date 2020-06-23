@@ -46,7 +46,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
 
     // For Unit testing
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false, rollbackFor = [java.lang.Exception::class])
     fun doWork(taskId: Long) {
         doActualWork(taskId)
     }
