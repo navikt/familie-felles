@@ -46,7 +46,6 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
 
     @Async("taskExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun doTaskStep(taskId: Long?) {
         requireNotNull(taskId, { "taskId kan ikke være null" })
         doActualWork(taskId)
@@ -70,10 +69,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
             maxAntallFeil = finnMaxAntallFeil(task.taskStepType)
 
             // execute
-            taskStep.preCondition(task)
-            taskStep.doTask(task)
-            taskStep.postCondition(task)
-            taskStep.onCompletion(task)
+            execute(taskStep, task)
 
             task.ferdigstill()
             secureLog.trace("Ferdigstiller task='{}'", task)
@@ -97,6 +93,14 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         } finally {
             clearLogContext()
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun execute(taskStep: AsyncTaskStep, task: Task) {
+        taskStep.preCondition(task)
+        taskStep.doTask(task)
+        taskStep.postCondition(task)
+        taskStep.onCompletion(task)
     }
 
     private fun clearLogContext() {
