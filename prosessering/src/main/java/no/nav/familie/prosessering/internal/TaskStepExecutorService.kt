@@ -35,15 +35,15 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
             val tasks =
                     when (LeaderClient.isLeader()) {
                         true -> {
-                            log.info("Kjører som leader")
+                            log.debug("Kjører som leader")
                             taskRepository.finnAlleTasksKlareForProsesseringUtenLock(PageRequest.of(0, pollingSize))
                         }
                         false -> {
-                            log.info("Er ikke leader")
+                            log.debug("Er ikke leader")
                             emptyList()
                         }
                         null -> {
-                            log.info("Leader election ikke satt opp")
+                            log.debug("Leader election ikke satt opp")
                             taskRepository.finnAlleTasksKlareForProsessering(PageRequest.of(0, pollingSize))
                         }
                     }
