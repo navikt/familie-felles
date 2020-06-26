@@ -2,6 +2,7 @@ package no.nav.familie.prosessering.internal
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.prosessering.TestAppConfig
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task.Companion.nyTask
@@ -11,6 +12,7 @@ import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -67,6 +69,28 @@ class TaskWorkerTest {
         val alleTasks = repository.finnTasksTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1000));
         assertThat(alleTasks.size).isEqualTo(2)
         assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
+    }
+
+    @Test
+    fun `skal hente task til frontend`() {
+        MDC.put(MDCConstants.MDC_CALL_ID, "test")
+        val feiletTask1 = nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        repository.saveAndFlush(feiletTask1)
+
+        val tasks = repository.finnTasksTilFrontend(listOf(Status.FEILET))
+
+        assertThat(tasks).hasSize(1)
+
+        val task = tasks.first()
+        val id = task.id
+        val tasklogg = repository.finnTaskloggTilFrontend(id)
+
+        assertThat(task.callId).isEqualTo("test")
+        assertThat(tasklogg).hasSize(1)
+        assertThat(task.sistKjørt).isEqualTo(tasklogg.first().opprettetTidspunkt)
+
+        MDC.remove(MDCConstants.MDC_CALL_ID)
     }
 
     @Test
