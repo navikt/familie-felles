@@ -25,4 +25,10 @@ annotation class TaskStepBeskrivelse(
          *
          * @return beskrivelsen
          */
-        val beskrivelse: String)
+        val beskrivelse: String,
+
+        /**
+         * Hvor lenge man skal vente ved feil.
+         */
+        val triggerTidVedFeilISekunder: Long = 0
+)

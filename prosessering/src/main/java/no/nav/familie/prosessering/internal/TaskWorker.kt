@@ -24,6 +24,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
     private val taskStepMap: Map<String, AsyncTaskStep>
     private val maxAntallFeilMap: Map<String, Int>
+    private val triggerTidVedFeilMap: Map<String, Long>
     private val feiltellereForTaskSteps: Map<String, Counter>
 
     init {
@@ -35,6 +36,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         }
         taskStepMap = tasksTilTaskStepBeskrivelse.entries.associate { it.value.taskStepType to it.key }
         maxAntallFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.maxAntallFeil }
+        triggerTidVedFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.triggerTidVedFeilISekunder }
         feiltellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
             it.taskStepType to Metrics.counter("mottak.feilede.tasks",
                                                "status",
@@ -88,6 +90,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
                            task,
                            System.currentTimeMillis() - startTidspunkt,
                            e)
+            task.triggerTid = task.triggerTid?.plusSeconds(finnTriggerTidVedFeil(task.taskStepType))
             taskRepository.save(task)
             secureLog.info("Feilhåndtering lagret ok {}", task)
         } finally {
@@ -111,6 +114,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     private fun initLogContext(taskDetails: Task) {
         MDC.put(MDC_CALL_ID, taskDetails.callId)
         LOG_CONTEXT.add("task", taskDetails.taskStepType)
+    }
+
+    private fun finnTriggerTidVedFeil(taskType: String): Long {
+        return triggerTidVedFeilMap[taskType] ?: 0
     }
 
     private fun finnTaskStep(taskType: String): AsyncTaskStep {
