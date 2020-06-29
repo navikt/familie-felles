@@ -31,6 +31,36 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                 )
     }
 
+    fun hentTasks2(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<PaginableResponse<TaskDto>> {
+        logger.info("$saksbehandlerId henter tasker med status $statuses")
+
+        return Result.runCatching {
+            PaginableResponse(taskRepository.finnTasksTilFrontend(statuses))
+        }
+                .fold(
+                        onSuccess = { Ressurs.success(data = it) },
+                        onFailure = { e ->
+                            logger.error("Henting av tasker feilet", e)
+                            Ressurs.failure("Henting av tasker med status '$statuses', feilet.", e)
+                        }
+                )
+    }
+
+    fun hentTaskLogg(id: Long, saksbehandlerId: String): Ressurs<List<TaskloggDto>> {
+        logger.info("$saksbehandlerId henter tasklogg til task=$id")
+
+        return Result.runCatching {
+            taskRepository.finnTaskloggTilFrontend(id)
+        }
+                .fold(
+                        onSuccess = { Ressurs.success(data = it) },
+                        onFailure = { e ->
+                            logger.error("Henting av tasker feilet", e)
+                            Ressurs.failure("Henting av tasklogg feilet.", e)
+                        }
+                )
+    }
+
     @Transactional
     fun rekjørTask(taskId: Long, saksbehandlerId: String): Ressurs<String> {
         val task: Optional<Task> = taskRepository.findById(taskId)

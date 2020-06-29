@@ -47,7 +47,7 @@ data class Task(
                    fetch = FetchType.EAGER,
                    cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH],
                    orphanRemoval = true)
-        val logg: MutableList<TaskLogg> = ArrayList<TaskLogg>()
+        val logg: MutableList<TaskLogg> = ArrayList()
 ) {
 
     val callId: String
