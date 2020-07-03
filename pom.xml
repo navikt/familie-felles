@@ -56,11 +56,6 @@
                 <version>${kontrakter.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.familie.kontrakter</groupId>
-                <artifactId>enslig-forsorger</artifactId>
-                <version>${kontrakter.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib-jdk8</artifactId>
                 <version>${kotlin.version}</version>
@@ -192,6 +187,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>3.2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.familie.kontrakter</groupId>
+                <artifactId>enslig-forsorger</artifactId>
+                <version>${kontrakter.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
