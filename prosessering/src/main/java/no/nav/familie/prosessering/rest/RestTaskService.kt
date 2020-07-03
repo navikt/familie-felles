@@ -26,7 +26,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                         onSuccess = { Ressurs.success(data = it) },
                         onFailure = { e ->
                             logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure("Henting av tasker med status '$statuses', feilet.", e)
+                            Ressurs.failure(errorMessage = "Henting av tasker med status '$statuses', feilet.", error = e)
                         }
                 )
     }
@@ -41,7 +41,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                         onSuccess = { Ressurs.success(data = it) },
                         onFailure = { e ->
                             logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure("Henting av tasker med status '$statuses', feilet.", e)
+                            Ressurs.failure(errorMessage = "Henting av tasker med status '$statuses', feilet.", error = e)
                         }
                 )
     }
@@ -56,7 +56,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                         onSuccess = { Ressurs.success(data = it) },
                         onFailure = { e ->
                             logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure("Henting av tasklogg feilet.", e)
+                            Ressurs.failure(errorMessage = "Henting av tasklogg feilet.", error = e)
                         }
                 )
     }
@@ -89,7 +89,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                         onSuccess = { Ressurs.success(data = "") },
                         onFailure = { e ->
                             logger.error("Rekjøring av tasker med status '$status' feilet", e)
-                            Ressurs.failure("Rekjøring av tasker med status '$status' feilet", e)
+                            Ressurs.failure(errorMessage = "Rekjøring av tasker med status '$status' feilet", error = e)
                         }
                 )
     }
@@ -111,7 +111,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
                                 },
                                 onFailure = { e ->
                                     logger.error("Avvikshåndtering av $taskId feilet", e)
-                                    Ressurs.failure("Avvikshåndtering av $taskId feilet", e)
+                                    Ressurs.failure(errorMessage = "Avvikshåndtering av $taskId feilet", error = e)
                                 }
                         )
             }
