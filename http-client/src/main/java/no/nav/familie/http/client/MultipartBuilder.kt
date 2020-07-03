@@ -19,14 +19,12 @@ class MultipartBuilder {
     }
 
     fun withByteArray(name: String, filename: String, bytes: ByteArray): MultipartBuilder {
-        val headers = HttpHeaders()
-        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         val request = object : ByteArrayResource(bytes) {
             override fun getFilename(): String? {
                 return filename
             }
         }
-        multipartRequest.add(name, HttpEntity(request, headers))
+        multipartRequest.add(name, request)
         return this
     }
 
