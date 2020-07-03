@@ -67,7 +67,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return when (task.isPresent) {
             true -> {
-                taskRepository.save(task.get().klarTilPlukk(saksbehandlerId))
+                taskRepository.save(task.get().copy(triggerTid = null).klarTilPlukk(saksbehandlerId))
                 logger.info("$saksbehandlerId rekjører task $taskId")
 
                 Ressurs.success(data = "")
