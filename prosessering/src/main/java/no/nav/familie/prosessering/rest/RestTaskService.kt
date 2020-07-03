@@ -83,7 +83,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return Result.runCatching {
             taskRepository.finnTasksTilFrontend(listOf(status), Pageable.unpaged())
-                    .map { taskRepository.save(it.klarTilPlukk(saksbehandlerId)) }
+                    .map { taskRepository.save(it.copy(triggerTid = null).klarTilPlukk(saksbehandlerId)) }
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = "") },
