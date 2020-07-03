@@ -37,10 +37,8 @@ class MultipartBuilder {
     }
 
     companion object {
-        val MULTIPART_HEADERS: HttpHeaders = run {
-            val headers = HttpHeaders()
-            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-            headers
+        val MULTIPART_HEADERS: HttpHeaders = HttpHeaders().apply {
+            this.set(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
         }
     }
 }
