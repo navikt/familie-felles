@@ -4,16 +4,13 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
 import no.nav.familie.prosessering.AsyncTaskStep
-import no.nav.familie.prosessering.TaskFeil
 import no.nav.familie.prosessering.TaskStepBeskrivelse
-import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.aop.framework.AopProxyUtils
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -23,9 +20,6 @@ import org.springframework.transaction.annotation.Transactional
 class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List<AsyncTaskStep>) {
 
     private val taskStepMap: Map<String, AsyncTaskStep>
-    private val maxAntallFeilMap: Map<String, Int>
-    private val triggerTidVedFeilMap: Map<String, Long>
-    private val feiltellereForTaskSteps: Map<String, Counter>
 
     init {
         val tasksTilTaskStepBeskrivelse: Map<AsyncTaskStep, TaskStepBeskrivelse> = taskStepTyper.associateWith { task ->
@@ -35,70 +29,27 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
             annotation
         }
         taskStepMap = tasksTilTaskStepBeskrivelse.entries.associate { it.value.taskStepType to it.key }
-        maxAntallFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.maxAntallFeil }
-        triggerTidVedFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.triggerTidVedFeilISekunder }
-        feiltellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
-            it.taskStepType to Metrics.counter("mottak.feilede.tasks",
-                                               "status",
-                                               it.taskStepType,
-                                               "beskrivelse",
-                                               it.beskrivelse)
-        }
-    }
-
-
-    @Async("taskExecutor")
-    fun doTaskStep(taskId: Long?) {
-        requireNotNull(taskId, { "taskId kan ikke være null" })
-        doActualWork(taskId)
-    }
-
-    // For Unit testing
-    fun doActualWork(taskId: Long) {
-        val startTidspunkt = System.currentTimeMillis()
-        var maxAntallFeil = 0
-        var task = taskRepository.findByIdOrNull(taskId) ?: error("Kunne ikke finne task med id $taskId")
-
-        initLogContext(task)
-        try {
-
-            secureLog.trace("Behandler task='{}'", task)
-            task.behandler()
-            task = taskRepository.saveAndFlush(task)
-
-            // finn tasktype
-            val taskStep = finnTaskStep(task.taskStepType)
-            maxAntallFeil = finnMaxAntallFeil(task.taskStepType)
-
-            // execute
-            execute(taskStep, task)
-
-            task.ferdigstill()
-            secureLog.trace("Ferdigstiller task='{}'", task)
-            taskRepository.saveAndFlush(task)
-            taskRepository.flush()
-            secureLog.info("Fullført kjøring av task '{}', kjøretid={} ms",
-                           task,
-                           System.currentTimeMillis() - startTidspunkt)
-        } catch (e: Exception) {
-            task.feilet(TaskFeil(task, e), maxAntallFeil)
-            // lager metrikker på tasks som har feilet max antall ganger.
-            if (task.status == Status.FEILET) {
-                finnFeilteller(task.taskStepType).increment()
-            }
-            secureLog.warn("Fullført kjøring av task '{}', kjøretid={} ms, feilmelding='{}'",
-                           task,
-                           System.currentTimeMillis() - startTidspunkt,
-                           e)
-            task.triggerTid = task.triggerTid?.plusSeconds(finnTriggerTidVedFeil(task.taskStepType))
-            taskRepository.save(task)
-            secureLog.info("Feilhåndtering lagret ok {}", task)
-        } finally {
-            clearLogContext()
-        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun doActualWork(taskId: Long) {
+
+        var task = taskRepository.findById(taskId).orElseThrow()
+        task.behandler()
+        task = taskRepository.saveAndFlush(task)
+
+        // finn tasktype
+        val taskStep = finnTaskStep(task.taskStepType)
+
+        // execute
+        execute(taskStep, task)
+
+        task.ferdigstill()
+        secureLog.trace("Ferdigstiller task='{}'", task)
+        taskRepository.saveAndFlush(task)
+        taskRepository.flush()
+    }
+
     fun execute(taskStep: AsyncTaskStep, task: Task) {
         taskStep.preCondition(task)
         taskStep.doTask(task)
@@ -106,35 +57,11 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         taskStep.onCompletion(task)
     }
 
-    private fun clearLogContext() {
-        LOG_CONTEXT.clear()
-        MDC.remove(MDC_CALL_ID)
-    }
-
-    private fun initLogContext(taskDetails: Task) {
-        MDC.put(MDC_CALL_ID, taskDetails.callId)
-        LOG_CONTEXT.add("task", taskDetails.taskStepType)
-    }
-
-    private fun finnTriggerTidVedFeil(taskType: String): Long {
-        return triggerTidVedFeilMap[taskType] ?: 0
-    }
-
     private fun finnTaskStep(taskType: String): AsyncTaskStep {
         return taskStepMap[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
-    private fun finnFeilteller(taskType: String): Counter {
-        return feiltellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
-    }
-
-    private fun finnMaxAntallFeil(taskType: String): Int {
-        return maxAntallFeilMap[taskType] ?: error("Ukjent tasktype $taskType")
-    }
-
     companion object {
-
-        private val LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess")
         private val secureLog = LoggerFactory.getLogger("secureLogger")
     }
 }

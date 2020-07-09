@@ -1,7 +1,6 @@
 package no.nav.familie.prosessering.internal
 
 import no.nav.familie.leader.LeaderClient
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.function.Consumer
 import kotlin.math.min
 
 
@@ -21,7 +19,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
                               @Value("\${prosessering.minCapacity:2}") private val minCapacity: Int,
                               @Value("\${prosessering.fixedDelayString.in.milliseconds:30000}")
                               private val fixedDelayString: String,
-                              private val worker: TaskWorker,
+                              private val worker: FeilhåndtertTaskWorker,
                               @Qualifier("taskExecutor") private val taskExecutor: TaskExecutor,
                               private val taskRepository: TaskRepository) {
 
@@ -50,7 +48,7 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
 
             log.trace("Pollet {} tasks med max {}", tasks.size, maxAntall)
 
-            tasks.forEach(Consumer { this.executeWork(it) })
+            tasks.forEach { worker.executeWork(it) }
         } else {
             log.trace("Pollet ingen tasks siden kapasiteten var {} < {}", pollingSize, minCapacity)
         }
@@ -64,11 +62,6 @@ class TaskStepExecutorService(@Value("\${prosessering.maxAntall:10}") private va
         return pollingSize
     }
 
-    private fun executeWork(task: Task) {
-        task.plukker()
-        taskRepository.saveAndFlush(task)
-        worker.doTaskStep(task.id!!)
-    }
 
     companion object {
         private val log = LoggerFactory.getLogger(TaskStepExecutorService::class.java)
