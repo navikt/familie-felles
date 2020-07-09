@@ -29,6 +29,10 @@ class TaskRepositoryTest {
 
     @Test
     fun `skal hente ut alle tasker uavhengig av status`() {
+        val preCount = repository.finnTasksTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
+        val preCountFeilet = preCount.count { it.status == Status.FEILET }
+        val preCountUbehandlet = preCount.count { it.status == Status.UBEHANDLET }
+
         val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
         ubehandletTask.status = Status.UBEHANDLET
         val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
@@ -41,9 +45,9 @@ class TaskRepositoryTest {
         repository.saveAndFlush(feiletTask2)
 
         val alleTasks = repository.finnTasksTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
-        Assertions.assertThat(alleTasks.size).isEqualTo(3)
-        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
-        Assertions.assertThat(alleTasks.count { it.status == Status.UBEHANDLET }).isEqualTo(1)
+        Assertions.assertThat(alleTasks.size).isEqualTo(3 + preCount.size)
+        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2 + preCountFeilet)
+        Assertions.assertThat(alleTasks.count { it.status == Status.UBEHANDLET }).isEqualTo(1 + preCountUbehandlet)
     }
 
     @Test

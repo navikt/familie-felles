@@ -1,17 +1,12 @@
 package no.nav.familie.prosessering.internal
 
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Metrics
-import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
 import no.nav.familie.prosessering.AsyncTaskStep
 import no.nav.familie.prosessering.TaskStepBeskrivelse
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import org.springframework.aop.framework.AopProxyUtils
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

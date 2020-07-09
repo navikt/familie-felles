@@ -1,41 +1,45 @@
 package no.nav.familie.prosessering.internal
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import no.nav.familie.prosessering.TestAppConfig
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.Task.Companion.nyTask
 import no.nav.familie.prosessering.domene.TaskRepository
 import no.nav.familie.prosessering.task.TaskStep1
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import java.util.*
+import org.junit.runner.RunWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.transaction.TestTransaction
 
-
+@RunWith(SpringRunner::class)
+@ContextConfiguration(classes = [TestAppConfig::class])
+@DataJpaTest(excludeAutoConfiguration = [FlywayAutoConfiguration::class])
 class TaskWorkerTest {
 
-    private val repository: TaskRepository = mockk(relaxed = true)
 
-    private val taskStep1 = TaskStep1(repository)
+    @Autowired
+    private lateinit var repository: TaskRepository
 
-    private val worker: TaskWorker = TaskWorker(repository, listOf(taskStep1))
+    @Autowired
+    private lateinit var worker: TaskWorker
 
     @Test
     fun `skal behandle task`() {
-        val task1 =
-                nyTask(TaskStep1.TASK_1, "{'a'='b'}").copy(id = 1)
-        every { repository.findById(1) } returns Optional.of(task1)
-        val copy = task1.copy(status = Status.BEHANDLER)
-        every { repository.saveAndFlush(copy) } returns copy
+        val task1 = nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        repository.save(task1)
         assertThat(task1.status).isEqualTo(Status.UBEHANDLET)
-
+        TestTransaction.flagForCommit()
+        TestTransaction.end()
         worker.doActualWork(task1.id!!)
-
-        verify { repository.saveAndFlush(copy) }
-        assertThat(task1.status).isEqualTo(Status.FERDIG)
-        assertThat(task1.logg).hasSize(3)
+        TestTransaction.start()
+        val findByIdOrNull = repository.findByIdOrNull(task1.id)
+        assertThat(findByIdOrNull?.status).isEqualTo(Status.FERDIG)
+        assertThat(findByIdOrNull?.logg).hasSize(3)
     }
 
 }
