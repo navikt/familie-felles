@@ -44,16 +44,15 @@ class StsRestClient(private val mapper: ObjectMapper,
                 return cachedToken!!.access_token
             }
             log.debug("Henter token fra STS")
-            val builder =
+            val request =
                     HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
                             .uri(stsUrl)
                             .header("Content-Type", "application/json")
-                            .timeout(Duration.ofSeconds(30))
-
-            if (stsApiKey != null) {
-                builder.header("x-nav-apiKey", stsApiKey)
-            }
-            val request = builder.build()
+                            .timeout(Duration.ofSeconds(30)).apply {
+                                if (!stsApiKey.isNullOrEmpty()) {
+                                    header("x-nav-apiKey", stsApiKey)
+                                }
+                            }.build()
 
             val accessTokenResponse = try {
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
