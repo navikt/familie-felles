@@ -19,7 +19,7 @@ class StsRestClient(private val mapper: ObjectMapper,
                     @Value("\${STS_URL}") private val stsUrl: URI,
                     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
                     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-                    @Value("\${STS_APIKEY}") private val stsApiKey: String? = null) {
+                    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
 
     private val client: HttpClient = HttpClientUtil.create()
 
