@@ -18,7 +18,8 @@ import java.util.concurrent.ExecutionException
 class StsRestClient(private val mapper: ObjectMapper,
                     @Value("\${STS_URL}") private val stsUrl: URI,
                     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
-                    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String) {
+                    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
+                    @Value("\${STS_APIKEY}") private val stsApiKey: String? = null) {
 
     private val client: HttpClient = HttpClientUtil.create()
 
@@ -43,12 +44,16 @@ class StsRestClient(private val mapper: ObjectMapper,
                 return cachedToken!!.access_token
             }
             log.debug("Henter token fra STS")
-            val request =
+            val builder =
                     HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
                             .uri(stsUrl)
                             .header("Content-Type", "application/json")
                             .timeout(Duration.ofSeconds(30))
-                            .build()
+
+            if (stsApiKey != null) {
+                builder.header("x-nav-apiKey", stsApiKey)
+            }
+            val request = builder.build()
 
             val accessTokenResponse = try {
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
