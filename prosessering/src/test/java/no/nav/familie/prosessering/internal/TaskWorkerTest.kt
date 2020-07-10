@@ -1,10 +1,13 @@
 package no.nav.familie.prosessering.internal
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import no.nav.familie.prosessering.TestAppConfig
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task.Companion.nyTask
 import no.nav.familie.prosessering.domene.TaskRepository
 import no.nav.familie.prosessering.task.TaskStep1
+import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,6 +25,7 @@ import org.springframework.test.context.transaction.TestTransaction
 class TaskWorkerTest {
 
 
+
     @Autowired
     private lateinit var repository: TaskRepository
 
@@ -30,16 +34,18 @@ class TaskWorkerTest {
 
     @Test
     fun `skal behandle task`() {
-        val task1 = nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        val task1 = nyTask(TaskStep1.TASK_1, "{'a'='b'}").plukker()
         repository.save(task1)
-        assertThat(task1.status).isEqualTo(Status.UBEHANDLET)
+        assertThat(task1.status).isEqualTo(Status.PLUKKET)
         TestTransaction.flagForCommit()
         TestTransaction.end()
         worker.doActualWork(task1.id!!)
-        TestTransaction.start()
+//        TestTransaction.start()
         val findByIdOrNull = repository.findByIdOrNull(task1.id)
         assertThat(findByIdOrNull?.status).isEqualTo(Status.FERDIG)
-        assertThat(findByIdOrNull?.logg).hasSize(3)
+        assertThat(findByIdOrNull?.logg).hasSize(4)
     }
+
+
 
 }
