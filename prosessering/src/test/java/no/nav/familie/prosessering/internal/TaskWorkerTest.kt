@@ -24,8 +24,6 @@ import org.springframework.test.context.transaction.TestTransaction
 @DataJpaTest(excludeAutoConfiguration = [FlywayAutoConfiguration::class])
 class TaskWorkerTest {
 
-
-
     @Autowired
     private lateinit var repository: TaskRepository
 
@@ -40,12 +38,9 @@ class TaskWorkerTest {
         TestTransaction.flagForCommit()
         TestTransaction.end()
         worker.doActualWork(task1.id!!)
-//        TestTransaction.start()
         val findByIdOrNull = repository.findByIdOrNull(task1.id)
         assertThat(findByIdOrNull?.status).isEqualTo(Status.FERDIG)
         assertThat(findByIdOrNull?.logg).hasSize(4)
     }
-
-
 
 }
