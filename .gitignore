@@ -5,3 +5,4 @@ target/
 /prosessering/.project
 /prosessering/.factorypath
 /prosessering/.classpath
+.DS_Store
