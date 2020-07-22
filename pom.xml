@@ -29,7 +29,7 @@
         <bytebuddy.version>1.10.8</bytebuddy.version>
         <mockk.version>1.9.3</mockk.version>
         <micrometer.version>1.5.1</micrometer.version>
-        <nav.security.token.version>1.1.4</nav.security.token.version>
+        <nav.security.token.version>1.1.5</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
@@ -133,7 +133,7 @@
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>6.3</version>
+                <version>6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
