@@ -23,7 +23,7 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     }
 
     fun jwtError(message: String): Nothing {
-        throw JwtTokenValidatorException(message, expiryDate)
+        throw JwtTokenValidatorException(message)
     }
 
 
