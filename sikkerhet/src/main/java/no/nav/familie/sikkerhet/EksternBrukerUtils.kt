@@ -11,25 +11,16 @@ object EksternBrukerUtils {
 
     const val ISSUER = "selvbetjening"
 
-    fun hentFnrFraToken(): String {
-        return fødselsnummer
-    }
-
-    fun personIdentErLikInnloggetBruker(personIdent: String): Boolean {
-        return personIdent == hentFnrFraToken()
-    }
-
-    fun getBearerTokenForLoggedInUser(): String {
-        return getTokenValidationContext().getJwtToken(ISSUER).tokenAsString
-    }
-
     private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name
 
-    private val subject: String?
-        get() = claims()?.subject
+    fun hentFnrFraToken(): String =
+            claims()?.subject ?: throw JwtTokenValidatorException("Fant ikke subject")
 
-    private val fødselsnummer: String
-        get() = subject ?: throw JwtTokenValidatorException("Fant ikke subject")
+    fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
+            personIdent == hentFnrFraToken()
+
+    fun getBearerTokenForLoggedInUser(): String =
+            getTokenValidationContext().getJwtToken(ISSUER).tokenAsString
 
     private fun claims(): JwtTokenClaims? {
         val validationContext = getTokenValidationContext()
@@ -37,11 +28,8 @@ object EksternBrukerUtils {
     }
 
     private fun getTokenValidationContext(): TokenValidationContext {
-        return RequestContextHolder.currentRequestAttributes().getAttribute(getContextHolderName(), 0) as TokenValidationContext
+        return RequestContextHolder.currentRequestAttributes()
+                .getAttribute(TOKEN_VALIDATION_CONTEXT_ATTRIBUTE, 0) as TokenValidationContext
     }
 
-    private fun getContextHolderName(): String {
-        val holder = "no.nav.security.token.support.spring.SpringTokenValidationContextHolder"
-        return TOKEN_VALIDATION_CONTEXT_ATTRIBUTE ?: holder
-    }
 }
