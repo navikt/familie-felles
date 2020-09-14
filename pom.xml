@@ -28,7 +28,7 @@
         <spring.boot.version>2.3.2.RELEASE</spring.boot.version>
         <bytebuddy.version>1.10.8</bytebuddy.version>
         <mockk.version>1.9.3</mockk.version>
-        <micrometer.version>1.5.3</micrometer.version>
+        <micrometer.version>1.5.4</micrometer.version>
         <nav.security.token.version>1.2.0</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
