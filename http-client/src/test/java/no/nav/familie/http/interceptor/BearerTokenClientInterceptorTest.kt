@@ -48,7 +48,7 @@ class BearerTokenClientInterceptorTest {
                                                                                  ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
                                                                                  "Secrets are us",
                                                                                  null),
-                                                  URI("http://firstResource.no")),
+                                                  URI("http://firstResource.no"), null),
                           "2" to ClientProperties(URI("http://tokenendpoint.com"),
                                                   OAuth2GrantType.JWT_BEARER,
                                                   listOf("c", "b", "a"),
@@ -56,7 +56,7 @@ class BearerTokenClientInterceptorTest {
                                                                                  ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
                                                                                  "Secrets are us",
                                                                                  null),
-                                                  URI("http://firstResource.no")),
+                                                  URI("http://firstResource.no"), null),
                           "3" to ClientProperties(URI("http://tokenendpoint.com"),
                                                   OAuth2GrantType.CLIENT_CREDENTIALS,
                                                   listOf("z", "y", "x"),
@@ -64,6 +64,6 @@ class BearerTokenClientInterceptorTest {
                                                                                  ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
                                                                                  "Secrets are us",
                                                                                  null),
-                                                  URI("http://secondResource.no")))
+                                                  URI("http://secondResource.no"), null))
             )
 }

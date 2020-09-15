@@ -84,6 +84,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         // lager metrikker på tasks som har feilet max antall ganger.
         if (task.status == Status.FEILET) {
             finnFeilteller(task.taskStepType).increment()
+            log.error("Task ${task.id} av type ${task.taskStepType} har feilet. Sjekk familie-prosessering for detaljer")
         }
         task.triggerTid = task.triggerTid?.plusSeconds(finnTriggerTidVedFeil(task.taskStepType))
         taskRepository.save(task)
@@ -124,5 +125,6 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
     companion object {
         private val secureLog = LoggerFactory.getLogger("secureLogger")
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }
