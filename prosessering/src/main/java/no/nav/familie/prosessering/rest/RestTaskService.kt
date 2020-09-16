@@ -20,7 +20,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
         logger.info("$saksbehandlerId henter tasker med status $statuses")
 
         return Result.runCatching {
-            taskRepository.finnTasksTilFrontend(statuses, PageRequest.of(page, TASK_LIMIT))
+            taskRepository.finnTasksMedStatus(statuses, PageRequest.of(page, TASK_LIMIT))
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = it) },
@@ -35,7 +35,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
         logger.info("$saksbehandlerId henter tasker med status $statuses")
 
         return Result.runCatching {
-            PaginableResponse(taskRepository.finnTasksTilFrontend(statuses))
+            PaginableResponse(taskRepository.finnTasksDtoTilFrontend(statuses, PageRequest.of(page, TASK_LIMIT)))
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = it) },
@@ -82,7 +82,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
         logger.info("$saksbehandlerId rekjører alle tasks med status $status")
 
         return Result.runCatching {
-            taskRepository.finnTasksTilFrontend(listOf(status), Pageable.unpaged())
+            taskRepository.finnTasksMedStatus(listOf(status), Pageable.unpaged())
                     .map { taskRepository.save(it.copy(triggerTid = null).klarTilPlukk(saksbehandlerId)) }
         }
                 .fold(
