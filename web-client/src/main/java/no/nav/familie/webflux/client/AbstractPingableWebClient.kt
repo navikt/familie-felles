@@ -5,7 +5,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import java.net.URI
 
 /**
- * Utvidelse av AbstractRestClient for tjenester som implementerer ping.
+ * Utvidelse av AbstractWebClient for tjenester som implementerer ping.
  */
 abstract class AbstractPingableWebClient(webClient: WebClient,
                                          metricsPrefix: String) : AbstractWebClient(webClient, metricsPrefix), Pingable {
