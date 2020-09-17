@@ -24,8 +24,7 @@ class BearerTokenWithSTSFallbackClientInterceptor(oAuth2AccessTokenService: OAut
         BearerTokenClientInterceptor(oAuth2AccessTokenService, clientConfigurationProperties) {
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
         if (preferredUsername() == null) {
-            val systembrukerToken = stsRestClient.systemOIDCToken
-            request.headers.setBearerAuth(systembrukerToken)
+            request.headers.setBearerAuth(stsRestClient.systemOIDCToken)
         } else {
             return super.intercept(request, body, execution)
         }
