@@ -34,7 +34,7 @@ interface TaskRepository : JpaRepository<Task, Long> {
     fun finnAlleFeiledeTasks(): List<Task>
 
     @Query("SELECT t FROM Task t WHERE t.status IN (:status) ORDER BY t.opprettetTidspunkt DESC")
-    fun finnTasksTilFrontend(status: List<Status>, page: Pageable): List<Task>
+    fun finnTasksMedStatus(status: List<Status>, page: Pageable): List<Task>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM Task t WHERE t.status = 'FERDIG' AND t.triggerTid < :eldreEnnDato")
@@ -46,7 +46,7 @@ interface TaskRepository : JpaRepository<Task, Long> {
         (select count(tl.id) from TaskLogg tl where tl.task.id = t.id), 
         (select max(tl.opprettetTidspunkt) from TaskLogg tl where tl.task.id = t.id))
         from Task t WHERE t.status IN (:status) ORDER BY t.opprettetTidspunkt DESC""")
-    fun finnTasksTilFrontend(status: List<Status>): List<TaskDto>
+    fun finnTasksDtoTilFrontend(status: List<Status>, page: Pageable): List<TaskDto>
 
     @Query("""select new no.nav.familie.prosessering.rest.TaskloggDto(t.id,t.endretAv,t.type,t.node,t.melding,
         t.opprettetTidspunkt) from TaskLogg t WHERE t.task.id = :id ORDER BY t.opprettetTidspunkt DESC""")

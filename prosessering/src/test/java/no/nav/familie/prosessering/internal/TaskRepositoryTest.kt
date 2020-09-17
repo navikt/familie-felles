@@ -28,8 +28,8 @@ class TaskRepositoryTest {
 
 
     @Test
-    fun `skal hente ut alle tasker uavhengig av status`() {
-        val preCount = repository.finnTasksTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
+    fun `finnTasksMedStatus - skal hente ut alle tasker uavhengig av status`() {
+        val preCount = repository.finnTasksMedStatus(Status.values().toList(), PageRequest.of(0, 1000))
         val preCountFeilet = preCount.count { it.status == Status.FEILET }
         val preCountUbehandlet = preCount.count { it.status == Status.UBEHANDLET }
 
@@ -44,14 +44,14 @@ class TaskRepositoryTest {
         repository.saveAndFlush(feiletTask1)
         repository.saveAndFlush(feiletTask2)
 
-        val alleTasks = repository.finnTasksTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
+        val alleTasks = repository.finnTasksMedStatus(Status.values().toList(), PageRequest.of(0, 1000))
         Assertions.assertThat(alleTasks.size).isEqualTo(3 + preCount.size)
         Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2 + preCountFeilet)
         Assertions.assertThat(alleTasks.count { it.status == Status.UBEHANDLET }).isEqualTo(1 + preCountUbehandlet)
     }
 
     @Test
-    fun `skal hente ut alle tasker gitt en status`() {
+    fun `finnTasksMedStatus - skal hente ut alle tasker gitt en status`() {
         val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
         ubehandletTask.status = Status.UBEHANDLET
         val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
@@ -63,19 +63,96 @@ class TaskRepositoryTest {
         repository.saveAndFlush(feiletTask1)
         repository.saveAndFlush(feiletTask2)
 
-        val alleTasks = repository.finnTasksTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1000))
+        val alleTasks = repository.finnTasksMedStatus(listOf(Status.FEILET), PageRequest.of(0, 1000))
         Assertions.assertThat(alleTasks.size).isEqualTo(2)
         Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
     }
 
     @Test
-    fun `skal hente task til frontend`() {
+    fun `finnTasksMedStatus - skal hente ut max 1 task gitt en status`() {
+        val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksMedStatus(listOf(Status.FEILET), PageRequest.of(0, 1))
+        Assertions.assertThat(alleTasks.size).isEqualTo(1)
+        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(1)
+    }
+
+    @Test
+    fun `finnTasksDtoTilFrontend - skal hente ut alle tasker uavhengig av status`() {
+        val preCount = repository.finnTasksDtoTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
+        val preCountFeilet = preCount.count { it.status == Status.FEILET }
+        val preCountUbehandlet = preCount.count { it.status == Status.UBEHANDLET }
+
+        val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksDtoTilFrontend(Status.values().toList(), PageRequest.of(0, 1000))
+        Assertions.assertThat(alleTasks.size).isEqualTo(3 + preCount.size)
+        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2 + preCountFeilet)
+        Assertions.assertThat(alleTasks.count { it.status == Status.UBEHANDLET }).isEqualTo(1 + preCountUbehandlet)
+    }
+
+    @Test
+    fun `finnTasksDtoTilFrontend - skal hente ut alle tasker gitt en status`() {
+        val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksDtoTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1000))
+        Assertions.assertThat(alleTasks.size).isEqualTo(2)
+        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(2)
+    }
+
+    @Test
+    fun `finnTasksDtoTilFrontend - skal hente ut max 1 task gitt en status`() {
+        val ubehandletTask = Task.nyTask(TaskStep1.TASK_1, "{'a'='b'}")
+        ubehandletTask.status = Status.UBEHANDLET
+        val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask1.status = Status.FEILET
+        val feiletTask2 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
+        feiletTask2.status = Status.FEILET
+
+        repository.saveAndFlush(ubehandletTask)
+        repository.saveAndFlush(feiletTask1)
+        repository.saveAndFlush(feiletTask2)
+
+        val alleTasks = repository.finnTasksDtoTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1))
+        Assertions.assertThat(alleTasks.size).isEqualTo(1)
+        Assertions.assertThat(alleTasks.count { it.status == Status.FEILET }).isEqualTo(1)
+    }
+
+    @Test
+    fun `finnTasksMedStatus - skal hente task til frontend`() {
         MDC.put(MDCConstants.MDC_CALL_ID, "test")
         val feiletTask1 = Task.nyTask(TaskStep2.TASK_2, "{'a'='1'}")
         feiletTask1.status = Status.FEILET
         repository.saveAndFlush(feiletTask1)
 
-        val tasks = repository.finnTasksTilFrontend(listOf(Status.FEILET))
+        val tasks = repository.finnTasksDtoTilFrontend(listOf(Status.FEILET), PageRequest.of(0, 1000))
 
         Assertions.assertThat(tasks).hasSize(1)
 

@@ -3,9 +3,11 @@ package no.nav.familie.log.auditlogger
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
+import org.springframework.web.reactive.function.client.ClientRequest
 import javax.servlet.http.HttpServletRequest
 
 object AuditLogger {
+
     fun log(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String) {
         LoggerFactory.getLogger("auditLogger").info(opprettMelding(sporingsdata, type, action))
     }
@@ -16,6 +18,14 @@ object AuditLogger {
 
         LoggerFactory.getLogger("auditLogger")
                 .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method), request.requestURI.toString()))
+    }
+
+    fun logRequest(request: ClientRequest, ansvarligSaksbehandler: String) {
+        val sporingsdata = Sporingsdata(verdier = mapOf(
+                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler))
+
+        LoggerFactory.getLogger("auditLogger")
+                .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method()), request.url().toString()))
     }
 
     private fun opprettMelding(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String): String {
@@ -49,8 +59,13 @@ enum class AuditLoggerType(val httpMethod: HttpMethod) {
     PATCH(HttpMethod.PATCH);
 
     companion object {
+
         fun hentType(method: String): AuditLoggerType {
             return values().find { it.httpMethod.matches(method) } ?: throw IllegalStateException("Ikke godkjent http metode")
+        }
+
+        fun hentType(method: HttpMethod): AuditLoggerType {
+            return values().find { it.httpMethod == method } ?: throw IllegalStateException("Ikke godkjent http metode")
         }
     }
 }
