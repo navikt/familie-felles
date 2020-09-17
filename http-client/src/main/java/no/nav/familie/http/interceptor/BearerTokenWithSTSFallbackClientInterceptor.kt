@@ -9,8 +9,6 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 
-import java.net.URI
-
 @Component
 class BearerTokenWithSTSFallbackClientInterceptor(oAuth2AccessTokenService: OAuth2AccessTokenService,
                                                   clientConfigurationProperties: ClientConfigurationProperties,
