@@ -7,6 +7,8 @@ import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenRespons
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
+import org.springframework.beans.factory.support.SecurityContextProvider
+import org.springframework.boot.actuate.endpoint.SecurityContext
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -16,39 +18,19 @@ import org.springframework.stereotype.Component
 import java.net.URI
 
 @Component
-class BearerTokenWithSTSFallbackClientInterceptor(private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-                                                  private val clientConfigurationProperties: ClientConfigurationProperties,
+class BearerTokenWithSTSFallbackClientInterceptor(oAuth2AccessTokenService: OAuth2AccessTokenService,
+                                                  clientConfigurationProperties: ClientConfigurationProperties,
                                                   private val stsRestClient: StsRestClient) :
-        ClientHttpRequestInterceptor {
-
+        BearerTokenClientInterceptor(oAuth2AccessTokenService, clientConfigurationProperties) {
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
         if (preferredUsername() == null) {
             val systembrukerToken = stsRestClient.systemOIDCToken
             request.headers.setBearerAuth(systembrukerToken)
         } else {
-            val clientProperties = clientPropertiesFor(request.uri)
-            val response: OAuth2AccessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties)
-            request.headers.setBearerAuth(response.accessToken)
+            return super.intercept(request, body, execution)
         }
-
         return execution.execute(request, body)
     }
-
-    private fun clientPropertiesFor(uri: URI): ClientProperties {
-        val values = clientConfigurationProperties
-                .registration
-                .values
-                .filter { uri.toString().startsWith(it.resourceUrl.toString()) }
-        return if (values.size == 1) values.first() else filterForGrantType(values, uri)
-    }
-
-    private fun filterForGrantType(values: List<ClientProperties>, uri: URI): ClientProperties {
-        val preferredUsername = preferredUsername()
-        val grantType = if (preferredUsername == null) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
-        return values.firstOrNull { grantType == it.grantType }
-                ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
-    }
-
     private fun preferredUsername(): Any? {
         return try {
             SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
