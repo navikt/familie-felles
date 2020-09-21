@@ -66,11 +66,10 @@ private fun filterForGrantType(values: List<ClientProperties>, uri: URI): Client
 
 private fun erSystembruker(): Boolean {
     return try {
-        SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
-        false
+        val preferred_username = SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
+        return preferred_username == null
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
         true
     }
 }
-
