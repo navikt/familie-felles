@@ -2,7 +2,7 @@ package no.nav.familie.prosessering.rest
 
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskLogg
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 

@@ -1,24 +1,21 @@
 package no.nav.familie.prosessering.internal
 
-import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import no.nav.familie.prosessering.TestAppConfig
 import no.nav.familie.prosessering.domene.Status
 import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.prosessering.domene.TaskRepository
-import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [TestAppConfig::class])
 @DataJpaTest(excludeAutoConfiguration = [FlywayAutoConfiguration::class])
 class ScheduledTasksServiceTest {

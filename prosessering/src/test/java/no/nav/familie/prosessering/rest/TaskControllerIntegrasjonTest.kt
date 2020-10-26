@@ -9,17 +9,17 @@ import no.nav.familie.prosessering.domene.TaskRepository
 import no.nav.familie.prosessering.task.TaskStep1
 import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [TestAppConfig::class])
 @DataJpaTest(excludeAutoConfiguration = [FlywayAutoConfiguration::class])
 internal class TaskControllerIntegrasjonTest {
@@ -31,7 +31,7 @@ internal class TaskControllerIntegrasjonTest {
 
     lateinit var taskController: TaskController
 
-    @Before
+    @BeforeEach
     fun setup() {
         taskController = TaskController(restTaskService, mockk())
         every { taskController.hentBrukernavn() } returns ""

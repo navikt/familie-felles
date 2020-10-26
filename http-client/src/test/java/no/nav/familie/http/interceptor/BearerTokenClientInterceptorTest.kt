@@ -10,8 +10,8 @@ import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.OAuth2GrantType
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import java.net.URI
@@ -22,7 +22,7 @@ class BearerTokenClientInterceptorTest {
 
     private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>(relaxed = true )
 
-    @Before
+    @BeforeEach
     fun setup() {
         bearerTokenClientInterceptor = BearerTokenClientInterceptor(oAuth2AccessTokenService,
                                                                     clientConfigurationProperties)

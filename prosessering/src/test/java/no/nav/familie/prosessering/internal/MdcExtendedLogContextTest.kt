@@ -2,8 +2,8 @@ package no.nav.familie.prosessering.internal
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.slf4j.MDC
 
 class MdcExtendedLogContextTest {
@@ -12,7 +12,7 @@ class MdcExtendedLogContextTest {
 
     private var mdcExtendedLogContext: MdcExtendedLogContext = MdcExtendedLogContext.getContext(paramName)
 
-    @Before
+    @BeforeEach
     fun setup() {
         mdcExtendedLogContext.clear()
     }

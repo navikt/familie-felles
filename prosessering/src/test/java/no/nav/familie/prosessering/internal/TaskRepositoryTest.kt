@@ -8,17 +8,18 @@ import no.nav.familie.prosessering.domene.TaskRepository
 import no.nav.familie.prosessering.task.TaskStep1
 import no.nav.familie.prosessering.task.TaskStep2
 import org.assertj.core.api.Assertions
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.junit4.SpringRunner
 
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [TestAppConfig::class])
 @DataJpaTest(excludeAutoConfiguration = [FlywayAutoConfiguration::class])
 class TaskRepositoryTest {

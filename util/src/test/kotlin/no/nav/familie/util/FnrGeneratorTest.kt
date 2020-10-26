@@ -1,7 +1,7 @@
 package no.nav.familie.util
 
 import no.nav.familie.kontrakter.ef.søknad.Fødselsnummer
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 
 class FnrGeneratorTest {
