@@ -25,18 +25,13 @@ class RequestTimeFilter : Filter {
     }
 
     private fun log(request: HttpServletRequest, code: Int, timer: StopWatch) {
-        if (hasError(code)) {
+        if (HttpStatus.valueOf(code).isError) {
             LOG.warn("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
         } else {
             if (!isHealthCheck(request.requestURI)) {
                 LOG.info("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
             }
         }
-    }
-
-    private fun hasError(code: Int): Boolean {
-        val series = HttpStatus.Series.resolve(code)
-        return series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR
     }
 
     private fun isHealthCheck(uri: String): Boolean {
