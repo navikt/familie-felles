@@ -26,18 +26,18 @@ class StsRestClient(private val mapper: ObjectMapper,
     private val client: HttpClient = HttpClientUtil.create()
 
     private var cachedToken: AccessTokenResponse? = null
-    private var cachedTokenUtløpstid = LocalDateTime.now()
+    private var refreshCachedTokenTidspunkt = LocalDateTime.now()
 
     private val isTokenValid: Boolean
         get() {
             if (cachedToken == null) {
                 return false
             }
-            log.debug("Tokenet løper ut: {}. Tiden nå er: {}",
-                     cachedTokenUtløpstid,
-                     LocalTime.now())
+            log.debug("Skal refreshe token: {}. Tiden nå er: {}",
+                      refreshCachedTokenTidspunkt,
+                      LocalTime.now())
 
-            return cachedTokenUtløpstid.minusSeconds(cachedToken!!.expires_in / 4).isAfter(LocalDateTime.now())
+            return refreshCachedTokenTidspunkt.isAfter(LocalDateTime.now())
         }
 
     val systemOIDCToken: String
@@ -71,7 +71,9 @@ class StsRestClient(private val mapper: ObjectMapper,
             }
             if (accessTokenResponse != null) {
                 cachedToken = accessTokenResponse
-                cachedTokenUtløpstid = LocalDateTime.now().plusSeconds(accessTokenResponse.expires_in)
+                refreshCachedTokenTidspunkt = LocalDateTime.now()
+                        .plusSeconds(accessTokenResponse.expires_in)
+                        .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
                 return accessTokenResponse.access_token
             }
             throw StsAccessTokenFeilException("Manglende token")
