@@ -42,6 +42,7 @@ class BearerTokenClientInterceptorTest {
     private val clientConfigurationProperties =
             ClientConfigurationProperties(
                     mapOf("1" to ClientProperties(URI("http://tokenendpoint.com"),
+                                                  URI("http://tokenendpoint.com"),
                                                   OAuth2GrantType.CLIENT_CREDENTIALS,
                                                   listOf("z", "y", "x"),
                                                   ClientAuthenticationProperties("clientIdent",
@@ -50,6 +51,7 @@ class BearerTokenClientInterceptorTest {
                                                                                  null),
                                                   URI("http://firstResource.no"), null),
                           "2" to ClientProperties(URI("http://tokenendpoint.com"),
+                                                  URI("http://tokenendpoint.com"),
                                                   OAuth2GrantType.JWT_BEARER,
                                                   listOf("c", "b", "a"),
                                                   ClientAuthenticationProperties("clientIdent",
@@ -58,6 +60,7 @@ class BearerTokenClientInterceptorTest {
                                                                                  null),
                                                   URI("http://firstResource.no"), null),
                           "3" to ClientProperties(URI("http://tokenendpoint.com"),
+                                                  URI("http://tokenendpoint.com"),
                                                   OAuth2GrantType.CLIENT_CREDENTIALS,
                                                   listOf("z", "y", "x"),
                                                   ClientAuthenticationProperties("clientIdent",
