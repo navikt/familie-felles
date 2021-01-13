@@ -20,7 +20,7 @@ class AuthorizationFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.requestURI.substring(request.contextPath.length)
-        return path.startsWith("/api/selvbetjening") || path.startsWith("/internal/")
+        return path.startsWith("/api/selvbetjening") || path.startsWith("/internal/") || path.startsWith("/swagger-ui/")
     }
 
     private fun acceptedClient() = acceptedClients.contains(oidcUtil.getClaim("azp"))
