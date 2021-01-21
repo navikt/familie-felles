@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -67,7 +68,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return when (task.isPresent) {
             true -> {
-                taskRepository.save(task.get().copy(triggerTid = null).klarTilPlukk(saksbehandlerId))
+                taskRepository.save(task.get().copy(triggerTid = LocalDateTime.now()).klarTilPlukk(saksbehandlerId))
                 logger.info("$saksbehandlerId rekjører task $taskId")
 
                 Ressurs.success(data = "")
@@ -83,7 +84,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return Result.runCatching {
             taskRepository.finnTasksMedStatus(listOf(status), Pageable.unpaged())
-                    .map { taskRepository.save(it.copy(triggerTid = null).klarTilPlukk(saksbehandlerId)) }
+                    .map { taskRepository.save(it.copy(triggerTid = LocalDateTime.now()).klarTilPlukk(saksbehandlerId)) }
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = "") },
