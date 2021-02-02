@@ -8,6 +8,7 @@ import no.nav.familie.log.mdc.MDCConstants.MDC_REQUEST_ID
 import no.nav.familie.log.mdc.MDCConstants.MDC_USER_ID
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import java.io.EOFException
 import java.io.IOException
 import java.util.function.Supplier
 import javax.servlet.FilterChain
@@ -65,14 +66,18 @@ class LogFilter(
         try {
             filterChain.doFilter(httpServletRequest, httpServletResponse)
         } catch (e: Exception) {
-            log.error(e.message, e)
-            if (httpServletResponse.isCommitted) {
-                log.error("failed with status={}", httpServletResponse.status)
-                throw e
-            }
-            httpServletResponse.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-            if (exposeErrorDetails.get()) {
-                e.printStackTrace(httpServletResponse.writer)
+            if(e is EOFException) {
+                log.warn(e.message, e)
+            } else {
+                log.error(e.message, e)
+                if (httpServletResponse.isCommitted) {
+                    log.error("failed with status={}", httpServletResponse.status)
+                    throw e
+                }
+                httpServletResponse.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+                if (exposeErrorDetails.get()) {
+                    e.printStackTrace(httpServletResponse.writer)
+                }
             }
         }
     }
