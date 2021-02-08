@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
+import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import java.time.LocalDateTime
@@ -51,6 +52,7 @@ class StsRestClient(private val mapper: ObjectMapper,
                     HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
                             .uri(stsUrl)
                             .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.noBody())
                             .timeout(Duration.ofSeconds(30)).apply {
                                 if (!stsApiKey.isNullOrEmpty()) {
                                     header("x-nav-apiKey", stsApiKey)
