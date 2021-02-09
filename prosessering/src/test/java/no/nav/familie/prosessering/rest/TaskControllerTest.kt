@@ -28,18 +28,18 @@ internal class TaskControllerTest {
     @Test
     fun `skal hente task basert på alle statuser`() {
         val statusSlot = slot<List<Status>>()
-        every { taskRepository.finnTasksMedStatus(capture(statusSlot), any()) } returns emptyList()
+        every { taskRepository.finnTasksDtoTilFrontend(capture(statusSlot), any()) } returns emptyList()
 
-        taskController.task(null, null)
+        taskController.task2(null, null)
         Assertions.assertThat(statusSlot.captured).isEqualTo(Status.values().toList())
     }
 
     @Test
     fun `skal hente task basert på en status`() {
         val statusSlot = slot<List<Status>>()
-        every { taskRepository.finnTasksMedStatus(capture(statusSlot), any()) } returns emptyList()
+        every { taskRepository.finnTasksDtoTilFrontend(capture(statusSlot), any()) } returns emptyList()
 
-        taskController.task(Status.FEILET, null)
+        taskController.task2(Status.FEILET, null)
         Assertions.assertThat(statusSlot.captured).isEqualTo(listOf(Status.FEILET))
     }
 }
