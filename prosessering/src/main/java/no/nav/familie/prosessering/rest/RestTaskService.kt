@@ -17,22 +17,7 @@ import java.util.*
 @Service
 class RestTaskService(private val taskRepository: TaskRepository) {
 
-    fun hentTasks(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<List<Task>> {
-        logger.info("$saksbehandlerId henter tasker med status $statuses")
-
-        return Result.runCatching {
-            taskRepository.finnTasksMedStatus(statuses, PageRequest.of(page, TASK_LIMIT))
-        }
-                .fold(
-                        onSuccess = { Ressurs.success(data = it) },
-                        onFailure = { e ->
-                            logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure(errorMessage = "Henting av tasker med status '$statuses', feilet.", error = e)
-                        }
-                )
-    }
-
-    fun hentTasks2(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<PaginableResponse<TaskDto>> {
+    fun hentTasks(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<PaginableResponse<TaskDto>> {
         logger.info("$saksbehandlerId henter tasker med status $statuses")
 
         return Result.runCatching {

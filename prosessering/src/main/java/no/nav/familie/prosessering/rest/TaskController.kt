@@ -2,7 +2,6 @@ package no.nav.familie.prosessering.rest
 
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.prosessering.domene.Status
-import no.nav.familie.prosessering.domene.Task
 import no.nav.familie.sikkerhet.OIDCUtil
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import org.springframework.http.ResponseEntity
@@ -17,18 +16,11 @@ class TaskController(private val restTaskService: RestTaskService, private val o
         return oidcUtil.getClaim("preferred_username")
     }
 
-    @GetMapping(path = ["/task"])
-    fun task(@RequestHeader status: Status?,
-             @RequestHeader(required = false) page: Int?): ResponseEntity<Ressurs<List<Task>>> {
-        val statuser: List<Status> = status?.let { listOf(it) } ?: Status.values().toList()
-        return ResponseEntity.ok(restTaskService.hentTasks(statuser, hentBrukernavn(), page ?: 0))
-    }
-
-    @GetMapping(path = ["/v2/task"])
+    @GetMapping(path = ["/v2/task", "/task/v2"])
     fun task2(@RequestParam status: Status?,
               @RequestParam(required = false) page: Int?): ResponseEntity<Ressurs<PaginableResponse<TaskDto>>> {
         val statuser: List<Status> = status?.let { listOf(it) } ?: Status.values().toList()
-        return ResponseEntity.ok(restTaskService.hentTasks2(statuser, hentBrukernavn(), page ?: 0))
+        return ResponseEntity.ok(restTaskService.hentTasks(statuser, hentBrukernavn(), page ?: 0))
     }
 
     @GetMapping(path = ["/task/logg/{id}"])
