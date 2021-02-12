@@ -123,7 +123,7 @@ data class Task(
         return this
     }
 
-    fun feilet(feil: TaskFeil, maxAntallFeil: Int): Task {
+    fun feilet(feil: TaskFeil, maxAntallFeil: Int, feiletStatus: Status): Task {
         if (this.status == Status.MANUELL_OPPFØLGING) {
             logg.add(TaskLogg(
                     task = this,
@@ -148,7 +148,7 @@ data class Task(
         if (maxAntallFeil > antallFeilendeForsøk) {
             this.status = Status.KLAR_TIL_PLUKK
         } else {
-            this.status = Status.FEILET
+            this.status = feiletStatus
         }
         return this
     }

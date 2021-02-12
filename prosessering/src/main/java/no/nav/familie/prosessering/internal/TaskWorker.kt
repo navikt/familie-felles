@@ -24,6 +24,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     private val maxAntallFeilMap: Map<String, Int>
     private val triggerTidVedFeilMap: Map<String, Long>
     private val feiltellereForTaskSteps: Map<String, Counter>
+    private val feiletStatusMap: Map<String, Status>
 
     init {
         val tasksTilTaskStepBeskrivelse: Map<AsyncTaskStep, TaskStepBeskrivelse> = taskStepTyper.associateWith { task ->
@@ -34,6 +35,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         }
         taskStepMap = tasksTilTaskStepBeskrivelse.entries.associate { it.value.taskStepType to it.key }
         maxAntallFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.maxAntallFeil }
+        feiletStatusMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.feiletStatus }
         triggerTidVedFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.triggerTidVedFeilISekunder }
         feiltellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
             it.taskStepType to Metrics.counter("mottak.feilede.tasks",
@@ -78,9 +80,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun doFeilhåndtering(task: Task, e: Exception) {
         val maxAntallFeil = finnMaxAntallFeil(task.taskStepType)
+        val feiletStatus = finnFeiletStatus(task.taskStepType)
         secureLog.trace("Behandler task='{}'", task)
 
-        task.feilet(TaskFeil(task, e), maxAntallFeil)
+        task.feilet(TaskFeil(task, e), maxAntallFeil, feiletStatus)
         // lager metrikker på tasks som har feilet max antall ganger.
         if (task.status == Status.FEILET) {
             finnFeilteller(task.taskStepType).increment()
@@ -103,6 +106,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
     private fun finnMaxAntallFeil(taskType: String): Int {
         return maxAntallFeilMap[taskType] ?: error("Ukjent tasktype $taskType")
+    }
+
+    private fun finnFeiletStatus(taskType: String): Status {
+        return feiletStatusMap[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
     private fun finnTaskStep(taskType: String): AsyncTaskStep {
