@@ -1,6 +1,7 @@
 package no.nav.familie.prosessering
 
 
+import no.nav.familie.prosessering.domene.Status
 import java.lang.annotation.Inherited
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
@@ -30,5 +31,10 @@ annotation class TaskStepBeskrivelse(
         /**
          * Hvor lenge man skal vente ved feil.
          */
-        val triggerTidVedFeilISekunder: Long = 0
+        val triggerTidVedFeilISekunder: Long = 0,
+
+        /**
+         * Hvilken status som ønskes satt når maxAntallFeil er nådd.
+         */
+        val feiletStatus: Status = Status.FEILET
 )
