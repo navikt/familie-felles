@@ -11,7 +11,6 @@ import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
 import org.springframework.aop.framework.AopProxyUtils
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +23,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     private val maxAntallFeilMap: Map<String, Int>
     private val triggerTidVedFeilMap: Map<String, Long>
     private val feiltellereForTaskSteps: Map<String, Counter>
+    private val fullførttellereForTaskSteps: Map<String, Counter>
     private val feiletStatusMap: Map<String, Status>
 
     init {
@@ -44,8 +44,14 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
                                                "beskrivelse",
                                                it.beskrivelse)
         }
+        fullførttellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
+            it.taskStepType to Metrics.counter("prosesering.fullfort.tasks",
+                                               "status",
+                                               it.taskStepType,
+                                               "beskrivelse",
+                                               it.beskrivelse)
+        }
     }
-
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun doActualWork(taskId: Long) {
@@ -75,6 +81,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         task.ferdigstill()
         secureLog.trace("Ferdigstiller task='{}'", task)
 
+        finnFullførtteller(task.taskStepType).increment()
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -83,18 +90,21 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         val feiletStatus = finnFeiletStatus(task.taskStepType)
         secureLog.trace("Behandler task='{}'", task)
 
-        task.feilet(TaskFeil(task, e), maxAntallFeil, feiletStatus)
-        // lager metrikker på tasks som har feilet max antall ganger.
-        if (task.status == Status.FEILET) {
-            finnFeilteller(task.taskStepType).increment()
-            log.error("Task ${task.id} av type ${task.taskStepType} har feilet. Sjekk familie-prosessering for detaljer")
+        if (task.status == Status.MANUELL_OPPFØLGING) {
+            // I dette tilfellet skal det kun logges, det skal ikke sjekkes mot maxAntallFeil eller oppdatere status.
+            task.feiletMedStatusManuellOppfølging(TaskFeil(task, e))
+        } else {
+            task.feilet(TaskFeil(task, e), maxAntallFeil, feiletStatus)
+            // lager metrikker på tasks som har feilet max antall ganger.
+            if (task.status == feiletStatus) {
+                finnFeilteller(task.taskStepType).increment()
+                log.error("Task ${task.id} av type ${task.taskStepType} har feilet og satt til status $feiletStatus. Sjekk familie-prosessering for detaljer")
+            }
         }
         task.triggerTid = task.triggerTid?.plusSeconds(finnTriggerTidVedFeil(task.taskStepType))
         taskRepository.save(task)
         secureLog.info("Feilhåndtering lagret ok {}", task)
-
     }
-
 
     private fun finnTriggerTidVedFeil(taskType: String): Long {
         return triggerTidVedFeilMap[taskType] ?: 0
@@ -102,6 +112,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
     private fun finnFeilteller(taskType: String): Counter {
         return feiltellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
+    }
+
+    private fun finnFullførtteller(taskType: String): Counter {
+        return fullførttellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
     private fun finnMaxAntallFeil(taskType: String): Int {
