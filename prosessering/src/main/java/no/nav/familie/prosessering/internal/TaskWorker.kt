@@ -45,7 +45,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
                                                it.beskrivelse)
         }
         fullførttellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
-            it.taskStepType to Metrics.counter("prosesering.fullført.tasks",
+            it.taskStepType to Metrics.counter("prosesering.fullfort.tasks",
                                                "status",
                                                it.taskStepType,
                                                "beskrivelse",
