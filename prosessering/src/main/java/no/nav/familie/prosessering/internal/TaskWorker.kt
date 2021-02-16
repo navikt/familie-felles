@@ -11,7 +11,6 @@ import no.nav.familie.prosessering.domene.TaskRepository
 import org.slf4j.LoggerFactory
 import org.springframework.aop.framework.AopProxyUtils
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -54,7 +53,6 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         }
     }
 
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun doActualWork(taskId: Long) {
 
@@ -92,18 +90,21 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         val feiletStatus = finnFeiletStatus(task.taskStepType)
         secureLog.trace("Behandler task='{}'", task)
 
-        task.feilet(TaskFeil(task, e), maxAntallFeil, feiletStatus)
-        // lager metrikker på tasks som har feilet max antall ganger.
-        if (task.status == Status.FEILET) {
-            finnFeilteller(task.taskStepType).increment()
-            log.error("Task ${task.id} av type ${task.taskStepType} har feilet. Sjekk familie-prosessering for detaljer")
+        if (task.status == Status.MANUELL_OPPFØLGING) {
+            // I dette tilfellet skal det kun logges, det skal ikke sjekkes mot maxAntallFeil eller oppdatere status.
+            task.feiletMedStatusManuellOppfølging(TaskFeil(task, e))
+        } else {
+            task.feilet(TaskFeil(task, e), maxAntallFeil, feiletStatus)
+            // lager metrikker på tasks som har feilet max antall ganger.
+            if (task.status == feiletStatus) {
+                finnFeilteller(task.taskStepType).increment()
+                log.error("Task ${task.id} av type ${task.taskStepType} har feilet og satt til status $feiletStatus. Sjekk familie-prosessering for detaljer")
+            }
         }
         task.triggerTid = task.triggerTid?.plusSeconds(finnTriggerTidVedFeil(task.taskStepType))
         taskRepository.save(task)
         secureLog.info("Feilhåndtering lagret ok {}", task)
-
     }
-
 
     private fun finnTriggerTidVedFeil(taskType: String): Long {
         return triggerTidVedFeilMap[taskType] ?: 0
