@@ -23,6 +23,7 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     private val maxAntallFeilMap: Map<String, Int>
     private val triggerTidVedFeilMap: Map<String, Long>
     private val feiltellereForTaskSteps: Map<String, Counter>
+    private val fullførttellereForTaskSteps: Map<String, Counter>
     private val feiletStatusMap: Map<String, Status>
 
     init {
@@ -38,6 +39,13 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
         triggerTidVedFeilMap = tasksTilTaskStepBeskrivelse.values.associate { it.taskStepType to it.triggerTidVedFeilISekunder }
         feiltellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
             it.taskStepType to Metrics.counter("mottak.feilede.tasks",
+                                               "status",
+                                               it.taskStepType,
+                                               "beskrivelse",
+                                               it.beskrivelse)
+        }
+        fullførttellereForTaskSteps = tasksTilTaskStepBeskrivelse.values.associate {
+            it.taskStepType to Metrics.counter("prosesering.fullført.tasks",
                                                "status",
                                                it.taskStepType,
                                                "beskrivelse",
@@ -72,6 +80,8 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
         task.ferdigstill()
         secureLog.trace("Ferdigstiller task='{}'", task)
+
+        finnFullførtteller(task.taskStepType).increment()
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -102,6 +112,10 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
 
     private fun finnFeilteller(taskType: String): Counter {
         return feiltellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
+    }
+
+    private fun finnFullførtteller(taskType: String): Counter {
+        return fullførttellereForTaskSteps[taskType] ?: error("Ukjent tasktype $taskType")
     }
 
     private fun finnMaxAntallFeil(taskType: String): Int {
