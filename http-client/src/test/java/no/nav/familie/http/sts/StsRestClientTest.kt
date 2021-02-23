@@ -6,29 +6,41 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.web.client.RestOperations
 import java.net.URI
 
 class StsRestClientTest {
 
-    private val wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().port(4040))
+    companion object {
 
-    private lateinit var stsRestClient: StsRestClient
+        private lateinit var stsRestClient: StsRestClient
+        private val objectMapper = ObjectMapper().registerModule(KotlinModule())
+        private lateinit var wireMockServer: WireMockServer
 
-    @BeforeEach
-    fun setUp() {
-        val objectMapper = ObjectMapper().registerModule(KotlinModule())
-        wireMockServer.start()
-        stsRestClient = StsRestClient(objectMapper, URI.create("http://localhost:4040"), "username", "password")
+        @BeforeAll
+        @JvmStatic
+        fun initClass() {
+            wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
+            wireMockServer.start()
+            stsRestClient =
+                    StsRestClient(objectMapper, URI.create("http://localhost:${wireMockServer.port()}"), "username", "password")
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun tearDown() {
+            wireMockServer.stop()
+        }
     }
 
     @AfterEach
-    fun tearDown() {
+    fun tearDownEachTest() {
         wireMockServer.resetAll()
-        wireMockServer.stop()
     }
 
     @Test
