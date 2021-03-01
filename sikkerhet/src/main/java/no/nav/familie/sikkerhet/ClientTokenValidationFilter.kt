@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse
  * @param issuerName default azuread, kan overskreves hvis issuer er eks aad/azure
  * @param logOnly hvis man ønsker å kun logge resultatet men ikke stoppe requesten
  */
-class TokenValidationFilter(private val acceptClientCredential: Boolean = false,
-                            private val acceptOnBehalfOf: Boolean = false,
-                            private val issuerName: String = "azuread",
-                            private val logOnly: Boolean = false) : OncePerRequestFilter() {
+class ClientTokenValidationFilter(private val acceptClientCredential: Boolean = false,
+                                  private val acceptOnBehalfOf: Boolean = false,
+                                  private val issuerName: String = "azuread",
+                                  private val logOnly: Boolean = false) : OncePerRequestFilter() {
 
     override fun doFilterInternal(request: HttpServletRequest,
                                   response: HttpServletResponse,
