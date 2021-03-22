@@ -24,7 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.4.31</kotlin.version>
         <jackson.version>2.12.1</jackson.version>
-        <spring.version>5.3.4</spring.version>
+        <spring.version>5.3.5</spring.version>
         <spring.boot.version>2.4.3</spring.boot.version>
         <bytebuddy.version>1.10.21</bytebuddy.version>
         <mockk.version>1.10.5</mockk.version>
