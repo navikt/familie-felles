@@ -39,7 +39,7 @@ internal class RestTemplateBuilderBeanTest {
     @BeforeEach
     fun setupEachTest() {
          restTemplate = RestTemplateBuilderBean()
-                .restTemplateBuilder(NaisProxyCustomizer(200, 200, 200))
+                .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
                 .build()
     }
 
