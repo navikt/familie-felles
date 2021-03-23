@@ -5,10 +5,8 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import java.net.SocketTimeoutException
 
@@ -17,6 +15,7 @@ internal class RestTemplateBuilderBeanTest {
     companion object {
 
         private lateinit var wireMockServer: WireMockServer
+        private lateinit var restTemplate: RestTemplate
 
         @BeforeAll
         @JvmStatic
@@ -37,9 +36,12 @@ internal class RestTemplateBuilderBeanTest {
         wireMockServer.resetAll()
     }
 
-    private val restTemplate = RestTemplateBuilderBean()
-            .restTemplateBuilder(NaisProxyCustomizer(200, 200, 200))
-            .build()
+    @BeforeEach
+    fun setupEachTest() {
+         restTemplate = RestTemplateBuilderBean()
+                .restTemplateBuilder(NaisProxyCustomizer(200, 200, 200))
+                .build()
+    }
 
     @Test
     internal fun `delay med 500 kaster exception`() {
@@ -51,10 +53,10 @@ internal class RestTemplateBuilderBeanTest {
     }
 
     @Test
-    internal fun `delay med 100 kaster ikke exception`() {
+    internal fun `delay med 50 kaster ikke exception`() {
         wireMockServer.stubFor(
                 WireMock.get(WireMock.anyUrl())
-                        .willReturn(WireMock.aResponse().withFixedDelay(100)))
+                        .willReturn(WireMock.aResponse().withFixedDelay(50)))
         restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")
     }
 }
