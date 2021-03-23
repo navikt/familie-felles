@@ -54,6 +54,16 @@ class TaskWorker(private val taskRepository: TaskRepository, taskStepTyper: List
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun rekjørSenere(taskId: Long, e: RekjørSenereException) {
+        log.info("Rekjører task=$taskId senere, triggerTid=${e.triggerTid}")
+        secureLog.info("Rekjører task=$taskId senere, årsak=${e.årsak}", e)
+        val taskMedNyTriggerTid = taskRepository.findById(taskId).get()
+        taskMedNyTriggerTid.triggerTid = e.triggerTid
+        taskMedNyTriggerTid.klarTilPlukk("VL")
+        taskRepository.save(taskMedNyTriggerTid)
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun doActualWork(taskId: Long) {
 
         val taskOptional = taskRepository.findById(taskId)
