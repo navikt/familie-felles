@@ -91,6 +91,7 @@ abstract class AbstractRestClient(val operations: RestOperations,
             throw e
         } catch (e: Exception) {
             responsFailure.increment()
+            secureLogger.info("Feil ved kall mot uri=$uri: ${e.message}")
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }

@@ -44,10 +44,15 @@ class BearerTokenWithSTSFallbackClientInterceptor(private val oAuth2AccessTokenS
 
 private fun genererAccessToken(request: HttpRequest,
                                clientConfigurationProperties: ClientConfigurationProperties,
-                               oAuth2AccessTokenService: OAuth2AccessTokenService) : String {
+                               oAuth2AccessTokenService: OAuth2AccessTokenService): String {
     val clientProperties = clientPropertiesFor(request.uri, clientConfigurationProperties)
-    val response: OAuth2AccessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties)
-    return response.accessToken
+    return try {
+        val response: OAuth2AccessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties)
+
+        response.accessToken
+    } catch (e: Throwable) {
+        throw Error("Feil ved henting av token mot azure: ${e.message}", e)
+    }
 }
 
 private fun clientPropertiesFor(uri: URI, clientConfigurationProperties: ClientConfigurationProperties): ClientProperties {
@@ -61,12 +66,13 @@ private fun clientPropertiesFor(uri: URI, clientConfigurationProperties: ClientC
 private fun filterForGrantType(values: List<ClientProperties>, uri: URI): ClientProperties {
     val grantType = if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
     return values.firstOrNull { grantType == it.grantType }
-            ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
+           ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
 }
 
 private fun erSystembruker(): Boolean {
     return try {
-        val preferred_username = SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
+        val preferred_username =
+                SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
         return preferred_username == null
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
