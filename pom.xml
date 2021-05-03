@@ -29,7 +29,7 @@
         <bytebuddy.version>1.11.0</bytebuddy.version>
         <mockk.version>1.11.0</mockk.version>
         <micrometer.version>1.6.6</micrometer.version>
-        <nav.security.token.version>1.3.5</nav.security.token.version>
+        <nav.security.token.version>1.3.7</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
