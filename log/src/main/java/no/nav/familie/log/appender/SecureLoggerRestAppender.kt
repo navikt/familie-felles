@@ -34,8 +34,6 @@ class SecureLoggerRestAppender : AppenderBase<ch.qos.logback.classic.spi.ILoggin
             mdc?.keys?.forEach {
                 if (!mdc[it].isNullOrEmpty()) {
                     logEvent[it] = mdc[it]!!
-                } else {
-                    println("[securelogs] mdc key $it mangler verdi")
                 }
             }
 
