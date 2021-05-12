@@ -7,12 +7,12 @@ import javax.servlet.http.HttpServletResponse
 
 class AuthorizationFilter(
         private val oidcUtil: OIDCUtil,
-        private val acceptedClients: List<String>,
+        private val acceptedClients: List<AcceptedClient>,
         private val disabled: Boolean = false
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        when (disabled || acceptedClient()) {
+        when (disabled || isAuthorized(request.requestURI)) {
             true -> filterChain.doFilter(request, response)
             false -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authenticated, but unauthorized application")
         }
@@ -23,5 +23,8 @@ class AuthorizationFilter(
         return path.startsWith("/api/selvbetjening") || path.startsWith("/internal/")
     }
 
-    private fun acceptedClient() = acceptedClients.contains(oidcUtil.getClaim("azp"))
+    private fun isAuthorized(path: String) = acceptedClients.any {
+        it.clientId == oidcUtil.getClaim("azp") && it.acceptedPaths.any { pathPrefix -> path.startsWith(pathPrefix) }
+    }
+
 }
