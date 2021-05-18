@@ -11,27 +11,13 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
 class RestTaskService(private val taskRepository: TaskRepository) {
 
-    fun hentTasks(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<List<Task>> {
-        logger.info("$saksbehandlerId henter tasker med status $statuses")
-
-        return Result.runCatching {
-            taskRepository.finnTasksMedStatus(statuses, PageRequest.of(page, TASK_LIMIT))
-        }
-                .fold(
-                        onSuccess = { Ressurs.success(data = it) },
-                        onFailure = { e ->
-                            logger.error("Henting av tasker feilet", e)
-                            Ressurs.failure(errorMessage = "Henting av tasker med status '$statuses', feilet.", error = e)
-                        }
-                )
-    }
-
-    fun hentTasks2(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<PaginableResponse<TaskDto>> {
+    fun hentTasks(statuses: List<Status>, saksbehandlerId: String, page: Int): Ressurs<PaginableResponse<TaskDto>> {
         logger.info("$saksbehandlerId henter tasker med status $statuses")
 
         return Result.runCatching {
@@ -67,7 +53,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return when (task.isPresent) {
             true -> {
-                taskRepository.save(task.get().copy(triggerTid = null).klarTilPlukk(saksbehandlerId))
+                taskRepository.save(task.get().copy(triggerTid = LocalDateTime.now()).klarTilPlukk(saksbehandlerId))
                 logger.info("$saksbehandlerId rekjører task $taskId")
 
                 Ressurs.success(data = "")
@@ -83,7 +69,7 @@ class RestTaskService(private val taskRepository: TaskRepository) {
 
         return Result.runCatching {
             taskRepository.finnTasksMedStatus(listOf(status), Pageable.unpaged())
-                    .map { taskRepository.save(it.copy(triggerTid = null).klarTilPlukk(saksbehandlerId)) }
+                    .map { taskRepository.save(it.copy(triggerTid = LocalDateTime.now()).klarTilPlukk(saksbehandlerId)) }
         }
                 .fold(
                         onSuccess = { Ressurs.success(data = "") },

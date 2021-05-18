@@ -1,6 +1,8 @@
 package no.nav.familie.http.sts
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.micrometer.core.instrument.Metrics
+import io.micrometer.core.instrument.Timer
 import no.nav.familie.http.client.HttpClientUtil
 import no.nav.familie.http.client.HttpRequestUtil
 import org.slf4j.LoggerFactory
@@ -9,12 +11,14 @@ import org.springframework.stereotype.Component
 import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
+import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
 
 @Component
 class StsRestClient(private val mapper: ObjectMapper,
@@ -22,6 +26,8 @@ class StsRestClient(private val mapper: ObjectMapper,
                     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
                     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
                     @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
+
+    private val responstid: Timer = Metrics.timer("sts.tid")
 
     private val client: HttpClient = HttpClientUtil.create()
 
@@ -51,6 +57,7 @@ class StsRestClient(private val mapper: ObjectMapper,
                     HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
                             .uri(stsUrl)
                             .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.noBody())
                             .timeout(Duration.ofSeconds(30)).apply {
                                 if (!stsApiKey.isNullOrEmpty()) {
                                     header("x-nav-apiKey", stsApiKey)
@@ -58,12 +65,15 @@ class StsRestClient(private val mapper: ObjectMapper,
                             }.build()
 
             val accessTokenResponse = try {
-                client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                val startTime = System.nanoTime()
+                val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                         .thenApply { obj: HttpResponse<String?> -> obj.body() }
                         .thenApply { it: String? ->
                             håndterRespons(it)
                         }
                         .get()
+                responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
+                response
             } catch (e: InterruptedException) {
                 throw StsAccessTokenFeilException("Feil i tilkobling", e)
             } catch (e: ExecutionException) {
