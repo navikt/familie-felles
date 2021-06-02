@@ -8,7 +8,7 @@ import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class RequestTimeFilter : Filter {
+open class RequestTimeFilter : Filter {
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
@@ -28,14 +28,15 @@ class RequestTimeFilter : Filter {
         if (HttpStatus.valueOf(code).isError) {
             LOG.warn("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
         } else {
-            if (!isHealthCheck(request.requestURI)) {
+            if (!shouldNotFilter(request.requestURI)) {
                 LOG.info("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
             }
         }
     }
 
-    private fun isHealthCheck(uri: String): Boolean {
-        return uri.contains("/internal")
+    @Suppress("MemberVisibilityCanBePrivate") // kan overrides hvis det ønskes
+    fun shouldNotFilter(uri: String): Boolean {
+        return uri.contains("/internal") || uri == "/api/ping"
     }
 
     companion object {
