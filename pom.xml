@@ -20,16 +20,16 @@
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <kontrakter.version>2.0_20210416141710_97efcc5</kontrakter.version>
+        <kontrakter.version>2.0_20210506101703_8c0e695</kontrakter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.4.32</kotlin.version>
+        <kotlin.version>1.5.0</kotlin.version>
         <jackson.version>2.12.3</jackson.version>
-        <spring.version>5.3.6</spring.version>
+        <spring.version>5.3.7</spring.version>
         <spring.boot.version>2.4.4</spring.boot.version>
         <bytebuddy.version>1.11.0</bytebuddy.version>
         <mockk.version>1.11.0</mockk.version>
         <micrometer.version>1.6.6</micrometer.version>
-        <nav.security.token.version>1.3.5</nav.security.token.version>
+        <nav.security.token.version>1.3.7</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
@@ -160,7 +160,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.7.1</version>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -209,7 +209,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>3.9.0</version>
+                <version>3.11.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -234,12 +234,12 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.8.0.2131</version>
+                    <version>3.9.0.2155</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.7</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
