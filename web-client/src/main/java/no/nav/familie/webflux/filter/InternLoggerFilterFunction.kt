@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
 
 
-    override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         preHandle(request)
-        return next.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
+        return function.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
     }
 
 
@@ -29,6 +29,7 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
 
         AuditLogger.logRequest(request, ansvarligSaksbehandler)
+        println("prehandle")
         LOG.info("[pre-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()}")
     }
 
@@ -46,6 +47,7 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
     }
 
     private fun postHandle(request: ClientRequest, responseMono: Mono<ClientResponse>): Mono<ClientResponse> {
+        println("posthandle")
 
         val responseReceived = AtomicBoolean()
         return Mono.defer {

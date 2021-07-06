@@ -1,6 +1,5 @@
 package no.nav.familie.webflux.client
 
-import no.nav.familie.http.client.Pingable
 import org.springframework.web.reactive.function.client.WebClient
 import java.net.URI
 

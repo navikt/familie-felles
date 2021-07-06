@@ -14,9 +14,11 @@ class ConsumerIdFilterFunction(@Value("\${application.name}") private val appNam
                                @Value("\${credential.username:}") private val serviceUser: String) :
         ExchangeFilterFunction {
 
-    override fun filter(request: ClientRequest, execution: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
 
-        request.headers().add(NavHttpHeaders.NAV_CONSUMER_ID.asString(), if (!serviceUser.isBlank()) serviceUser else appName)
-        return execution.exchange(request)
+        val modifiedRequest = ClientRequest.from(request)
+                .header(NavHttpHeaders.NAV_CONSUMER_ID.asString(), serviceUser.ifBlank { appName })
+                .build()
+        return function.exchange(modifiedRequest)
     }
 }
