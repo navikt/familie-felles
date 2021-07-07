@@ -35,7 +35,7 @@ abstract class AbstractWebClient(val webClient: WebClient,
                     .uri(uri)
                     .addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders)
                     .retrieve()
-                    .bodyToMono<T>()
+                    .bodyToMono()
         }
     }
 
@@ -50,7 +50,7 @@ abstract class AbstractWebClient(val webClient: WebClient,
                     .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                     .bodyValue(payload)
                     .retrieve()
-                    .bodyToMono<T>()
+                    .bodyToMono()
         }
     }
 
@@ -71,7 +71,7 @@ abstract class AbstractWebClient(val webClient: WebClient,
                     .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                     .bodyValue(payload)
                     .retrieve()
-                    .bodyToMono<T>()
+                    .bodyToMono()
         }
     }
 
@@ -86,7 +86,7 @@ abstract class AbstractWebClient(val webClient: WebClient,
                     .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                     .bodyValue(payload)
                     .retrieve()
-                    .bodyToMono<T>()
+                    .bodyToMono()
         }
     }
 
@@ -96,7 +96,7 @@ abstract class AbstractWebClient(val webClient: WebClient,
 
     protected inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders?): T {
         return executeMedMetrics(uri) {
-            webClient.delete().uri(uri).addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders).retrieve().bodyToMono<T>()
+            webClient.delete().uri(uri).addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders).retrieve().bodyToMono()
         }
     }
 
@@ -116,7 +116,5 @@ abstract class AbstractWebClient(val webClient: WebClient,
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }
-
-    override fun toString(): String = this::class.simpleName + " [operations=" + webClient + "]"
 
 }

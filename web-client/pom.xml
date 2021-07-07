@@ -9,7 +9,6 @@
         <artifactId>felles</artifactId>
         <version>${revision}${sha1}${changelist}</version>
     </parent>
-
     <artifactId>web-client</artifactId>
     <version>${revision}${sha1}${changelist}</version>
     <name>Felles - WebClient</name>
@@ -26,12 +25,28 @@
             <artifactId>kotlin-reflect</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-reactor-netty</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-reactive-httpclient</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -44,11 +59,6 @@
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
             <artifactId>log</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.familie.felles</groupId>
-            <artifactId>http-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -116,6 +126,12 @@
             <groupId>no.nav.security</groupId>
             <artifactId>token-client-spring</artifactId>
             <version>${nav.security.token.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
+            <version>2.3.4.RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

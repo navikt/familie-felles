@@ -14,17 +14,29 @@ import org.springframework.web.reactive.function.client.WebClient
 @Configuration
 @Import(ConsumerIdFilterFunction::class,
         InternLoggerFilterFunction::class,
-        BearerTokenFilterFunction::class)
+        BearerTokenFilterFunction::class,
+        NaisProxyCustomizer::class,
+        NaisNoProxyCustomizer::class)
 class AzureWebClientConfig {
 
     @Bean("azureWebClientBuilder")
     fun azureWebClientBuilder(consumerIdFilterFunction: ConsumerIdFilterFunction,
                               internLoggerFilterFunction: InternLoggerFilterFunction,
-                              bearerTokenFilterFunction: BearerTokenFilterFunction): WebClient.Builder {
-        return WebClient.builder()
+                              bearerTokenFilterFunction: BearerTokenFilterFunction,
+                              iNaisProxyCustomizer: INaisProxyCustomizer): WebClient.Builder {
+        val builder = WebClient.builder()
                 .filter(consumerIdFilterFunction)
                 .filter(bearerTokenFilterFunction)
                 .filter(MdcValuesPropagatingFilterFunction())
-    }
-}
 
+        iNaisProxyCustomizer.customize(builder)
+        return builder
+
+    }
+
+    @Bean("azureWebClient")
+    fun azureWebClientBuilder(azureWebClientBuilder: WebClient.Builder): WebClient {
+        return azureWebClientBuilder.build()
+    }
+
+}
