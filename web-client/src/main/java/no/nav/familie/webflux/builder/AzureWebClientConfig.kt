@@ -35,7 +35,7 @@ class AzureWebClientConfig {
     }
 
     @Bean("azureWebClient")
-    fun azureWebClientBuilder(azureWebClientBuilder: WebClient.Builder): WebClient {
+    fun azureWebClient(azureWebClientBuilder: WebClient.Builder): WebClient {
         return azureWebClientBuilder.build()
     }
 
