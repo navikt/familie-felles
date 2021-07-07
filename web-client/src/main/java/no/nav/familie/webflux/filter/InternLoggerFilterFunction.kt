@@ -29,7 +29,6 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
 
         AuditLogger.logRequest(request, ansvarligSaksbehandler)
-        println("prehandle")
         LOG.info("[pre-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()}")
     }
 
@@ -47,7 +46,6 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
     }
 
     private fun postHandle(request: ClientRequest, responseMono: Mono<ClientResponse>): Mono<ClientResponse> {
-        println("posthandle")
 
         val responseReceived = AtomicBoolean()
         return Mono.defer {

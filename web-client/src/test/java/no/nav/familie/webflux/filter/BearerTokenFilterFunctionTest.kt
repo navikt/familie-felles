@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import java.net.URI
 
-class BearerTokenClientInterceptorTest {
+class BearerTokenFilterFunctionTest {
 
     private lateinit var bearerTokenFilterFunction: BearerTokenFilterFunction
 
