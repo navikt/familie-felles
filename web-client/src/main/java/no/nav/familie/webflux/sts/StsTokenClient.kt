@@ -14,10 +14,10 @@ import java.time.ZoneOffset
 import java.util.Base64
 
 @Component
-class StsWebClient(@Value("\${STS_URL}") private val stsUrl: String,
-                   @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
-                   @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-                   @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
+class StsTokenClient(@Value("\${STS_URL}") private val stsUrl: String,
+                     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
+                     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
+                     @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
 
     private val client = WebClient.builder()
             .baseUrl(stsUrl)
@@ -66,7 +66,7 @@ class StsWebClient(@Value("\${STS_URL}") private val stsUrl: String,
     companion object {
 
         private const val MILLISEKUNDER_I_KVARTER = 15 * 60 * 1000
-        private val log = LoggerFactory.getLogger(StsWebClient::class.java)
+        private val log = LoggerFactory.getLogger(StsTokenClient::class.java)
         private fun basicAuth(username: String, password: String): String {
             return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }

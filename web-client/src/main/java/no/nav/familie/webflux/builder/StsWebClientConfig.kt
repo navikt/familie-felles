@@ -29,7 +29,7 @@ class StsWebClientConfig {
     }
 
     @Bean("stsWebClient")
-    fun azureWebClientBuilder(stsWebClientBuilder: WebClient.Builder): WebClient {
+    fun azureWebClient(stsWebClientBuilder: WebClient.Builder): WebClient {
         return stsWebClientBuilder.build()
     }
 }
