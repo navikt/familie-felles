@@ -31,11 +31,11 @@ object EksternBrukerUtils {
         }
     }
 
-    private fun <T> getFromContext(v: (TokenValidationContext, String) -> T): T {
+    private fun <T> getFromContext(fn: (TokenValidationContext, String) -> T): T {
         val validationContext = getTokenValidationContext()
         return when {
-            validationContext.hasTokenFor(ISSUER) -> v.invoke(validationContext, ISSUER)
-            validationContext.hasTokenFor(ISSUER_TOKENX) -> v.invoke(validationContext, ISSUER_TOKENX)
+            validationContext.hasTokenFor(ISSUER) -> fn.invoke(validationContext, ISSUER)
+            validationContext.hasTokenFor(ISSUER_TOKENX) -> fn.invoke(validationContext, ISSUER_TOKENX)
             else -> error("Finner ikke token for ekstern bruker - issuers=${validationContext.issuers}")
         }
     }
