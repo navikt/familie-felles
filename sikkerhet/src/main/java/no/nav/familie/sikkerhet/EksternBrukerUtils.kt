@@ -1,35 +1,43 @@
 package no.nav.familie.sikkerhet
 
-import no.nav.familie.sikkerhet.EksternBrukerIssuer.SELVBETJENING
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.web.context.request.RequestContextHolder
 
-enum class EksternBrukerIssuer(val issuer: String) {
-    SELVBETJENING(EksternBrukerUtils.ISSUER),
-    TOKEN_X("tokenx")
-}
-
 object EksternBrukerUtils {
 
     const val ISSUER = "selvbetjening"
+    const val ISSUER_TOKENX = "tokenx"
 
     private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name
 
-    fun hentFnrFraToken(issuer: EksternBrukerIssuer = SELVBETJENING): String =
-            claims(issuer)?.subject ?: throw JwtTokenValidatorException("Fant ikke subject")
+    fun hentFnrFraToken(): String =
+            claims()?.subject ?: throw JwtTokenValidatorException("Fant ikke subject")
 
-    fun personIdentErLikInnloggetBruker(personIdent: String, issuer: EksternBrukerIssuer = SELVBETJENING): Boolean =
-            personIdent == hentFnrFraToken(issuer)
+    fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
+            personIdent == hentFnrFraToken()
 
-    fun getBearerTokenForLoggedInUser(issuer: EksternBrukerIssuer = SELVBETJENING): String =
-            getTokenValidationContext().getJwtToken(issuer.issuer).tokenAsString
+    fun getBearerTokenForLoggedInUser(): String {
+        return getFromContext { validationContext, issuer ->
+            validationContext.getJwtToken(issuer).tokenAsString
+        }
+    }
 
-    private fun claims(issuer: EksternBrukerIssuer = SELVBETJENING): JwtTokenClaims? {
+    private fun claims(): JwtTokenClaims? {
+        return getFromContext { validationContext, issuer ->
+            validationContext.getClaims(issuer)
+        }
+    }
+
+    private fun <T> getFromContext(v: (TokenValidationContext, String) -> T): T {
         val validationContext = getTokenValidationContext()
-        return validationContext.getClaims(issuer.issuer)
+        return when {
+            validationContext.hasTokenFor(ISSUER) -> v.invoke(validationContext, ISSUER)
+            validationContext.hasTokenFor(ISSUER_TOKENX) -> v.invoke(validationContext, ISSUER_TOKENX)
+            else -> error("Finner ikke token for ekstern bruker - issuers=${validationContext.issuers}")
+        }
     }
 
     private fun getTokenValidationContext(): TokenValidationContext {
