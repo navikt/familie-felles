@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
 
 
-    override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         preHandle(request)
-        return next.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
+        return function.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
     }
 
 

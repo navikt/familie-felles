@@ -28,5 +28,9 @@ class StsWebClientConfig {
                 .filter(MdcValuesPropagatingFilterFunction())
     }
 
+    @Bean("stsWebClient")
+    fun azureWebClient(stsWebClientBuilder: WebClient.Builder): WebClient {
+        return stsWebClientBuilder.build()
+    }
 }
 

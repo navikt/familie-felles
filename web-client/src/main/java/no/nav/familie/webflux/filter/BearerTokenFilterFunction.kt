@@ -20,11 +20,11 @@ class BearerTokenFilterFunction(private val oAuth2AccessTokenService: OAuth2Acce
         ExchangeFilterFunction {
 
 
-    override fun filter(request: ClientRequest, p1: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         val clientProperties = clientPropertiesFor(request.url())
         val response: OAuth2AccessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties)
-        request.headers().setBearerAuth(response.accessToken)
-        return p1.exchange(request)
+        val modifiedRequest = ClientRequest.from(request).header("Authorization", "Bearer " + response.accessToken).build()
+        return function.exchange(modifiedRequest)
     }
 
     private fun clientPropertiesFor(uri: URI): ClientProperties {
