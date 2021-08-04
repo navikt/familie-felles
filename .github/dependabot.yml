@@ -1,6 +1,6 @@
 version: 2
 registries:
-  maven-repository-maven-pkg-github-com-navikt-fp-felles:
+  familie-felles:
     type: maven-repository
     url: https://maven.pkg.github.com/navikt/fp-felles/
     username: x-access-token
