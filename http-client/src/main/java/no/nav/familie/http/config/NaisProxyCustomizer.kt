@@ -8,8 +8,6 @@ import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner
 import org.apache.http.protocol.HttpContext
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.client.RestTemplateCustomizer
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component

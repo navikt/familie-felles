@@ -102,6 +102,11 @@
             <version>11.0.6</version>
         </dependency>
         <dependency>
+            <!-- Brukes kun av restTemplateBuilderBean -->
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-netty</artifactId>
             <scope>test</scope>
