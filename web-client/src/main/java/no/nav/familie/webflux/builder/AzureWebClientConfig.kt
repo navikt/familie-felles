@@ -27,6 +27,7 @@ class AzureWebClientConfig {
                               iNaisProxyCustomizer: INaisProxyCustomizer): WebClient.Builder {
         val builder = WebClient.builder()
                 .filter(consumerIdFilterFunction)
+                .filter(internLoggerFilterFunction)
                 .filter(bearerTokenFilterFunction)
                 .filter(MdcValuesPropagatingFilterFunction())
 
