@@ -110,11 +110,11 @@ abstract class AbstractWebClient(val webClient: WebClient,
             responsSuccess.increment()
             return t
         } catch (e: WebClientException) {
-            secureLogger.info("Kall mot $uri feilet: ${e.printStackTrace()}")
+            secureLogger.error("Feil ved kall mot uri=$uri", e)
             responsFailure.increment()
             throw e
         } catch (e: Exception) {
-            secureLogger.info("Kall mot $uri feilet: ${e.printStackTrace()}")
+            secureLogger.error("Feil ved kall mot uri=$uri", e)
             responsFailure.increment()
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
