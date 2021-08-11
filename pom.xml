@@ -20,7 +20,7 @@
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <kontrakter.version>2.0_20210803091709_b7863e5</kontrakter.version>
+        <kontrakter.version>2.0_20210809090237_f15452f</kontrakter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.5.21</kotlin.version>
         <jackson.version>2.12.4</jackson.version>
