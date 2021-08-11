@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient
 @Import(ConsumerIdFilterFunction::class,
         InternLoggerFilterFunction::class,
         BearerTokenFilterFunction::class,
+        RestTemplateBuilderBean::class,
         NaisProxyCustomizer::class,
         NaisNoProxyCustomizer::class)
 class AzureWebClientConfig {
