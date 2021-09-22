@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Primary
 class RestTemplateBuilderBean {
 
     @Bean
-    @Primary
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
     fun restTemplateBuilder(iNaisProxyCustomizer: INaisProxyCustomizer): RestTemplateBuilder {
         return RestTemplateBuilder(iNaisProxyCustomizer)
     }
 
     @Bean
+    @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true)
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
         return RestTemplateBuilder()
     }
