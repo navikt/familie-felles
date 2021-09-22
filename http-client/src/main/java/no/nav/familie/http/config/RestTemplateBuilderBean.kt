@@ -5,7 +5,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Primary
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
@@ -18,8 +17,12 @@ class RestTemplateBuilderBean {
         return RestTemplateBuilder(iNaisProxyCustomizer)
     }
 
+    /**
+     * Denne bønnnen initialiseres hvis proxy-url ikke finnes. Hvis proxy-url finnnes vil bønnen over initialiseres og
+     * denne det ikke med mindre proxyen har verdien "umulig verdi", som den aldri skal ha.
+     */
     @Bean
-    @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true)
+    @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true, havingValue = "Umulig verdi")
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
         return RestTemplateBuilder()
     }
