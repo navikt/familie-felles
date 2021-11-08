@@ -47,6 +47,7 @@
         <module>leader</module>
         <module>prosessering</module>
         <module>util</module>
+        <module>kafka</module>
     </modules>
 
     <dependencyManagement>
@@ -130,6 +131,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring.boot.version}.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
