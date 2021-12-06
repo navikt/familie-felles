@@ -37,14 +37,8 @@ fun nesteGyldigeTriggertidForBehandlingIHverdager(
 
 private fun LocalDateTime.erHverdag(plusDays: Long): Boolean {
     return when (this.plusDays(plusDays).dayOfWeek) {
-        DayOfWeek.MONDAY -> true
-        DayOfWeek.TUESDAY -> true
-        DayOfWeek.WEDNESDAY -> true
-        DayOfWeek.THURSDAY -> true
-        DayOfWeek.FRIDAY -> true
-        DayOfWeek.SATURDAY -> false
-        DayOfWeek.SUNDAY -> false
-        else -> error("Not implemented")
+        DayOfWeek.SATURDAY, DayOfWeek.SUNDAY -> false
+        else -> true
     }
 }
 
