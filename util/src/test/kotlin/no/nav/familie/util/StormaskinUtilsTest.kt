@@ -1,5 +1,12 @@
 package no.nav.familie.util
 
+import io.mockk.every
+import io.mockk.mockkStatic
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import java.time.LocalDateTime
+
 class StormaskinUtilsTest {
 
 
@@ -21,10 +28,9 @@ class StormaskinUtilsTest {
     )
     fun `skal returnere neste arbeidsdag `(input: LocalDateTime, expected: LocalDateTime) {
         mockkStatic(LocalDateTime::class)
-        mockk<Environment>(relaxed = true)
 
         every { LocalDateTime.now() } returns input
 
-        assertEquals(expected, nesteGyldigeTriggertidForBehandlingIHverdager(60))
+        assertEquals(expected, StormaskinUtils.nesteGyldigeTriggertidForBehandlingIHverdager(60))
     }
 }

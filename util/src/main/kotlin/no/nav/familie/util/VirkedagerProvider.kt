@@ -41,7 +41,7 @@ object VirkedagerProvider {
         return nesteDag
     }
 
-    private fun erHelgEllerHelligdag(dato: LocalDate): Boolean {
+    fun erHelgEllerHelligdag(dato: LocalDate): Boolean {
         val helligDager = FASTE_HELLIGDAGER + beregnBevegeligeHelligdager(dato.year)
 
         return dato.dayOfWeek == DayOfWeek.SATURDAY
