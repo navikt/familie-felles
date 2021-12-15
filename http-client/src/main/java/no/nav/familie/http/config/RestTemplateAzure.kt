@@ -30,16 +30,18 @@ class RestTemplateAzure {
                               bearerTokenClientInterceptor: BearerTokenClientInterceptor): RestOperations {
         return restTemplateBuilder.additionalInterceptors(consumerIdClientInterceptor,
                                                           bearerTokenClientInterceptor,
+                                                          internLoggerInterceptor,
                                                           MdcValuesPropagatingClientInterceptor()).build()
     }
 
     @Bean("azureClientCredential")
     fun restTemplateClientCredentialBearer(restTemplateBuilder: RestTemplateBuilder,
                                            consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-                                           internLoggerInterceptor: InternLoggerInterceptor,
-                                           bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor): RestOperations {
+                                           bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
+                                           internLoggerInterceptor: InternLoggerInterceptor): RestOperations {
         return restTemplateBuilder.additionalInterceptors(consumerIdClientInterceptor,
                                                           bearerTokenClientInterceptor,
+                                                          internLoggerInterceptor,
                                                           MdcValuesPropagatingClientInterceptor()).build()
     }
 
@@ -49,6 +51,7 @@ class RestTemplateAzure {
                                      internLoggerInterceptor: InternLoggerInterceptor,
                                      bearerTokenClientInterceptor: BearerTokenOnBehalfOfClientInterceptor): RestOperations {
         return restTemplateBuilder.additionalInterceptors(consumerIdClientInterceptor,
+                                                          internLoggerInterceptor,
                                                           bearerTokenClientInterceptor,
                                                           MdcValuesPropagatingClientInterceptor()).build()
     }

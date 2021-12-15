@@ -4,41 +4,38 @@ import no.nav.familie.log.auditlogger.AuditLogger
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatus
+import org.springframework.http.client.ClientHttpRequestExecution
+import org.springframework.http.client.ClientHttpRequestInterceptor
+import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
 @Import(OIDCUtil::class)
-class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptorAdapter() {
+class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : ClientHttpRequestInterceptor {
 
-    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+
+    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
-
         AuditLogger.logRequest(request, ansvarligSaksbehandler)
-        LOG.info("[pre-handle] $ansvarligSaksbehandler - ${request.method}: ${request.requestURI}")
-        return super.preHandle(request, response, handler)
+        LOG.info("[pre-handle] $ansvarligSaksbehandler - ${request.method}: ${request.uri}")
+        val response = execution.execute(request, body)
+        postLogRequest(request, response, ansvarligSaksbehandler)
+        return response
     }
 
-    override fun postHandle(request: HttpServletRequest,
-                            response: HttpServletResponse,
-                            handler: Any,
-                            modelAndView: ModelAndView?) {
-
-        postLogRequest(request, response, hentSaksbehandler(oidcUtil))
-        super.postHandle(request, response, handler, modelAndView)
-    }
-
-    private fun postLogRequest(request: HttpServletRequest,
-                               response: HttpServletResponse,
+    private fun postLogRequest(request: HttpRequest,
+                               response: ClientHttpResponse,
                                ansvarligSaksbehandler: String) {
 
-        val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method}: ${request.requestURI} (${response.status})"
+        val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method}: ${request.uri} (${response.statusCode})"
 
-        if (HttpStatus.valueOf(response.status).isError) {
+        if (response.statusCode.isError) {
             LOG.warn(melding)
         } else {
             LOG.info(melding)
@@ -52,6 +49,7 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
             )
 
     companion object {
+
         private val LOG = LoggerFactory.getLogger(InternLoggerInterceptor::class.java)
         private const val BRUKERNAVN_MASKINKALL = "VL"
     }
