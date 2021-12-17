@@ -35,10 +35,10 @@ class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : ContainerSto
         } else {
             records.first().run {
                 logger.error(
-                        "Feil ved konsumering av melding fra ${this.topic()}. id ${this.key()}, " +
+                        "Feil ved konsumering av melding fra ${this.topic()}." +
                         "offset: ${this.offset()}, partition: ${this.partition()}"
                 )
-                secureLogger.error("${this.topic()} - Problemer med prosessering av $records", e)
+                secureLogger.error("${this.topic()} - Problemer med prosessering av $records med id: ${this.key()}", e)
                 scheduleRestart(e, records, consumer, container, this.topic())
             }
         }
