@@ -16,16 +16,12 @@ import org.springframework.web.context.request.RequestContextHolder
 
 internal class EksternBrukerUtilsTest {
 
-    private val selvbetjening =
-            "selvbetjening" to
-                    JwtToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzIiwiaWF0IjoxfQ.jy6mWElItzueUS6xk2tOjAry_hnDckZ0kOiwDru0fss")
-    private val tokenx =
-            "tokenx" to JwtToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0IiwiaWF0IjoxfQ.zu8o7u62R-Z4RjE851TVpXqTViiA6Z4mpXnJ68L64iU")
-    private val annetToken =
-            "annetToken" to JwtToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0IiwiaWF0IjoxfQ.zu8o7u62R-Z4RjE851TVpXqTViiA6Z4mpXnJ68L64iU")
+    private val selvbetjening = "selvbetjening" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMTExMTExMTExMSJ9.")
+    private val tokenx = "tokenx" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
+    private val annetToken = "annetToken" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
 
-    private val sub: String = "sub"
-    private val pid: String = "pid"
+    private val sub: String = "11111111111"
+    private val pid: String = "22222222222"
 
     @AfterEach
     internal fun tearDown() {
@@ -35,13 +31,13 @@ internal class EksternBrukerUtilsTest {
     @Test
     internal fun `skal hente selvbetjening hvis den finnes`() {
         mockRequestAttributes(mapOf(selvbetjening, tokenx))
-        assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo("s")
+        assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo(sub)
     }
 
     @Test
     internal fun `skal hente tokenx hvis ikke selvbetjening finnes`() {
         mockRequestAttributes(mapOf(tokenx))
-        assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo("t")
+        assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo(pid)
     }
 
     @Test
@@ -81,6 +77,26 @@ internal class EksternBrukerUtilsTest {
     internal fun `returnerer pid hvis kun pid finnes`() {
         setContextHolder(pid = pid)
         assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo(pid)
+    }
+
+    @Test
+    internal fun `skal feile hvis sub ikke er 11 siffer langt`() {
+        listOf("1", "123456789012", "abcdefghijk").forEach {
+            assertThatThrownBy {
+                setContextHolder(sub = it)
+                EksternBrukerUtils.hentFnrFraToken()
+            }.hasMessageContaining("er ikke gyldig fnr")
+        }
+    }
+
+    @Test
+    internal fun `skal feile hvis pid ikke er 11 siffer langt`() {
+        listOf("1", "123456789012", "abcdefghijk").forEach {
+            assertThatThrownBy {
+                setContextHolder(pid = it)
+                EksternBrukerUtils.hentFnrFraToken()
+            }.hasMessageContaining("er ikke gyldig fnr")
+        }
     }
 
     private fun setContextHolder(sub: String? = null, pid: String? = null) {

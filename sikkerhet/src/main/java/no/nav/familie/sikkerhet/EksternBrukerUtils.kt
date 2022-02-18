@@ -13,10 +13,16 @@ object EksternBrukerUtils {
 
     private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name
 
+    private val FNR_REGEX = """[0-9]{11}""".toRegex()
+
     fun hentFnrFraToken(): String {
         val claims = claims()
-        return claims.getStringClaim("pid") ?: claims.subject
-               ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token")
+        val fnr = (claims.getStringClaim("pid") ?: claims.subject
+                   ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token"))
+        if(!FNR_REGEX.matches(fnr)) {
+            error("$fnr er ikke gyldig fnr")
+        }
+        return fnr
     }
 
     fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
