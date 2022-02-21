@@ -13,8 +13,17 @@ object EksternBrukerUtils {
 
     private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name
 
-    fun hentFnrFraToken(): String =
-            claims()?.subject ?: throw JwtTokenValidatorException("Fant ikke subject")
+    private val FNR_REGEX = """[0-9]{11}""".toRegex()
+
+    fun hentFnrFraToken(): String {
+        val claims = claims()
+        val fnr = (claims.getStringClaim("pid") ?: claims.subject
+                   ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token"))
+        if(!FNR_REGEX.matches(fnr)) {
+            error("$fnr er ikke gyldig fnr")
+        }
+        return fnr
+    }
 
     fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
             personIdent == hentFnrFraToken()
@@ -25,7 +34,7 @@ object EksternBrukerUtils {
         }
     }
 
-    private fun claims(): JwtTokenClaims? {
+    private fun claims(): JwtTokenClaims {
         return getFromContext { validationContext, issuer ->
             validationContext.getClaims(issuer)
         }
