@@ -67,6 +67,16 @@ internal class AbstractRestClientTest {
     }
 
     @Test
+    internal fun `feil med body som inneholder feltet status men ikke er en ressurs`() {
+        val body = objectMapper.writeValueAsString(mapOf("status" to "nei"))
+        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
+                                       .willReturn(WireMock.aResponse().withStatus(500).withBody(body)))
+        val catchThrowable = catchThrowable { client.test() }
+        assertThat(catchThrowable).isInstanceOfAny(HttpServerErrorException::class.java)
+        assertThat((catchThrowable as HttpServerErrorException).statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @Test
     internal fun `feil uten ressurs kaster videre spring exception`() {
         wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
                                        .willReturn(WireMock.aResponse().withStatus(500)))
