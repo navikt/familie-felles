@@ -1,5 +1,7 @@
 package no.nav.familie.util
 
+import java.time.LocalDate
+
 /**
  * Fødselsnummergenerator. Genererer tilfeldige fødselsnumre med mulighet for å spesifisere år, måned, dato og D-nummer.
  */
@@ -8,6 +10,8 @@ object FnrGenerator {
     private val k1Vekting = intArrayOf(3, 7, 6, 1, 8, 9, 4, 5, 2)
     private val k2Vekting = intArrayOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
 
+    fun generer(dato: LocalDate, erDnummer: Boolean = false): String =
+            generer(dato.year, dato.monthValue, dato.dayOfMonth, erDnummer)
 
     fun generer(år: Int = (1854..2039).random(),
                 måned: Int = (1..12).random(),
