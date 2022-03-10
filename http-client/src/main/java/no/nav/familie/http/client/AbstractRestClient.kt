@@ -1,8 +1,11 @@
 package no.nav.familie.http.client
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
+import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.kontrakter.felles.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
@@ -86,15 +89,27 @@ abstract class AbstractRestClient(val operations: RestOperations,
         } catch (e: RestClientResponseException) {
             responsFailure.increment()
             secureLogger.error("RestClientResponseException ved kall mot uri=$uri", e)
-            throw e
+            lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: HttpClientErrorException) {
             responsFailure.increment()
             secureLogger.error("HttpClientErrorException ved kall mot uri=$uri", e)
-            throw e
+            lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: Exception) {
             responsFailure.increment()
             secureLogger.error("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
+        }
+    }
+
+    private fun lesRessurs(e: RestClientResponseException): Ressurs<Any>? {
+        return try {
+            if (e.responseBodyAsString.contains("status")) {
+                objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
+            } else {
+                null
+            }
+        } catch (ex: Exception) {
+            null
         }
     }
 
