@@ -45,7 +45,6 @@
         <module>web-client</module>
         <module>sikkerhet</module>
         <module>leader</module>
-        <module>prosessering</module>
         <module>util</module>
         <module>kafka</module>
     </modules>
