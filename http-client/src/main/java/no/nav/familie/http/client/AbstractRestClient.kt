@@ -88,15 +88,15 @@ abstract class AbstractRestClient(val operations: RestOperations,
             return validerOgPakkUt(responseEntity, uri)
         } catch (e: RestClientResponseException) {
             responsFailure.increment()
-            secureLogger.error("RestClientResponseException ved kall mot uri=$uri", e)
+            secureLogger.warn("RestClientResponseException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: HttpClientErrorException) {
             responsFailure.increment()
-            secureLogger.error("HttpClientErrorException ved kall mot uri=$uri", e)
+            secureLogger.warn("HttpClientErrorException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: Exception) {
             responsFailure.increment()
-            secureLogger.error("Feil ved kall mot uri=$uri", e)
+            secureLogger.warn("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }
