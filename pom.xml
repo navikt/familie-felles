@@ -25,7 +25,7 @@
         <kotlin.version>1.6.0</kotlin.version>
         <jackson.version>2.13.1</jackson.version>
         <spring.version>5.3.9</spring.version>
-        <spring.boot.version>2.5.4</spring.boot.version>
+        <spring.boot.version>2.6.6</spring.boot.version>
         <bytebuddy.version>1.12.2</bytebuddy.version>
         <mockk.version>1.12.1</mockk.version>
         <micrometer.version>1.8.1</micrometer.version>
