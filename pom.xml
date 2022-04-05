@@ -23,7 +23,7 @@
         <kontrakter.version>2.0_20211130102051_80f114f</kontrakter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.6.0</kotlin.version>
-        <jackson.version>2.13.1</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <spring.version>5.3.9</spring.version>
         <spring.boot.version>2.5.4</spring.boot.version>
         <bytebuddy.version>1.12.2</bytebuddy.version>
@@ -45,7 +45,6 @@
         <module>web-client</module>
         <module>sikkerhet</module>
         <module>leader</module>
-        <module>prosessering</module>
         <module>util</module>
         <module>kafka</module>
     </modules>
@@ -116,16 +115,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-jpa</artifactId>
-                <version>${spring.boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
