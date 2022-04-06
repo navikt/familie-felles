@@ -1,6 +1,5 @@
 package no.nav.familie.log.auditlogger
 
-import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.ClientRequest
@@ -30,18 +29,20 @@ object AuditLogger {
 
     private fun opprettMelding(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String): String {
         val msg: StringBuilder = StringBuilder()
-                .append("action=").append(action).append(StringUtils.SPACE)
+                .append("action=").append(action).append(SPACE)
                 .append("actionType=").append(type)
-                .append(StringUtils.SPACE)
+                .append(SPACE)
 
         sporingsdata.verdier.map {
             msg.append(it.key).append('=').append(it.value)
-                    .append(StringUtils.SPACE)
+                    .append(SPACE)
         }
 
         return msg.toString().replace("([\\r\\n])".toRegex(), "").trim()
     }
 }
+
+const val SPACE = " "
 
 data class Sporingsdata(
         val verdier: Map<SporingsloggId, String>
