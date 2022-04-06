@@ -37,7 +37,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-reactive-httpclient</artifactId>
-            <version>3.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -46,7 +45,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -74,11 +72,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
             <scope>test</scope>
@@ -99,7 +92,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>11.0.6</version>
         </dependency>
         <dependency>
             <!-- Brukes kun av restTemplateBuilderBean -->
@@ -119,7 +111,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.13.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -135,7 +126,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-actuator</artifactId>
-            <version>${spring.boot.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
