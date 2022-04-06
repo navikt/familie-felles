@@ -24,7 +24,7 @@
 
         <kontrakter.version>2.0_20211130102051_80f114f</kontrakter.version>
         <kotlin.version>1.6.0</kotlin.version>
-        <mockk.version>1.12.1</mockk.version>
+        <mockk.version>1.12.3</mockk.version>
         <nav.security.token.version>1.3.9</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
@@ -181,7 +181,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M5</version>
+                    <version>3.0.0-M6</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
