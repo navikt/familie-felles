@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.familie.log.NavHttpHeaders
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.slf4j.MDC
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -16,7 +16,7 @@ class LogFilterTest {
     private lateinit var httpServletResponse: HttpServletResponse
     private val logFilter = LogFilter()
 
-    @Before
+    @BeforeEach
     fun setup() {
         httpServletRequest = mockHttpServletRequest
         httpServletResponse = mockHttpServletResponse

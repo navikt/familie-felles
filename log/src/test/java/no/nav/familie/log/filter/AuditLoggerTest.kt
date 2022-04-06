@@ -8,7 +8,7 @@ import no.nav.familie.log.auditlogger.AuditLoggerType
 import no.nav.familie.log.auditlogger.Sporingsdata
 import no.nav.familie.log.auditlogger.SporingsloggId
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 
