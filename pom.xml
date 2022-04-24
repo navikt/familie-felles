@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kontrakter.version>2.0_20220406133852_e1934d1</kontrakter.version>
-        <kotlin.version>1.6.20</kotlin.version>
+        <kotlin.version>1.6.21</kotlin.version>
         <mockk.version>1.12.3</mockk.version>
         <nav.security.token.version>1.3.9</nav.security.token.version>
 
