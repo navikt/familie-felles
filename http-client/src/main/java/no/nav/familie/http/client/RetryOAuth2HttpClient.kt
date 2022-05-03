@@ -22,7 +22,7 @@ class RetryOAuth2HttpClient(restTemplateBuilder: RestTemplateBuilder,
                                         HttpServerErrorException.GatewayTimeout::class,
                                         HttpServerErrorException.BadGateway::class)
 
-    override fun post(oAuth2HttpRequest: OAuth2HttpRequest): OAuth2AccessTokenResponse {
+    override fun post(oAuth2HttpRequest: OAuth2HttpRequest): OAuth2AccessTokenResponse? {
         var retries = 0
 
         while (true) {

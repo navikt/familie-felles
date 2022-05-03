@@ -41,6 +41,6 @@ internal class BearerTokenClientCredentialsClientInterceptorTest {
         every { req.uri } returns (URI("http://jwtResource.no"))
         val execution = mockk<ClientHttpRequestExecution>(relaxed = true)
         assertThat(catchThrowable { bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution) })
-                .hasMessage("could not find oauth2 client config for uri=http://jwtResource.no and grant type=client_credentials")
+                .hasMessage("could not find oauth2 client config for uri=http://jwtResource.no and grant type=OAuth2GrantType[value=client_credentials]")
     }
 }
