@@ -82,13 +82,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.mock-server</groupId>
-                <artifactId>mockserver-netty</artifactId>
-                <version>5.13.2</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock-jre8</artifactId>
                 <version>2.31.0</version>
@@ -97,7 +90,7 @@
 
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-test-junit</artifactId>
+                <artifactId>kotlin-test-junit5</artifactId>
                 <version>${kotlin.version}</version>
                 <scope>test</scope>
             </dependency>
