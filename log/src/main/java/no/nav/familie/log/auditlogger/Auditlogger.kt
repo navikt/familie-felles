@@ -12,30 +12,36 @@ object AuditLogger {
     }
 
     fun logRequest(request: HttpServletRequest, ansvarligSaksbehandler: String) {
-        val sporingsdata = Sporingsdata(verdier = mapOf(
-                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler))
+        val sporingsdata = Sporingsdata(
+            verdier = mapOf(
+                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler
+            )
+        )
 
         LoggerFactory.getLogger("auditLogger")
-                .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method), request.requestURI.toString()))
+            .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method), request.requestURI.toString()))
     }
 
     fun logRequest(request: ClientRequest, ansvarligSaksbehandler: String) {
-        val sporingsdata = Sporingsdata(verdier = mapOf(
-                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler))
+        val sporingsdata = Sporingsdata(
+            verdier = mapOf(
+                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler
+            )
+        )
 
         LoggerFactory.getLogger("auditLogger")
-                .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method()), request.url().toString()))
+            .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method()), request.url().toString()))
     }
 
     private fun opprettMelding(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String): String {
         val msg: StringBuilder = StringBuilder()
-                .append("action=").append(action).append(SPACE)
-                .append("actionType=").append(type)
-                .append(SPACE)
+            .append("action=").append(action).append(SPACE)
+            .append("actionType=").append(type)
+            .append(SPACE)
 
         sporingsdata.verdier.map {
             msg.append(it.key).append('=').append(it.value)
-                    .append(SPACE)
+                .append(SPACE)
         }
 
         return msg.toString().replace("([\\r\\n])".toRegex(), "").trim()
@@ -45,7 +51,7 @@ object AuditLogger {
 const val SPACE = " "
 
 data class Sporingsdata(
-        val verdier: Map<SporingsloggId, String>
+    val verdier: Map<SporingsloggId, String>
 )
 
 enum class SporingsloggId {

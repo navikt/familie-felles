@@ -7,8 +7,10 @@ import java.net.URI
 /**
  * Utvidelse av AbstractRestClient for tjenester som implementerer ping.
  */
-abstract class AbstractPingableRestClient(operations: RestOperations,
-                                          metricsPrefix: String) : AbstractRestClient(operations, metricsPrefix), Pingable {
+abstract class AbstractPingableRestClient(
+    operations: RestOperations,
+    metricsPrefix: String
+) : AbstractRestClient(operations, metricsPrefix), Pingable {
 
     abstract val pingUri: URI
 

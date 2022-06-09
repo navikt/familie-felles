@@ -26,9 +26,11 @@ import org.springframework.web.client.RestTemplate
 @Suppress("SpringFacetCodeInspection")
 @Configuration
 @Import(NaisProxyCustomizer::class)
-class RestTemplateBuilderBean(@Value("\${familie.nais.proxy.connectTimeout:15000}") val connectTimeout: Int,
-                              @Value("\${familie.nais.proxy.socketTimeout:15000}") val socketTimeout: Int,
-                              @Value("\${familie.nais.proxy.requestTimeout:15000}") val requestTimeout: Int) {
+class RestTemplateBuilderBean(
+    @Value("\${familie.nais.proxy.connectTimeout:15000}") val connectTimeout: Int,
+    @Value("\${familie.nais.proxy.socketTimeout:15000}") val socketTimeout: Int,
+    @Value("\${familie.nais.proxy.requestTimeout:15000}") val requestTimeout: Int
+) {
 
     @Bean
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
@@ -40,32 +42,34 @@ class RestTemplateBuilderBean(@Value("\${familie.nais.proxy.connectTimeout:15000
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
     fun restTemplateBuilderWithProxy(): RestTemplateBuilder {
         val restTemplateCustomizer =
-        object : RestTemplateCustomizer {
-            override fun customize(restTemplate: RestTemplate) {
-                val proxy = HttpHost("webproxy-nais.nav.no", 8088)
-                val client: HttpClient = HttpClientBuilder.create()
-                        .setDefaultRequestConfig(RequestConfig.custom()
-                                                         .setConnectTimeout(connectTimeout)
-                                                         .setSocketTimeout(socketTimeout)
-                                                         .setConnectionRequestTimeout(requestTimeout)
-                                                         .build())
+            object : RestTemplateCustomizer {
+                override fun customize(restTemplate: RestTemplate) {
+                    val proxy = HttpHost("webproxy-nais.nav.no", 8088)
+                    val client: HttpClient = HttpClientBuilder.create()
+                        .setDefaultRequestConfig(
+                            RequestConfig.custom()
+                                .setConnectTimeout(connectTimeout)
+                                .setSocketTimeout(socketTimeout)
+                                .setConnectionRequestTimeout(requestTimeout)
+                                .build()
+                        )
                         .setRoutePlanner(object : DefaultProxyRoutePlanner(proxy) {
 
-                            public override fun determineProxy(target: HttpHost,
-                                                               request: HttpRequest, context: HttpContext): HttpHost? {
+                            public override fun determineProxy(
+                                target: HttpHost,
+                                request: HttpRequest,
+                                context: HttpContext
+                            ): HttpHost? {
                                 return if (target.hostName.contains("microsoft")) {
                                     super.determineProxy(target, request, context)
                                 } else null
                             }
                         }).build()
 
-                restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory(client)
+                    restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory(client)
+                }
             }
-
-        }
 
         return RestTemplateBuilder(restTemplateCustomizer)
     }
-
 }
-

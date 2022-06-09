@@ -7,9 +7,12 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import java.net.URI
@@ -56,8 +59,10 @@ internal class AbstractRestClientTest {
     internal fun `feil med ressurs kaster RessursException`() {
         val ressurs = Ressurs.failure<Any>("Feilet")
         val body = objectMapper.writeValueAsString(ressurs)
-        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
-                                       .willReturn(WireMock.aResponse().withStatus(500).withBody(body)))
+        wireMockServer.stubFor(
+            WireMock.get(WireMock.anyUrl())
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+        )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(RessursException::class.java)
         assertThat(catchThrowable).hasCauseInstanceOf(HttpServerErrorException::class.java)
@@ -69,8 +74,10 @@ internal class AbstractRestClientTest {
     @Test
     internal fun `feil med body som inneholder feltet status men ikke er en ressurs`() {
         val body = objectMapper.writeValueAsString(mapOf("status" to "nei"))
-        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
-                                       .willReturn(WireMock.aResponse().withStatus(500).withBody(body)))
+        wireMockServer.stubFor(
+            WireMock.get(WireMock.anyUrl())
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+        )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(HttpServerErrorException::class.java)
         assertThat((catchThrowable as HttpServerErrorException).statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -78,11 +85,12 @@ internal class AbstractRestClientTest {
 
     @Test
     internal fun `feil uten ressurs kaster videre spring exception`() {
-        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl())
-                                       .willReturn(WireMock.aResponse().withStatus(500)))
+        wireMockServer.stubFor(
+            WireMock.get(WireMock.anyUrl())
+                .willReturn(WireMock.aResponse().withStatus(500))
+        )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(HttpServerErrorException::class.java)
         assertThat((catchThrowable as HttpServerErrorException).statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-
 }

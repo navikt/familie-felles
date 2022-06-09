@@ -9,9 +9,11 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 
 @Component
-class ConsumerIdClientInterceptor(@Value("\${application.name}") private val appName: String,
-                                  @Value("\${credential.username:}") private val serviceUser: String) :
-        ClientHttpRequestInterceptor {
+class ConsumerIdClientInterceptor(
+    @Value("\${application.name}") private val appName: String,
+    @Value("\${credential.username:}") private val serviceUser: String
+) :
+    ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
 

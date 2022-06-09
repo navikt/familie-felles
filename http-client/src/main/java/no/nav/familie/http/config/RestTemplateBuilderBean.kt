@@ -26,5 +26,4 @@ class RestTemplateBuilderBean {
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
         return RestTemplateBuilder()
     }
-
 }

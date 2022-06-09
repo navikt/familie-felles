@@ -14,19 +14,21 @@ import java.time.ZoneOffset
 import java.util.Base64
 
 @Component
-class StsTokenClient(@Value("\${STS_URL}") private val stsUrl: String,
-                     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
-                     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-                     @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
+class StsTokenClient(
+    @Value("\${STS_URL}") private val stsUrl: String,
+    @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
+    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
+    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null
+) {
 
     private val client = WebClient.builder()
-            .baseUrl(stsUrl)
-            .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword)).apply {
-                if (!stsApiKey.isNullOrEmpty()) {
-                    it.defaultHeader("x-nav-apiKey", stsApiKey)
-                }
-            }.filter(MdcValuesPropagatingFilterFunction())
-            .build()
+        .baseUrl(stsUrl)
+        .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword)).apply {
+            if (!stsApiKey.isNullOrEmpty()) {
+                it.defaultHeader("x-nav-apiKey", stsApiKey)
+            }
+        }.filter(MdcValuesPropagatingFilterFunction())
+        .build()
 
     private var cachedToken: AccessTokenResponse? = null
 
@@ -35,9 +37,11 @@ class StsTokenClient(@Value("\${STS_URL}") private val stsUrl: String,
             if (cachedToken == null) {
                 return false
             }
-            log.debug("Tokenet løper ut: {}. Tiden nå er: {}",
-                      Instant.ofEpochMilli(cachedToken!!.expires_in).atZone(ZoneId.systemDefault()).toLocalTime(),
-                      LocalTime.now(ZoneId.systemDefault()))
+            log.debug(
+                "Tokenet løper ut: {}. Tiden nå er: {}",
+                Instant.ofEpochMilli(cachedToken!!.expires_in).atZone(ZoneId.systemDefault()).toLocalTime(),
+                LocalTime.now(ZoneId.systemDefault())
+            )
 
             return cachedToken!!.expires_in - MILLISEKUNDER_I_KVARTER > LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         }
@@ -71,5 +75,4 @@ class StsTokenClient(@Value("\${STS_URL}") private val stsUrl: String,
             return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }
     }
-
 }

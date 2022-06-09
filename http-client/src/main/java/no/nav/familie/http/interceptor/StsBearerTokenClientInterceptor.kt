@@ -1,7 +1,6 @@
 package no.nav.familie.http.interceptor
 
 import no.nav.familie.http.sts.StsRestClient
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -16,6 +15,4 @@ class StsBearerTokenClientInterceptor(private val stsRestClient: StsRestClient) 
         request.headers.setBearerAuth(systembrukerToken)
         return execution.execute(request, body)
     }
-
 }
-

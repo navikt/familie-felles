@@ -11,12 +11,14 @@ object FnrGenerator {
     private val k2Vekting = intArrayOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
 
     fun generer(dato: LocalDate, erDnummer: Boolean = false): String =
-            generer(dato.year, dato.monthValue, dato.dayOfMonth, erDnummer)
+        generer(dato.year, dato.monthValue, dato.dayOfMonth, erDnummer)
 
-    fun generer(år: Int = (1854..2039).random(),
-                måned: Int = (1..12).random(),
-                dag: Int = (1..28).random(),
-                erDnummer: Boolean = false): String {
+    fun generer(
+        år: Int = (1854..2039).random(),
+        måned: Int = (1..12).random(),
+        dag: Int = (1..28).random(),
+        erDnummer: Boolean = false
+    ): String {
 
         if (år > 2039 || år < 1854) {
             error("Ugyldig årstall. Lovlige verdier er mellom 1854 og 2039")

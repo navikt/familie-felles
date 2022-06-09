@@ -20,18 +20,21 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class LogFilter(
-        /**
-         * Filter init param used to specify a [&lt;Boolean&gt;][Supplier]
-         * that will return whether stacktraces should be exposed or not
-         * Defaults to always false
-         */
-        private val exposeErrorDetails: Supplier<Boolean> = Supplier { false },
-        private val serverName: String? = null) : HttpFilter() {
+    /**
+     * Filter init param used to specify a [&lt;Boolean&gt;][Supplier]
+     * that will return whether stacktraces should be exposed or not
+     * Defaults to always false
+     */
+    private val exposeErrorDetails: Supplier<Boolean> = Supplier { false },
+    private val serverName: String? = null
+) : HttpFilter() {
 
     @Throws(ServletException::class, IOException::class)
-    override fun doFilter(httpServletRequest: HttpServletRequest,
-                          httpServletResponse: HttpServletResponse,
-                          filterChain: FilterChain) {
+    override fun doFilter(
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
         val userId = resolveUserId(httpServletRequest)
         if (userId == null || userId.isEmpty()) {
             // user-id tracking only works if the client is stateful and supports cookies.
@@ -60,13 +63,15 @@ class LogFilter(
     }
 
     @Throws(IOException::class, ServletException::class)
-    private fun filterWithErrorHandling(httpServletRequest: HttpServletRequest,
-                                        httpServletResponse: HttpServletResponse,
-                                        filterChain: FilterChain) {
+    private fun filterWithErrorHandling(
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
         try {
             filterChain.doFilter(httpServletRequest, httpServletResponse)
         } catch (e: Exception) {
-            if(e is EOFException) {
+            if (e is EOFException) {
                 log.warn(e.message, e)
             } else {
                 log.error(e.message, e)
@@ -90,19 +95,21 @@ class LogFilter(
         // there is no consensus in NAV about header-names for correlation ids, so we support 'em all!
         // https://nav-it.slack.com/archives/C9UQ16AH4/p1538488785000100
         private val NAV_CALL_ID_HEADER_NAMES =
-                arrayOf(NavHttpHeaders.NAV_CALL_ID.asString(),
-                        "Nav-CallId",
-                        "Nav-Callid",
-                        "X-Correlation-Id")
+            arrayOf(
+                NavHttpHeaders.NAV_CALL_ID.asString(),
+                "Nav-CallId",
+                "Nav-Callid",
+                "X-Correlation-Id"
+            )
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
         private const val ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30
 
         private fun resolveCallId(httpServletRequest: HttpServletRequest): String {
             return NAV_CALL_ID_HEADER_NAMES
-                           .mapNotNull { httpServletRequest.getHeader(it) }
-                           .firstOrNull { it.isNotEmpty() }
-                   ?: IdUtils.generateId()
+                .mapNotNull { httpServletRequest.getHeader(it) }
+                .firstOrNull { it.isNotEmpty() }
+                ?: IdUtils.generateId()
         }
 
         private fun generateUserIdCookie(httpServletResponse: HttpServletResponse) {
@@ -120,5 +127,4 @@ class LogFilter(
             return httpServletRequest.cookies?.firstOrNull { it -> RANDOM_USER_ID_COOKIE_NAME == it.name }?.value
         }
     }
-
 }

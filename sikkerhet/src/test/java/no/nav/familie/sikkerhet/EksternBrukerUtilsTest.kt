@@ -44,21 +44,21 @@ internal class EksternBrukerUtilsTest {
     internal fun `skal kaste feil hvis selvbetjening eller tokenx ikke finnes`() {
         mockRequestAttributes(mapOf(annetToken))
         assertThat(catchThrowable { EksternBrukerUtils.hentFnrFraToken() })
-                .hasMessage("Finner ikke token for ekstern bruker - issuers=[annetToken]")
+            .hasMessage("Finner ikke token for ekstern bruker - issuers=[annetToken]")
     }
 
     @Test
     internal fun `skal kaste feil hvis det ikke finnes en token`() {
         mockRequestAttributes(emptyMap())
         assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-                .hasMessage("Finner ikke token for ekstern bruker - issuers=[]")
+            .hasMessage("Finner ikke token for ekstern bruker - issuers=[]")
     }
 
     @Test
     internal fun `skal kaste feil hvis det ikke finnes subject eller pid`() {
         setContextHolder()
         assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-                .hasMessage("Finner ikke sub/pid på token")
+            .hasMessage("Finner ikke sub/pid på token")
     }
 
     @Test

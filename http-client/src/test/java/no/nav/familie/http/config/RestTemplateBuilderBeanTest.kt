@@ -5,7 +5,11 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import java.net.SocketTimeoutException
@@ -38,25 +42,27 @@ internal class RestTemplateBuilderBeanTest {
 
     @BeforeEach
     fun setupEachTest() {
-         restTemplate = RestTemplateBuilderBean()
-                .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
-                .build()
+        restTemplate = RestTemplateBuilderBean()
+            .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
+            .build()
     }
 
     @Test
     internal fun `delay med 500 kaster exception`() {
         wireMockServer.stubFor(
-                WireMock.get(WireMock.anyUrl())
-                        .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500)))
+            WireMock.get(WireMock.anyUrl())
+                .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500))
+        )
         assertThat(catchThrowable { restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}") })
-                .hasCauseInstanceOf(SocketTimeoutException::class.java)
+            .hasCauseInstanceOf(SocketTimeoutException::class.java)
     }
 
     @Test
     internal fun `delay med 50 kaster ikke exception`() {
         wireMockServer.stubFor(
-                WireMock.get(WireMock.anyUrl())
-                        .willReturn(WireMock.aResponse().withFixedDelay(50)))
+            WireMock.get(WireMock.anyUrl())
+                .willReturn(WireMock.aResponse().withFixedDelay(50))
+        )
         restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")
     }
 }

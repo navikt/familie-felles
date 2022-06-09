@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus.Series.SERVER_ERROR
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
-import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
 
 class TimingAndLoggingClientHttpRequestInterceptor : ClientHttpRequestInterceptor {

@@ -12,9 +12,11 @@ import org.springframework.core.NestedExceptionUtils
 /**
  * Helseindikator for pingbare tjenester.
  */
-abstract class AbstractHealthIndicator(private val pingable: Pingable,
-                                       metricsNavn: String,
-                                       private val statusCode: String = "DOWN-NONCRITICAL") : HealthIndicator {
+abstract class AbstractHealthIndicator(
+    private val pingable: Pingable,
+    metricsNavn: String,
+    private val statusCode: String = "DOWN-NONCRITICAL"
+) : HealthIndicator {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
     private val failureCounter: Counter = Metrics.counter(metricsNavn, "status", "nede")
@@ -27,9 +29,8 @@ abstract class AbstractHealthIndicator(private val pingable: Pingable,
             failureCounter.increment()
             log.info("Feil ved helsesjekk ${this::class.simpleName}", e)
             Health.status(statusCode)
-                    .withDetail("Feilmelding", NestedExceptionUtils.getMostSpecificCause(e).javaClass.name + ": " + e.message)
-                    .build()
+                .withDetail("Feilmelding", NestedExceptionUtils.getMostSpecificCause(e).javaClass.name + ": " + e.message)
+                .build()
         }
     }
-
 }

@@ -18,6 +18,4 @@ class StsBearerTokenFilterFunction(private val stsTokenClient: StsTokenClient) :
         val modifiedRequest = ClientRequest.from(request).header("Authorization", "Bearer $systembrukerToken").build()
         return function.exchange(modifiedRequest)
     }
-
 }
-

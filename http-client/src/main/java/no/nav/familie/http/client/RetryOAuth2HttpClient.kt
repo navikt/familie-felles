@@ -10,17 +10,21 @@ import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 
-class RetryOAuth2HttpClient(restTemplateBuilder: RestTemplateBuilder,
-                            private val maxRetries: Int = 2) : DefaultOAuth2HttpClient(restTemplateBuilder) {
+class RetryOAuth2HttpClient(
+    restTemplateBuilder: RestTemplateBuilder,
+    private val maxRetries: Int = 2
+) : DefaultOAuth2HttpClient(restTemplateBuilder) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
     private val secureLogger = LoggerFactory.getLogger("secureLogger")
 
-    private val retryExceptions = setOf(SocketException::class,
-                                        SocketTimeoutException::class,
-                                        HttpServerErrorException.ServiceUnavailable::class,
-                                        HttpServerErrorException.GatewayTimeout::class,
-                                        HttpServerErrorException.BadGateway::class)
+    private val retryExceptions = setOf(
+        SocketException::class,
+        SocketTimeoutException::class,
+        HttpServerErrorException.ServiceUnavailable::class,
+        HttpServerErrorException.GatewayTimeout::class,
+        HttpServerErrorException.BadGateway::class
+    )
 
     override fun post(oAuth2HttpRequest: OAuth2HttpRequest): OAuth2AccessTokenResponse? {
         var retries = 0
@@ -34,13 +38,17 @@ class RetryOAuth2HttpClient(restTemplateBuilder: RestTemplateBuilder,
         }
     }
 
-    private fun handleException(e: Exception,
-                                retries: Int,
-                                oAuth2HttpRequest: OAuth2HttpRequest) {
+    private fun handleException(
+        e: Exception,
+        retries: Int,
+        oAuth2HttpRequest: OAuth2HttpRequest
+    ) {
         if (shouldRetry(e) && retries < maxRetries) {
-            logger.warn("Kall mot url=${oAuth2HttpRequest.tokenEndpointUrl} feilet, cause=${
+            logger.warn(
+                "Kall mot url=${oAuth2HttpRequest.tokenEndpointUrl} feilet, cause=${
                 NestedExceptionUtils.getMostSpecificCause(e)::class
-            }")
+                }"
+            )
             secureLogger.warn("Kall mot url=${oAuth2HttpRequest.tokenEndpointUrl} feilet med feil=${e.message}")
         } else {
             throw e

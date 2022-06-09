@@ -7,7 +7,7 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.Date
 
 @Component
 class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
@@ -26,7 +26,6 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
         throw JwtTokenValidatorException(message)
     }
 
-
     fun getClaim(claim: String): String {
         return if (erDevProfil())
             claimSet()?.get(claim)?.toString() ?: "DEV_$claim"
@@ -42,11 +41,10 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
         get() = if (erDevProfil()) "TEST_Z123" else
             claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
 
-
     val groups: List<String>?
         get() = (claimSet()?.get("groups") as List<*>?)
-                ?.filterNotNull()
-                ?.map { it.toString() }
+            ?.filterNotNull()
+            ?.map { it.toString() }
 
     fun claimSet(): JwtTokenClaims? {
         return context()?.getClaims("azuread")

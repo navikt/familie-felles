@@ -6,7 +6,6 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
-
 import java.net.URI
 
 @Component
@@ -20,17 +19,18 @@ class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String
             logger.trace("Injisert API-key som header {} for {}", apiKey.first, request.uri)
             request.headers.add(apiKey.first, apiKey.second)
         } else {
-            logger.trace("Ingen API-key ble funnet for {} (sjekket {} konfigurasjoner)", request.uri,
-                         apiKeys.values.size)
+            logger.trace(
+                "Ingen API-key ble funnet for {} (sjekket {} konfigurasjoner)", request.uri,
+                apiKeys.values.size
+            )
         }
         return execution.execute(request, body)
     }
 
     private fun apiKeyFor(uri: URI): Pair<String, String>? {
         return apiKeys.entries
-                .filter { s -> uri.toString().startsWith(s.key.toString()) }
-                .map { it.value }
-                .firstOrNull()
+            .filter { s -> uri.toString().startsWith(s.key.toString()) }
+            .map { it.value }
+            .firstOrNull()
     }
 }
-

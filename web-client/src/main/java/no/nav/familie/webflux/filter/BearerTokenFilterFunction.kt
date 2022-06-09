@@ -15,10 +15,11 @@ import reactor.core.publisher.Mono
 import java.net.URI
 
 @Component
-class BearerTokenFilterFunction(private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-                                private val clientConfigurationProperties: ClientConfigurationProperties) :
-        ExchangeFilterFunction {
-
+class BearerTokenFilterFunction(
+    private val oAuth2AccessTokenService: OAuth2AccessTokenService,
+    private val clientConfigurationProperties: ClientConfigurationProperties
+) :
+    ExchangeFilterFunction {
 
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         val clientProperties = clientPropertiesFor(request.url())
@@ -29,9 +30,9 @@ class BearerTokenFilterFunction(private val oAuth2AccessTokenService: OAuth2Acce
 
     private fun clientPropertiesFor(uri: URI): ClientProperties {
         val values = clientConfigurationProperties
-                .registration
-                .values
-                .filter { uri.toString().startsWith(it.resourceUrl.toString()) }
+            .registration
+            .values
+            .filter { uri.toString().startsWith(it.resourceUrl.toString()) }
         return if (values.size == 1) values.first() else filterForGrantType(values, uri)
     }
 
@@ -39,7 +40,7 @@ class BearerTokenFilterFunction(private val oAuth2AccessTokenService: OAuth2Acce
         val preferredUsername = preferredUsername()
         val grantType = if (preferredUsername == null) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
         return values.firstOrNull { grantType == it.grantType }
-               ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
+            ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
     }
 
     private fun preferredUsername(): Any? {

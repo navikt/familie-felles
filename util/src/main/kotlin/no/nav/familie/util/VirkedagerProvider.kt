@@ -7,11 +7,11 @@ import java.time.MonthDay
 object VirkedagerProvider {
 
     private val FASTE_HELLIGDAGER = setOf(
-            MonthDay.of(1, 1),
-            MonthDay.of(5, 1),
-            MonthDay.of(5, 17),
-            MonthDay.of(12, 25),
-            MonthDay.of(12, 26)
+        MonthDay.of(1, 1),
+        MonthDay.of(5, 1),
+        MonthDay.of(5, 17),
+        MonthDay.of(12, 25),
+        MonthDay.of(12, 26)
     )
 
     private fun beregnBevegeligeHelligdager(år: Int): Set<MonthDay> {
@@ -23,13 +23,15 @@ object VirkedagerProvider {
         val førstePinsedag = påskedag.plusDays(49)
         val andrePinsedag = påskedag.plusDays(50)
 
-        return setOf(MonthDay.from(påskedag),
-                     MonthDay.from(skjærTorsdag),
-                     MonthDay.from(langfredag),
-                     MonthDay.from(andrePåskedag),
-                     MonthDay.from(kristiHimmelfartsdag),
-                     MonthDay.from(førstePinsedag),
-                     MonthDay.from(andrePinsedag))
+        return setOf(
+            MonthDay.from(påskedag),
+            MonthDay.from(skjærTorsdag),
+            MonthDay.from(langfredag),
+            MonthDay.from(andrePåskedag),
+            MonthDay.from(kristiHimmelfartsdag),
+            MonthDay.from(førstePinsedag),
+            MonthDay.from(andrePinsedag)
+        )
     }
 
     fun nesteVirkedag(dagensDato: LocalDate): LocalDate {
@@ -44,13 +46,12 @@ object VirkedagerProvider {
     private fun erHelgEllerHelligdag(dato: LocalDate): Boolean {
         val helligDager = FASTE_HELLIGDAGER + beregnBevegeligeHelligdager(dato.year)
 
-        return dato.dayOfWeek == DayOfWeek.SATURDAY
-               || dato.dayOfWeek == DayOfWeek.SUNDAY
-               || helligDager.contains(MonthDay.from(dato))
-
+        return dato.dayOfWeek == DayOfWeek.SATURDAY ||
+            dato.dayOfWeek == DayOfWeek.SUNDAY ||
+            helligDager.contains(MonthDay.from(dato))
     }
 
-    //Butcher-Meeus algoritm
+    // Butcher-Meeus algoritm
     private fun utledPåskedag(år: Int): LocalDate {
         val a = år % 19
         val b = år / 100
@@ -69,5 +70,3 @@ object VirkedagerProvider {
         return LocalDate.of(år, n, p + 1)
     }
 }
-
-
