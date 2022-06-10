@@ -17,16 +17,18 @@ object EksternBrukerUtils {
 
     fun hentFnrFraToken(): String {
         val claims = claims()
-        val fnr = (claims.getStringClaim("pid") ?: claims.subject
-                   ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token"))
-        if(!FNR_REGEX.matches(fnr)) {
+        val fnr = (
+            claims.getStringClaim("pid") ?: claims.subject
+                ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token")
+            )
+        if (!FNR_REGEX.matches(fnr)) {
             error("$fnr er ikke gyldig fnr")
         }
         return fnr
     }
 
     fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
-            personIdent == hentFnrFraToken()
+        personIdent == hentFnrFraToken()
 
     fun getBearerTokenForLoggedInUser(): String {
         return getFromContext { validationContext, issuer ->
@@ -51,7 +53,6 @@ object EksternBrukerUtils {
 
     private fun getTokenValidationContext(): TokenValidationContext {
         return RequestContextHolder.currentRequestAttributes()
-                .getAttribute(TOKEN_VALIDATION_CONTEXT_ATTRIBUTE, 0) as TokenValidationContext
+            .getAttribute(TOKEN_VALIDATION_CONTEXT_ATTRIBUTE, 0) as TokenValidationContext
     }
-
 }

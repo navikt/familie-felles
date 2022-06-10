@@ -1,6 +1,6 @@
 package no.nav.familie.log
 
-import java.util.*
+import java.util.UUID
 
 object IdUtils {
     @JvmStatic fun generateId(): String {

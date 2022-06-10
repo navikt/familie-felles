@@ -25,13 +25,15 @@ class LogFilterTest {
     @Test
     fun cleanupOfMDCContext() {
         val initialContextMap =
-                MDC.getCopyOfContextMap() ?: HashMap()
+            MDC.getCopyOfContextMap() ?: HashMap()
 
-        logFilter.doFilter(httpServletRequest,
-                           httpServletResponse) { _, _ -> }
+        logFilter.doFilter(
+            httpServletRequest,
+            httpServletResponse
+        ) { _, _ -> }
 
         assertThat(initialContextMap)
-                .isEqualTo(MDC.getCopyOfContextMap() ?: HashMap<String, String>())
+            .isEqualTo(MDC.getCopyOfContextMap() ?: HashMap<String, String>())
     }
 
     @Test
@@ -39,7 +41,7 @@ class LogFilterTest {
         logFilter.doFilter(httpServletRequest, httpServletResponse) { _, _ -> }
 
         assertThat(httpServletResponse.getHeader(NavHttpHeaders.NAV_CALL_ID.asString()))
-                .isNotEmpty()
+            .isNotEmpty()
         assertThat(httpServletResponse.getHeader("Server")).isNull()
     }
 
@@ -48,7 +50,7 @@ class LogFilterTest {
         logFilter.doFilter(httpServletRequest, httpServletResponse) { _, _ -> fail() }
 
         assertThat(httpServletResponse.status)
-                .isEqualTo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+            .isEqualTo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
     }
 
     companion object {

@@ -6,8 +6,10 @@ import java.net.URI
 /**
  * Utvidelse av AbstractWebClient for tjenester som implementerer ping.
  */
-abstract class AbstractPingableWebClient(webClient: WebClient,
-                                         metricsPrefix: String) : AbstractWebClient(webClient, metricsPrefix), Pingable {
+abstract class AbstractPingableWebClient(
+    webClient: WebClient,
+    metricsPrefix: String
+) : AbstractWebClient(webClient, metricsPrefix), Pingable {
 
     abstract val pingUri: URI
 

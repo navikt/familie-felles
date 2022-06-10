@@ -23,9 +23,9 @@ class SecureLoggerRestAppender : AppenderBase<ch.qos.logback.classic.spi.ILoggin
 
             if (iThrowableProxy != null) {
                 val stackTrace = "${iThrowableProxy.className}: ${iThrowableProxy.message}\n" +
-                        iThrowableProxy
-                            .stackTraceElementProxyArray
-                            .joinToString { "${it.steAsString}\n" }
+                    iThrowableProxy
+                        .stackTraceElementProxyArray
+                        .joinToString { "${it.steAsString}\n" }
 
                 logEvent["stack_trace"] = stackTrace
             }
@@ -50,7 +50,7 @@ class SecureLoggerRestAppender : AppenderBase<ch.qos.logback.classic.spi.ILoggin
             if (response.statusCode() != 200) {
                 println(
                     "[securelogs] ERROR ved posting av melding til secureLog ${response.statusCode()} " +
-                            "${response.body()} ${response.headers()}"
+                        "${response.body()} ${response.headers()}"
                 )
             }
         } catch (e: Exception) {

@@ -1,13 +1,17 @@
 package no.nav.familie.leader
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.anyUrl
+import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.mockk.every
 import io.mockk.mockkStatic
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.net.InetAddress
@@ -48,9 +52,13 @@ class LeaderClientTest {
     fun `Skal returnere true hvis pod er leader`() {
         mockkStatic(Environment::class)
         every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
-        wireMockServer.stubFor(get(anyUrl())
-                        .willReturn(aResponse()
-                                            .withBody("{\"name\": \"${InetAddress.getLocalHost().hostName}\"}")))
+        wireMockServer.stubFor(
+            get(anyUrl())
+                .willReturn(
+                    aResponse()
+                        .withBody("{\"name\": \"${InetAddress.getLocalHost().hostName}\"}")
+                )
+        )
 
         assertTrue(LeaderClient.isLeader()!!)
     }
@@ -59,9 +67,13 @@ class LeaderClientTest {
     fun `Skal returnere false hvis pod ikke er leader`() {
         mockkStatic(Environment::class)
         every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
-        wireMockServer.stubFor(get(anyUrl())
-                        .willReturn(aResponse()
-                                            .withBody("foobar")))
+        wireMockServer.stubFor(
+            get(anyUrl())
+                .willReturn(
+                    aResponse()
+                        .withBody("foobar")
+                )
+        )
 
         assertFalse(LeaderClient.isLeader()!!)
     }
@@ -70,9 +82,13 @@ class LeaderClientTest {
     fun `Skal returnere null hvis response er tom`() {
         mockkStatic(Environment::class)
         every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
-        wireMockServer.stubFor(get(anyUrl())
-                        .willReturn(aResponse()
-                                            .withStatus(404)))
+        wireMockServer.stubFor(
+            get(anyUrl())
+                .willReturn(
+                    aResponse()
+                        .withStatus(404)
+                )
+        )
 
         assertNull(LeaderClient.isLeader())
     }

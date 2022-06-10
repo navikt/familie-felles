@@ -23,18 +23,22 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
         return super.preHandle(request, response, handler)
     }
 
-    override fun postHandle(request: HttpServletRequest,
-                            response: HttpServletResponse,
-                            handler: Any,
-                            modelAndView: ModelAndView?) {
+    override fun postHandle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+        modelAndView: ModelAndView?
+    ) {
 
         postLogRequest(request, response, hentSaksbehandler(oidcUtil))
         super.postHandle(request, response, handler, modelAndView)
     }
 
-    private fun postLogRequest(request: HttpServletRequest,
-                               response: HttpServletResponse,
-                               ansvarligSaksbehandler: String) {
+    private fun postLogRequest(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        ansvarligSaksbehandler: String
+    ) {
 
         val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method}: ${request.requestURI} (${response.status})"
 
@@ -46,10 +50,10 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
     }
 
     private fun hentSaksbehandler(oidcUtil: OIDCUtil) =
-            Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
-                    onSuccess = { it },
-                    onFailure = { BRUKERNAVN_MASKINKALL }
-            )
+        Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
+            onSuccess = { it },
+            onFailure = { BRUKERNAVN_MASKINKALL }
+        )
 
     companion object {
         private val LOG = LoggerFactory.getLogger(InternLoggerInterceptor::class.java)

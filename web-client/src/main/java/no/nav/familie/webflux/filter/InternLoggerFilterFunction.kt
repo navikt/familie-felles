@@ -18,12 +18,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Import(OIDCUtil::class)
 class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
 
-
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         preHandle(request)
         return function.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
     }
-
 
     fun preHandle(request: ClientRequest) {
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
@@ -32,11 +30,13 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
         LOG.info("[pre-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()}")
     }
 
-    private fun postLogRequest(request: ClientRequest,
-                               signalType: SignalType,
-                               ansvarligSaksbehandler: String) {
+    private fun postLogRequest(
+        request: ClientRequest,
+        signalType: SignalType,
+        ansvarligSaksbehandler: String
+    ) {
 
-        val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()} (${signalType})"
+        val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()} ($signalType)"
 
         if (signalType == SignalType.ON_ERROR) {
             LOG.warn(melding)
@@ -63,10 +63,10 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
     }
 
     private fun hentSaksbehandler(oidcUtil: OIDCUtil) =
-            Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
-                    onSuccess = { it },
-                    onFailure = { BRUKERNAVN_MASKINKALL }
-            )
+        Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
+            onSuccess = { it },
+            onFailure = { BRUKERNAVN_MASKINKALL }
+        )
 
     companion object {
 

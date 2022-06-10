@@ -16,16 +16,18 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.Base64
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 @Component
-class StsRestClient(private val mapper: ObjectMapper,
-                    @Value("\${STS_URL}") private val stsUrl: URI,
-                    @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
-                    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-                    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null) {
+class StsRestClient(
+    private val mapper: ObjectMapper,
+    @Value("\${STS_URL}") private val stsUrl: URI,
+    @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
+    @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
+    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null
+) {
 
     private val responstid: Timer = Metrics.timer("sts.tid")
 
@@ -39,9 +41,11 @@ class StsRestClient(private val mapper: ObjectMapper,
             if (cachedToken == null) {
                 return false
             }
-            log.debug("Skal refreshe token: {}. Tiden nå er: {}",
-                      refreshCachedTokenTidspunkt,
-                      LocalTime.now())
+            log.debug(
+                "Skal refreshe token: {}. Tiden nå er: {}",
+                refreshCachedTokenTidspunkt,
+                LocalTime.now()
+            )
 
             return refreshCachedTokenTidspunkt.isAfter(LocalDateTime.now())
         }
@@ -54,24 +58,24 @@ class StsRestClient(private val mapper: ObjectMapper,
             }
             log.debug("Henter token fra STS")
             val request =
-                    HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
-                            .uri(stsUrl)
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.noBody())
-                            .timeout(Duration.ofSeconds(30)).apply {
-                                if (!stsApiKey.isNullOrEmpty()) {
-                                    header("x-nav-apiKey", stsApiKey)
-                                }
-                            }.build()
+                HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
+                    .uri(stsUrl)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .timeout(Duration.ofSeconds(30)).apply {
+                        if (!stsApiKey.isNullOrEmpty()) {
+                            header("x-nav-apiKey", stsApiKey)
+                        }
+                    }.build()
 
             val accessTokenResponse = try {
                 val startTime = System.nanoTime()
                 val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                        .thenApply { obj: HttpResponse<String?> -> obj.body() }
-                        .thenApply { it: String? ->
-                            håndterRespons(it)
-                        }
-                        .get()
+                    .thenApply { obj: HttpResponse<String?> -> obj.body() }
+                    .thenApply { it: String? ->
+                        håndterRespons(it)
+                    }
+                    .get()
                 responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
                 response
             } catch (e: InterruptedException) {
@@ -82,8 +86,8 @@ class StsRestClient(private val mapper: ObjectMapper,
             if (accessTokenResponse != null) {
                 cachedToken = accessTokenResponse
                 refreshCachedTokenTidspunkt = LocalDateTime.now()
-                        .plusSeconds(accessTokenResponse.expires_in)
-                        .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
+                    .plusSeconds(accessTokenResponse.expires_in)
+                    .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
                 return accessTokenResponse.access_token
             }
             throw StsAccessTokenFeilException("Manglende token")
@@ -104,5 +108,4 @@ class StsRestClient(private val mapper: ObjectMapper,
             return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }
     }
-
 }

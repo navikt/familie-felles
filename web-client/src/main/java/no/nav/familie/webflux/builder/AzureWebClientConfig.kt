@@ -9,36 +9,37 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.web.reactive.function.client.WebClient
 
-
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-@Import(ConsumerIdFilterFunction::class,
-        InternLoggerFilterFunction::class,
-        BearerTokenFilterFunction::class,
-        RestTemplateBuilderBean::class,
-        NaisProxyCustomizer::class,
-        NaisNoProxyCustomizer::class)
+@Import(
+    ConsumerIdFilterFunction::class,
+    InternLoggerFilterFunction::class,
+    BearerTokenFilterFunction::class,
+    RestTemplateBuilderBean::class,
+    NaisProxyCustomizer::class,
+    NaisNoProxyCustomizer::class
+)
 class AzureWebClientConfig {
 
     @Bean("azureWebClientBuilder")
-    fun azureWebClientBuilder(consumerIdFilterFunction: ConsumerIdFilterFunction,
-                              internLoggerFilterFunction: InternLoggerFilterFunction,
-                              bearerTokenFilterFunction: BearerTokenFilterFunction,
-                              iNaisProxyCustomizer: INaisProxyCustomizer): WebClient.Builder {
+    fun azureWebClientBuilder(
+        consumerIdFilterFunction: ConsumerIdFilterFunction,
+        internLoggerFilterFunction: InternLoggerFilterFunction,
+        bearerTokenFilterFunction: BearerTokenFilterFunction,
+        iNaisProxyCustomizer: INaisProxyCustomizer
+    ): WebClient.Builder {
         val builder = WebClient.builder()
-                .filter(consumerIdFilterFunction)
-                .filter(internLoggerFilterFunction)
-                .filter(bearerTokenFilterFunction)
-                .filter(MdcValuesPropagatingFilterFunction())
+            .filter(consumerIdFilterFunction)
+            .filter(internLoggerFilterFunction)
+            .filter(bearerTokenFilterFunction)
+            .filter(MdcValuesPropagatingFilterFunction())
 
         iNaisProxyCustomizer.customize(builder)
         return builder
-
     }
 
     @Bean("azureWebClient")
     fun azureWebClient(azureWebClientBuilder: WebClient.Builder): WebClient {
         return azureWebClientBuilder.build()
     }
-
 }

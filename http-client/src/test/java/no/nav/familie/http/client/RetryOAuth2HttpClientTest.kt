@@ -20,8 +20,8 @@ import java.time.temporal.ChronoUnit
 internal class RetryOAuth2HttpClientTest {
 
     private val restTemplateBuilder = RestTemplateBuilder()
-            .setConnectTimeout(Duration.of(1, ChronoUnit.SECONDS))
-            .setReadTimeout(Duration.of(1, ChronoUnit.SECONDS))
+        .setConnectTimeout(Duration.of(1, ChronoUnit.SECONDS))
+        .setReadTimeout(Duration.of(1, ChronoUnit.SECONDS))
 
     private val client = RetryOAuth2HttpClient(restTemplateBuilder)
 
@@ -73,16 +73,20 @@ internal class RetryOAuth2HttpClientTest {
     }
 
     private fun stub(responseDefinitionBuilder: ResponseDefinitionBuilder?) {
-        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl())
-                                       .willReturn(responseDefinitionBuilder))
+        wireMockServer.stubFor(
+            WireMock.post(WireMock.anyUrl())
+                .willReturn(responseDefinitionBuilder)
+        )
     }
 
     private fun post(): Exception? {
         return try {
-            client.post(OAuth2HttpRequest.builder()
-                                .tokenEndpointUrl(URI.create(wireMockServer.baseUrl()))
-                                .oAuth2HttpHeaders(OAuth2HttpHeaders.builder().build())
-                                .build())
+            client.post(
+                OAuth2HttpRequest.builder()
+                    .tokenEndpointUrl(URI.create(wireMockServer.baseUrl()))
+                    .oAuth2HttpHeaders(OAuth2HttpHeaders.builder().build())
+                    .build()
+            )
             null
         } catch (e: Exception) {
             e
@@ -106,6 +110,4 @@ internal class RetryOAuth2HttpClientTest {
             wireMockServer.stop()
         }
     }
-
-
 }

@@ -7,9 +7,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 
-
-
-
 object LeaderClient {
 
     /**
@@ -21,9 +18,9 @@ object LeaderClient {
 
         val client = HttpClient.newHttpClient()
         val request = HttpRequest.newBuilder()
-                .uri(URI.create("http://$electorPath"))
-                .GET()
-                .build()
+            .uri(URI.create("http://$electorPath"))
+            .GET()
+            .build()
 
         val response: HttpResponse<String> = client.send(request, BodyHandlers.ofString())
         if (response.body().isNullOrBlank()) return null

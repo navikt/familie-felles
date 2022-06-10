@@ -10,15 +10,17 @@ import org.springframework.web.reactive.function.client.ExchangeFunction
 import reactor.core.publisher.Mono
 
 @Component
-class ConsumerIdFilterFunction(@Value("\${application.name}") private val appName: String,
-                               @Value("\${credential.username:}") private val serviceUser: String) :
-        ExchangeFilterFunction {
+class ConsumerIdFilterFunction(
+    @Value("\${application.name}") private val appName: String,
+    @Value("\${credential.username:}") private val serviceUser: String
+) :
+    ExchangeFilterFunction {
 
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
 
         val modifiedRequest = ClientRequest.from(request)
-                .header(NavHttpHeaders.NAV_CONSUMER_ID.asString(), serviceUser.ifBlank { appName })
-                .build()
+            .header(NavHttpHeaders.NAV_CONSUMER_ID.asString(), serviceUser.ifBlank { appName })
+            .build()
         return function.exchange(modifiedRequest)
     }
 }

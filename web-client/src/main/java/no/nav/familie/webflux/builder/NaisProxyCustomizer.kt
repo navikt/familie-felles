@@ -10,7 +10,6 @@ import org.springframework.http.client.reactive.JettyClientHttpConnector
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
-
 interface INaisProxyCustomizer : WebClientCustomizer
 
 @Component
@@ -45,5 +44,4 @@ class NaisProxyCustomizer : INaisProxyCustomizer {
         val connector = JettyClientHttpConnector(httpClient)
         webClientBuilder.clientConnector(connector)
     }
-
 }

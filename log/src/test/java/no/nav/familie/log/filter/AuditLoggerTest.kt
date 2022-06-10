@@ -11,7 +11,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
-
 class AuditLoggerTest {
 
     @Test
@@ -22,14 +21,19 @@ class AuditLoggerTest {
         listAppender.start()
 
         logger.addAppender(listAppender)
-        AuditLogger.log(Sporingsdata(mapOf(SporingsloggId.ANSVALIG_SAKSBEHANDLER to "ansvarligSaksbehandler")),
-                        AuditLoggerType.READ,
-                        "FAGSAK")
+        AuditLogger.log(
+            Sporingsdata(mapOf(SporingsloggId.ANSVALIG_SAKSBEHANDLER to "ansvarligSaksbehandler")),
+            AuditLoggerType.READ,
+            "FAGSAK"
+        )
 
         val logsList = listAppender.list
         assertThat(logsList.size).isEqualTo(1)
-        assertThat(logsList[0]
-                           .message).isEqualTo("action=FAGSAK actionType=READ ANSVALIG_SAKSBEHANDLER=ansvarligSaksbehandler"
+        assertThat(
+            logsList[0]
+                .message
+        ).isEqualTo(
+            "action=FAGSAK actionType=READ ANSVALIG_SAKSBEHANDLER=ansvarligSaksbehandler"
         )
     }
 }

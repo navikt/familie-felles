@@ -1,6 +1,5 @@
 package no.nav.familie.http.interceptor
 
-
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,8 +24,10 @@ class BearerTokenClientInterceptorTest {
 
     @BeforeEach
     fun setup() {
-        bearerTokenClientInterceptor = BearerTokenClientInterceptor(oAuth2AccessTokenService,
-                                                                    clientConfigurationProperties)
+        bearerTokenClientInterceptor = BearerTokenClientInterceptor(
+            oAuth2AccessTokenService,
+            clientConfigurationProperties
+        )
     }
 
     @AfterEach
@@ -64,8 +65,10 @@ class BearerTokenClientInterceptorTest {
         val requestAttributes = mockk<RequestAttributes>()
         RequestContextHolder.setRequestAttributes(requestAttributes)
         every {
-            requestAttributes.getAttribute(SpringTokenValidationContextHolder::class.java.name,
-                                           RequestAttributes.SCOPE_REQUEST)
+            requestAttributes.getAttribute(
+                SpringTokenValidationContextHolder::class.java.name,
+                RequestAttributes.SCOPE_REQUEST
+            )
         } returns tokenValidationContext
         every { tokenValidationContext.getClaims("azuread") } returns jwtTokenClaims
         every { jwtTokenClaims.get("preferred_username") } returns preferredUsername

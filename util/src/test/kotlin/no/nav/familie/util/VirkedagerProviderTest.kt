@@ -1,9 +1,8 @@
 package no.nav.familie.util
 
-import java.time.LocalDate
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
+import java.time.LocalDate
 
 class VirkedagerProviderTest {
     val skjærTorsdag2021 = LocalDate.of(2021, 4, 1)
@@ -30,5 +29,4 @@ class VirkedagerProviderTest {
     fun `Hent virkedag skjærtorsdag 2022`() {
         assertEquals(VirkedagerProvider.nesteVirkedag(skjærTorsdag2022), skjærTorsdag2022.plusDays(5))
     }
-
 }
