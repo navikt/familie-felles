@@ -1,4 +1,4 @@
-package no.nav.familie.ef.mottak.config
+package no.nav.familie.kafka
 
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
