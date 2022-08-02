@@ -1,6 +1,5 @@
 package no.nav.familie.util
 
-import no.nav.familie.foedselsnummer.FnrGenerator
 import no.nav.familie.kontrakter.ef.søknad.Fødselsnummer
 import org.junit.jupiter.api.Test
 

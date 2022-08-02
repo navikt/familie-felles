@@ -10,9 +10,9 @@
         <version>${revision}${sha1}${changelist}</version>
     </parent>
 
-    <artifactId>util</artifactId>
+    <artifactId>modell</artifactId>
     <version>${revision}${sha1}${changelist}</version>
-    <name>Felles - Util</name>
+    <name>Felles - Modell</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -26,8 +26,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.familie.kontrakter</groupId>
-            <artifactId>enslig-forsorger</artifactId>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

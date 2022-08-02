@@ -1,4 +1,4 @@
-package no.nav.familie.foedselsnummer
+package no.nav.familie.util
 
 import java.time.LocalDate
 
