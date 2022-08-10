@@ -23,6 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kontrakter.version>2.0_20220429151635_4bb9f6d</kontrakter.version>
+        <kotest.version>5.3.1</kotest.version>
         <kotlin.version>1.6.21</kotlin.version>
         <mockk.version>1.12.3</mockk.version>
         <nav.security.token.version>2.0.15</nav.security.token.version>
@@ -93,6 +94,13 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-test-junit5</artifactId>
                 <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.kotest</groupId>
+                <artifactId>kotest-runner-junit5-jvm</artifactId>
+                <version>${kotest.version}</version>
                 <scope>test</scope>
             </dependency>
 
