@@ -247,6 +247,6 @@ internal class DatoperiodeTest {
 
         val lengdeIHeleMåneder = periode.lengdeIHeleMåneder()
 
-        lengdeIHeleMåneder shouldBe 3
+        lengdeIHeleMåneder shouldBe 4
     }
 }
