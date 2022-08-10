@@ -177,11 +177,20 @@ internal class MånedsperiodeTest {
     }
 
     @Test
-    fun `lengdeIHeleMåneder returnerer korrekt antall måneder`() {
+    fun `lengdeIHeleMåneder returnerer korrekt antall måneder for lange perioder`() {
         val periode = Månedsperiode(YearMonth.of(2015, 9), YearMonth.of(2028, 3))
 
         val lengdeIHeleMåneder = periode.lengdeIHeleMåneder()
 
         lengdeIHeleMåneder shouldBe 151
+    }
+
+    @Test
+    fun `lengdeIHeleMåneder returnerer korrekt antall måneder for korte perioder`() {
+        val periode = Månedsperiode(YearMonth.of(2015, 9), YearMonth.of(2015, 12))
+
+        val lengdeIHeleMåneder = periode.lengdeIHeleMåneder()
+
+        lengdeIHeleMåneder shouldBe 3
     }
 }

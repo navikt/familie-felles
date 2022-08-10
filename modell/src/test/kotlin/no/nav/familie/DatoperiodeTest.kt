@@ -233,11 +233,20 @@ internal class DatoperiodeTest {
     }
 
     @Test
-    fun `lengdeIHeleMåneder returnerer korrekt antall måneder`() {
+    fun `lengdeIHeleMåneder returnerer korrekt antall måneder for lange perioder`() {
         val periode = Datoperiode(LocalDate.of(2015, 9, 1), LocalDate.of(2028, 3, 31))
 
         val lengdeIHeleMåneder = periode.lengdeIHeleMåneder()
 
         lengdeIHeleMåneder shouldBe 151
+    }
+
+    @Test
+    fun `lengdeIHeleMåneder returnerer korrekt antall måneder for korte perioder`() {
+        val periode = Datoperiode(LocalDate.of(2015, 9, 1), LocalDate.of(2015, 12, 31))
+
+        val lengdeIHeleMåneder = periode.lengdeIHeleMåneder()
+
+        lengdeIHeleMåneder shouldBe 3
     }
 }
