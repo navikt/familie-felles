@@ -4,7 +4,7 @@ import no.nav.familie.foedselsnummer.FoedselsNr.Companion.tabeller.kontrollsiffe
 import no.nav.familie.foedselsnummer.FoedselsNr.Companion.tabeller.kontrollsiffer2
 import java.time.LocalDate
 
-@Deprecated("Bruk Fødselsnummer", ReplaceWith("no.nav.familie.Fødselsnummer"))
+@Deprecated("Bruk eksisterende Fødselsnummer fra kontrakter.", ReplaceWith("no.nav.familie.kontrakter.felles.Fødselsnummer"))
 data class FoedselsNr(val asString: String) {
     init {
         require("""\d{11}""".toRegex().matches(asString)) { "Ikke et gyldig fødselsnummer: $asString" }
