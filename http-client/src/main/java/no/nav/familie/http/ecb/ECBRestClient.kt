@@ -6,6 +6,7 @@ import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
 import no.nav.familie.http.ecb.domene.ExchangeRate
 import no.nav.familie.http.ecb.domene.toExchangeRates
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestOperations
@@ -14,9 +15,7 @@ import java.time.LocalDate
 
 @Component
 @Import(ECBRestTemplate::class)
-class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: RestOperations) : AbstractRestClient(restOperations, "ecb") {
-
-    private final val ECBApiUrl = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/"
+class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: RestOperations, @Value("\${ECB_API_URL}") private val ecbApiUrl: String) : AbstractRestClient(restOperations, "ecb") {
 
     /**
      * Henter valutakurser fra ECB (European Central Bank) for *currencies*
@@ -26,7 +25,7 @@ class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: Re
      * @return Liste over valutakurser med tilhørende kode, kurs og dato.
      */
     fun getExchangeRates(frequency: Frequency, currencies: List<String>, exchangeRateDate: LocalDate): List<ExchangeRate> {
-        val uri = URI.create("${ECBApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}")
+        val uri = URI.create("${ecbApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}")
         try {
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: Exception) {
