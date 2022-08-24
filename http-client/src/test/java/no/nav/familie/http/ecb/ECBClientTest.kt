@@ -21,7 +21,7 @@ class ECBClientTest {
     fun setup() {
         val config = ECBRestTemplate()
         val restTemplate = config.xmlRestTemplate(ECBRestClientInterceptor(), config.xmlMapper())
-        ecbRestClient = ECBRestClient(restTemplate, "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/")
+        ecbRestClient = ECBRestClient(restTemplate)
     }
 
     @Test
