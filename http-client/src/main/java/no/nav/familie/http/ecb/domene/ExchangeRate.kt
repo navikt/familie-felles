@@ -5,6 +5,6 @@ import java.time.LocalDate
 
 data class ExchangeRate(val currency: String, val exchangeRate: BigDecimal, val date: LocalDate)
 
-fun List<ExchangeRate>.exchangeRateForCurrency(valuta: String): ExchangeRate? {
-    return this.firstOrNull { it.currency == valuta }
+fun List<ExchangeRate>.exchangeRateForCurrency(currency: String): ExchangeRate? {
+    return this.firstOrNull { it.currency == currency }
 }

@@ -11,11 +11,11 @@ data class ECBExchangeRate(
 )
 
 data class ECBExchangeRateDate(
-    @field:JacksonXmlProperty(localName = "value", isAttribute = true)
+    @field:JacksonXmlProperty(isAttribute = true)
     val value: String
 )
 
 data class ECBExchangeRateValue(
-    @field:JacksonXmlProperty(localName = "value", isAttribute = true)
+    @field:JacksonXmlProperty(isAttribute = true)
     val value: BigDecimal
 )

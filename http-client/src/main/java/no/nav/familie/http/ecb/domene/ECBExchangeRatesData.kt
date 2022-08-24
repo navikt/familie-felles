@@ -10,11 +10,11 @@ data class ECBExchangeRatesData(
     val ecbExchangeRatesDataSet: ECBExchangeRatesDataSet
 )
 
-fun ECBExchangeRatesData.exchangeRatesForCurrency(valuta: String): List<ECBExchangeRate> {
+fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExchangeRate> {
     return this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies.filter {
         it.ecbExchangeRateKeys.any {
                 ecbKeyValue ->
-            ecbKeyValue.id == "CURRENCY" && ecbKeyValue.value == valuta
+            ecbKeyValue.id == "CURRENCY" && ecbKeyValue.value == currency
         }
     }.flatMap { it.ecbExchangeRates }
 }
