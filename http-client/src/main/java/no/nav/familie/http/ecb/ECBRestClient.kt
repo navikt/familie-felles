@@ -1,7 +1,7 @@
 package no.nav.familie.http.ecb
 
 import no.nav.familie.http.client.AbstractRestClient
-import no.nav.familie.http.config.RestTemplateECB
+import no.nav.familie.http.config.ECBRestTemplate
 import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
 import no.nav.familie.http.ecb.domene.ExchangeRate
 import no.nav.familie.http.ecb.domene.toExchangeRates
@@ -13,8 +13,8 @@ import java.net.URI
 import java.time.LocalDate
 
 @Component
-@Import(RestTemplateECB::class)
-class ECBRestClient(@Qualifier("ecb") private val restOperations: RestOperations) : AbstractRestClient(restOperations, "ecb") {
+@Import(ECBRestTemplate::class)
+class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: RestOperations) : AbstractRestClient(restOperations, "ecb") {
 
     private final val ECBApiUrl = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/"
 
@@ -26,7 +26,7 @@ class ECBRestClient(@Qualifier("ecb") private val restOperations: RestOperations
      * @return Liste over valutakurser med tilhørende kode, kurs og dato.
      */
     fun getExchangeRates(frequency: Frequency, currencies: List<String>, exchangeRateDate: LocalDate): List<ExchangeRate> {
-        val uri = URI.create("${ECBApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/?startPeriod=$exchangeRateDate&endPeriod=$exchangeRateDate")
+        val uri = URI.create("${ECBApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}")
         try {
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: Exception) {
@@ -46,5 +46,9 @@ enum class Frequency {
     fun toFrequencyParam() = when (this) {
         Daily -> "D"
         Monthly -> "M"
+    }
+    fun toQueryParams(exchangeRateDate: LocalDate) = when (this) {
+        Daily -> "?startPeriod=$exchangeRateDate&endPeriod=$exchangeRateDate"
+        Monthly -> "?endPeriod=$exchangeRateDate&lastNObservations=1"
     }
 }

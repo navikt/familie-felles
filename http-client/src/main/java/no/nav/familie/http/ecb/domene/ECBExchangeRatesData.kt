@@ -2,6 +2,7 @@ package no.nav.familie.http.ecb.domene
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import java.time.LocalDate
+import java.time.YearMonth
 
 @JacksonXmlRootElement(localName = "GenericData")
 data class ECBExchangeRatesData(
@@ -24,7 +25,9 @@ fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
             ecbExchangeRatesForCurrency.ecbExchangeRates
                 .map { ecbExchangeRate ->
                     val currency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "CURRENCY" }.value
-                    ExchangeRate(currency, ecbExchangeRate.ecbExchangeRateValue.value, LocalDate.parse(ecbExchangeRate.date.value))
+                    val frequency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "FREQ" }.value
+                    val date: LocalDate = if (frequency == "D") LocalDate.parse(ecbExchangeRate.date.value) else YearMonth.parse(ecbExchangeRate.date.value).atEndOfMonth()
+                    ExchangeRate(currency, ecbExchangeRate.ecbExchangeRateValue.value, date)
                 }
         }
 }
