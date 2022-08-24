@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDate
@@ -28,8 +29,14 @@ class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: Re
         val uri = URI.create("${ecbApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}")
         try {
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
+        } catch (e: RestClientResponseException) {
+            throw ECBClientException("Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate", e)
+        } catch (e: ECBTransformationException) {
+            throw ECBClientException(e.message, e)
+        } catch (e: NullPointerException) {
+            throw ECBClientException("Fant ingen valutakurser for $currencies på dato: $exchangeRateDate ved kall mot European Central Bank", e)
         } catch (e: Exception) {
-            throw ECBClientException("Fant ingen valutakurser for $currencies på dato: $exchangeRateDate fra European Central Bank", e)
+            throw ECBClientException("Ukjent feil ved kall mot European Central Bank", e)
         }
     }
 
