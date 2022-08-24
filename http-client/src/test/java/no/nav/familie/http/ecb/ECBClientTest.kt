@@ -25,7 +25,7 @@ class ECBClientTest {
     }
 
     @Test
-    fun `Test at ECBClient henter kurser for både SEK og NOK og at valutakursdatoen er korrekt`() {
+    fun `Test at ECBRestClient henter kurser for både SEK og NOK og at valutakursdatoen er korrekt`() {
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val valutakurser = ecbRestClient.getExchangeRates(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
         assertNotNull(valutakurser)
@@ -39,7 +39,7 @@ class ECBClientTest {
     }
 
     @Test
-    fun `Test at ECBClient henter kurs kun for NOK dersom forespurte valutaer er NOK og EUR`() {
+    fun `Test at ECBRestClient henter kurs kun for NOK dersom forespurte valutaer er NOK og EUR`() {
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val valutakurser = ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
         assertNotNull(valutakurser)
@@ -52,7 +52,7 @@ class ECBClientTest {
     }
 
     @Test
-    fun `Test at ECBClient henter kurs for forrige måned dersom frekvens er Monthly og dato ikke er siste i mnd`() {
+    fun `Test at ECBRestClient henter kurs for forrige måned dersom frekvens er Monthly og dato ikke er siste i mnd`() {
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val valutakurser = ecbRestClient.getExchangeRates(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
@@ -60,7 +60,7 @@ class ECBClientTest {
     }
 
     @Test
-    fun `Test at ECBClient henter kurs for inneværende måned dersom frekvens er Monthly og dato er siste i mnd`() {
+    fun `Test at ECBRestClient henter kurs for inneværende måned dersom frekvens er Monthly og dato er siste i mnd`() {
         val valutakursDato = LocalDate.of(2022, 7, 31)
         val valutakurser = ecbRestClient.getExchangeRates(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
