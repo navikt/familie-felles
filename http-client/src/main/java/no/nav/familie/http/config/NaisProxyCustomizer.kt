@@ -41,7 +41,9 @@ class NaisProxyCustomizer(
                 ): HttpHost? {
                     return if (target.hostName.contains("microsoft")) {
                         super.determineProxy(target, request, context)
-                    } else null
+                    } else {
+                        null
+                    }
                 }
             }).build()
 

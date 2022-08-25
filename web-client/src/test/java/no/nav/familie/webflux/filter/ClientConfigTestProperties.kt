@@ -23,7 +23,8 @@ val clientConfigurationProperties =
                 OAuth2GrantType.CLIENT_CREDENTIALS,
                 listOf("z", "y", "x"),
                 authentication,
-                URI("http://firstResource.no"), null
+                URI("http://firstResource.no"),
+                null
             ),
             "2" to ClientProperties(
                 URI(tokenEndpoint),
@@ -31,7 +32,8 @@ val clientConfigurationProperties =
                 OAuth2GrantType.JWT_BEARER,
                 listOf("c", "b", "a"),
                 authentication,
-                URI("http://firstResource.no"), null
+                URI("http://firstResource.no"),
+                null
             ),
             "3" to ClientProperties(
                 URI(tokenEndpoint),
@@ -39,7 +41,8 @@ val clientConfigurationProperties =
                 OAuth2GrantType.JWT_BEARER,
                 listOf("z", "y", "x"),
                 authentication,
-                URI("http://jwtResource.no"), null
+                URI("http://jwtResource.no"),
+                null
             ),
             "4" to ClientProperties(
                 URI(tokenEndpoint),
@@ -47,7 +50,8 @@ val clientConfigurationProperties =
                 OAuth2GrantType.CLIENT_CREDENTIALS,
                 listOf("z", "y", "x"),
                 authentication,
-                URI("http://clientResource.no"), null
+                URI("http://clientResource.no"),
+                null
             )
         )
     )

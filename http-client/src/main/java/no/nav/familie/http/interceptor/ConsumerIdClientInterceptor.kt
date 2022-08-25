@@ -16,7 +16,6 @@ class ConsumerIdClientInterceptor(
     ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-
         request.headers.add(NavHttpHeaders.NAV_CONSUMER_ID.asString(), if (!serviceUser.isBlank()) serviceUser else appName)
         return execution.execute(request, body)
     }

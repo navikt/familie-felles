@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono
 class MdcValuesPropagatingFilterFunction : ExchangeFilterFunction {
 
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
-
         val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
         val modifiedRequest = ClientRequest.from(request).header(NavHttpHeaders.NAV_CALL_ID.asString(), callId).build()
 

@@ -27,10 +27,11 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     }
 
     fun getClaim(claim: String): String {
-        return if (erDevProfil())
+        return if (erDevProfil()) {
             claimSet()?.get(claim)?.toString() ?: "DEV_$claim"
-        else
+        } else {
             claimSet()?.get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
+        }
     }
 
     fun getClaimAsList(claim: String): List<String>? {
@@ -38,8 +39,11 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     }
 
     val navIdent: String
-        get() = if (erDevProfil()) "TEST_Z123" else
+        get() = if (erDevProfil()) {
+            "TEST_Z123"
+        } else {
             claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
+        }
 
     val groups: List<String>?
         get() = (claimSet()?.get("groups") as List<*>?)

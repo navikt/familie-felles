@@ -20,7 +20,8 @@ class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String
             request.headers.add(apiKey.first, apiKey.second)
         } else {
             logger.trace(
-                "Ingen API-key ble funnet for {} (sjekket {} konfigurasjoner)", request.uri,
+                "Ingen API-key ble funnet for {} (sjekket {} konfigurasjoner)",
+                request.uri,
                 apiKeys.values.size
             )
         }

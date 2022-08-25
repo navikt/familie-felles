@@ -26,7 +26,6 @@ class NaisNoProxyCustomizer : INaisProxyCustomizer {
 class NaisProxyCustomizer : INaisProxyCustomizer {
 
     override fun customize(webClientBuilder: WebClient.Builder) {
-
         class DynamicProxy(host: String, port: Int) : HttpProxy(host, port) {
 
             override fun matches(origin: Origin): Boolean {

@@ -13,7 +13,6 @@ import org.springframework.util.StopWatch
 class TimingAndLoggingClientHttpRequestInterceptor : ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-
         val timer = StopWatch()
         timer.start()
         val respons = execution.execute(request, body)
