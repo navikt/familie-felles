@@ -1,9 +1,9 @@
-package no.nav.familie.http.config
+package no.nav.familie.http.ecb.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.familie.http.interceptor.ECBRestClientInterceptor
+import no.nav.familie.http.ecb.interceptor.ECBRestClientInterceptor
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -13,9 +13,10 @@ import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.client.RestOperations
 
+@Suppress("SpringFacetCodeInspection")
 @Configuration
 @Import(ECBRestClientInterceptor::class)
-class ECBRestTemplate {
+class ECBRestClientConfig {
 
     @Bean("ecbMapper")
     fun xmlMapper(): XmlMapper {

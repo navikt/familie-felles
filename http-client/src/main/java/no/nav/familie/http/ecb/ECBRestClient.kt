@@ -1,10 +1,12 @@
 package no.nav.familie.http.ecb
 
 import no.nav.familie.http.client.AbstractRestClient
-import no.nav.familie.http.config.ECBRestTemplate
+import no.nav.familie.http.ecb.config.ECBRestClientConfig
 import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
 import no.nav.familie.http.ecb.domene.ExchangeRate
 import no.nav.familie.http.ecb.domene.toExchangeRates
+import no.nav.familie.http.ecb.exception.ECBClientException
+import no.nav.familie.http.ecb.exception.ECBTransformationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
@@ -15,7 +17,7 @@ import java.net.URI
 import java.time.LocalDate
 
 @Component
-@Import(ECBRestTemplate::class)
+@Import(ECBRestClientConfig::class)
 class ECBRestClient(@Qualifier("ecbRestTemplate") private val restOperations: RestOperations, @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/") : AbstractRestClient(restOperations, "ecb") {
 
     /**

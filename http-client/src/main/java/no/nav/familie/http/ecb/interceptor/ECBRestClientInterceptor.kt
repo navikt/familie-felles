@@ -1,4 +1,4 @@
-package no.nav.familie.http.interceptor
+package no.nav.familie.http.ecb.interceptor
 
 import org.springframework.http.HttpRequest
 import org.springframework.http.MediaType

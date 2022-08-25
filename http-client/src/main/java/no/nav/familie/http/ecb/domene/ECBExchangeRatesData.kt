@@ -1,7 +1,7 @@
 package no.nav.familie.http.ecb.domene
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import no.nav.familie.http.ecb.ECBTransformationException
+import no.nav.familie.http.ecb.exception.ECBTransformationException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeParseException

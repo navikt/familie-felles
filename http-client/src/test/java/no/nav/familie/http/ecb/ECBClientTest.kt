@@ -4,7 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import no.nav.familie.http.config.ECBRestTemplate
+import no.nav.familie.http.ecb.config.ECBRestClientConfig
 import no.nav.familie.http.ecb.domene.ECBExchangeRate
 import no.nav.familie.http.ecb.domene.ECBExchangeRateDate
 import no.nav.familie.http.ecb.domene.ECBExchangeRateKey
@@ -13,7 +13,9 @@ import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
 import no.nav.familie.http.ecb.domene.ECBExchangeRatesDataSet
 import no.nav.familie.http.ecb.domene.ECBExchangeRatesForCurrency
 import no.nav.familie.http.ecb.domene.exchangeRateForCurrency
-import no.nav.familie.http.interceptor.ECBRestClientInterceptor
+import no.nav.familie.http.ecb.exception.ECBClientException
+import no.nav.familie.http.ecb.exception.ECBTransformationException
+import no.nav.familie.http.ecb.interceptor.ECBRestClientInterceptor
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -49,7 +51,7 @@ class ECBClientTest {
             wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
             wireMockServer.start()
 
-            val config = ECBRestTemplate()
+            val config = ECBRestClientConfig()
             xmlMapper = config.xmlMapper()
             val restTemplate = config.xmlRestTemplate(ECBRestClientInterceptor(), xmlMapper)
             ecbRestClient = ECBRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())

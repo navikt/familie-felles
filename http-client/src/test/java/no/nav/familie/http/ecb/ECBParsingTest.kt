@@ -1,6 +1,6 @@
 package no.nav.familie.http.ecb
 
-import no.nav.familie.http.config.ECBRestTemplate
+import no.nav.familie.http.ecb.config.ECBRestClientConfig
 import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
 import no.nav.familie.http.ecb.domene.exchangeRatesForCurrency
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -99,7 +99,7 @@ class ECBParsingTest {
 
     @Test
     fun `Test at xml parses som forventet`() {
-        val mapper = ECBRestTemplate().xmlMapper()
+        val mapper = ECBRestClientConfig().xmlMapper()
         val ecbExchangeRatesData = mapper.readValue(ecbXml, ECBExchangeRatesData::class.java)
         assertEquals(ecbExchangeRatesData.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies.size, 2)
         val nokExchangeRates = ecbExchangeRatesData.exchangeRatesForCurrency("NOK")
