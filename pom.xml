@@ -26,7 +26,7 @@
         <kotest.version>5.3.1</kotest.version>
         <kotlin.version>1.6.21</kotlin.version>
         <mockk.version>1.12.3</mockk.version>
-        <nav.security.token.version>2.0.15</nav.security.token.version>
+        <nav.security.token.version>2.1.3</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
