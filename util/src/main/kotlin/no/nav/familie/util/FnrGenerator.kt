@@ -19,7 +19,6 @@ object FnrGenerator {
         dag: Int = (1..28).random(),
         erDnummer: Boolean = false
     ): String {
-
         if (år > 2039 || år < 1854) {
             error("Ugyldig årstall. Lovlige verdier er mellom 1854 og 2039")
         }

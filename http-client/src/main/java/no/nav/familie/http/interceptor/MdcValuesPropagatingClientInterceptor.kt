@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component
 class MdcValuesPropagatingClientInterceptor : ClientHttpRequestInterceptor {
 
     override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
-
         val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
         request.headers.add(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
 

@@ -29,7 +29,6 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
         handler: Any,
         modelAndView: ModelAndView?
     ) {
-
         postLogRequest(request, response, hentSaksbehandler(oidcUtil))
         super.postHandle(request, response, handler, modelAndView)
     }
@@ -39,7 +38,6 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
         response: HttpServletResponse,
         ansvarligSaksbehandler: String
     ) {
-
         val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method}: ${request.requestURI} (${response.status})"
 
         if (HttpStatus.valueOf(response.status).isError) {

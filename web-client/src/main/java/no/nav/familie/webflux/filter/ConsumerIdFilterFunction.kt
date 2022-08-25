@@ -17,7 +17,6 @@ class ConsumerIdFilterFunction(
     ExchangeFilterFunction {
 
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
-
         val modifiedRequest = ClientRequest.from(request)
             .header(NavHttpHeaders.NAV_CONSUMER_ID.asString(), serviceUser.ifBlank { appName })
             .build()

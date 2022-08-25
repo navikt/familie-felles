@@ -32,8 +32,12 @@ fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
                         val currency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "CURRENCY" }.value
                         val frequency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "FREQ" }.value
                         val date: LocalDate =
-                            if (frequency == "D") LocalDate.parse(ecbExchangeRate.date.value) else YearMonth.parse(ecbExchangeRate.date.value)
-                                .atEndOfMonth()
+                            if (frequency == "D") {
+                                LocalDate.parse(ecbExchangeRate.date.value)
+                            } else {
+                                YearMonth.parse(ecbExchangeRate.date.value)
+                                    .atEndOfMonth()
+                            }
                         ExchangeRate(currency, ecbExchangeRate.ecbExchangeRateValue.value, date)
                     }
             }

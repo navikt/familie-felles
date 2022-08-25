@@ -187,7 +187,8 @@ class ECBClientTest {
                             listOf(ECBExchangeRateKey("CURRENCY", it.first), ECBExchangeRateKey("FREQ", frequency.toFrequencyParam())),
                             listOf(
                                 ECBExchangeRate(
-                                    ECBExchangeRateDate(exchangeRateDate), ECBExchangeRateValue((it.second))
+                                    ECBExchangeRateDate(exchangeRateDate),
+                                    ECBExchangeRateValue((it.second))
                                 )
                             )
                         )
@@ -207,7 +208,8 @@ class ECBClientTest {
                             listOf(ECBExchangeRateKey("", "")),
                             listOf(
                                 ECBExchangeRate(
-                                    ECBExchangeRateDate(exchangeRateDate), ECBExchangeRateValue((it.second))
+                                    ECBExchangeRateDate(exchangeRateDate),
+                                    ECBExchangeRateValue((it.second))
                                 )
                             )
                         )

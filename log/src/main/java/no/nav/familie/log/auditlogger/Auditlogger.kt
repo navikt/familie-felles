@@ -55,7 +55,7 @@ data class Sporingsdata(
 )
 
 enum class SporingsloggId {
-    ANSVALIG_SAKSBEHANDLER,
+    ANSVALIG_SAKSBEHANDLER
 }
 
 enum class AuditLoggerType(val httpMethod: HttpMethod) {

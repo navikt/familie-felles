@@ -35,7 +35,6 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
         signalType: SignalType,
         ansvarligSaksbehandler: String
     ) {
-
         val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()} ($signalType)"
 
         if (signalType == SignalType.ON_ERROR) {
@@ -46,7 +45,6 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
     }
 
     private fun postHandle(request: ClientRequest, responseMono: Mono<ClientResponse>): Mono<ClientResponse> {
-
         val responseReceived = AtomicBoolean()
         return Mono.defer {
             responseMono.doOnEach { signal: Signal<ClientResponse> ->
