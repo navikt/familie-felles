@@ -15,7 +15,6 @@ import no.nav.familie.http.ecb.domene.ECBExchangeRatesForCurrency
 import no.nav.familie.http.ecb.domene.exchangeRateForCurrency
 import no.nav.familie.http.ecb.exception.ECBClientException
 import no.nav.familie.http.ecb.exception.ECBTransformationException
-import no.nav.familie.http.ecb.interceptor.ECBRestClientInterceptor
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -53,7 +52,7 @@ class ECBClientTest {
 
             val config = ECBRestClientConfig()
             xmlMapper = config.xmlMapper()
-            val restTemplate = config.xmlRestTemplate(ECBRestClientInterceptor(), xmlMapper)
+            val restTemplate = config.xmlRestTemplate(xmlMapper)
             ecbRestClient = ECBRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
         }
 
