@@ -1,7 +1,7 @@
-package no.nav.familie.http.ecb.domene
+package no.nav.familie.valutakurs.domene
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import no.nav.familie.http.ecb.exception.ECBTransformationException
+import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeParseException
@@ -22,7 +22,7 @@ fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExc
     }.flatMap { it.ecbExchangeRates }
 }
 
-@Throws(ECBTransformationException::class)
+@Throws(ValutakursTransformationException::class)
 fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
     try {
         return this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies
@@ -42,8 +42,8 @@ fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
                     }
             }
     } catch (e: NoSuchElementException) {
-        throw ECBTransformationException("Feil ved transformering av ECB data. Respons mangler nødvendig informasjon.", e)
+        throw ValutakursTransformationException("Feil ved transformering av ECB data. Respons mangler nødvendig informasjon.", e)
     } catch (e: DateTimeParseException) {
-        throw ECBTransformationException("Feil ved transformering av ECB data. Respons inneholder ugyldig datoformat.", e)
+        throw ValutakursTransformationException("Feil ved transformering av ECB data. Respons inneholder ugyldig datoformat.", e)
     }
 }

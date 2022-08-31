@@ -1,4 +1,4 @@
-package no.nav.familie.http.ecb.domene
+package no.nav.familie.valutakurs.domene
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty

@@ -1,20 +1,20 @@
-package no.nav.familie.http.ecb
+package no.nav.familie.valutakurs
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import no.nav.familie.http.ecb.config.ECBRestClientConfig
-import no.nav.familie.http.ecb.domene.ECBExchangeRate
-import no.nav.familie.http.ecb.domene.ECBExchangeRateDate
-import no.nav.familie.http.ecb.domene.ECBExchangeRateKey
-import no.nav.familie.http.ecb.domene.ECBExchangeRateValue
-import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
-import no.nav.familie.http.ecb.domene.ECBExchangeRatesDataSet
-import no.nav.familie.http.ecb.domene.ECBExchangeRatesForCurrency
-import no.nav.familie.http.ecb.domene.exchangeRateForCurrency
-import no.nav.familie.http.ecb.exception.ECBClientException
-import no.nav.familie.http.ecb.exception.ECBTransformationException
+import no.nav.familie.valutakurs.config.ValutakursRestClientConfig
+import no.nav.familie.valutakurs.domene.ECBExchangeRate
+import no.nav.familie.valutakurs.domene.ECBExchangeRateDate
+import no.nav.familie.valutakurs.domene.ECBExchangeRateKey
+import no.nav.familie.valutakurs.domene.ECBExchangeRateValue
+import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
+import no.nav.familie.valutakurs.domene.ECBExchangeRatesDataSet
+import no.nav.familie.valutakurs.domene.ECBExchangeRatesForCurrency
+import no.nav.familie.valutakurs.domene.exchangeRateForCurrency
+import no.nav.familie.valutakurs.exception.ValutakursClientException
+import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -33,7 +33,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeParseException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ECBClientTest {
+class ValutakursRestClientTest {
 
     private val contentType = "application/vnd.sdmx.genericdata+xml;version=2.1"
 
@@ -41,7 +41,7 @@ class ECBClientTest {
 
         private lateinit var wireMockServer: WireMockServer
 
-        private lateinit var ecbRestClient: ECBRestClient
+        private lateinit var valutakursRestClient: ValutakursRestClient
         private lateinit var xmlMapper: XmlMapper
 
         @BeforeAll
@@ -50,10 +50,10 @@ class ECBClientTest {
             wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
             wireMockServer.start()
 
-            val config = ECBRestClientConfig()
+            val config = ValutakursRestClientConfig()
             xmlMapper = config.xmlMapper()
             val restTemplate = config.xmlRestTemplate(xmlMapper)
-            ecbRestClient = ECBRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
+            valutakursRestClient = ValutakursRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
         }
 
         @AfterAll
@@ -71,7 +71,7 @@ class ECBClientTest {
             WireMock.get("/D.SEK+NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val valutakurser = ecbRestClient.getExchangeRates(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
+        val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
         assertNotNull(valutakurser)
         assertEquals(2, valutakurser.size)
         val sekValutakurs = valutakurser.exchangeRateForCurrency("SEK")
@@ -90,7 +90,7 @@ class ECBClientTest {
             WireMock.get("/D.NOK+EUR.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val valutakurser = ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
+        val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
         assertNotNull(valutakurser)
         assertEquals(1, valutakurser.size)
         val eurValutakurs = valutakurser.exchangeRateForCurrency("EUR")
@@ -108,7 +108,7 @@ class ECBClientTest {
             WireMock.get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val valutakurser = ecbRestClient.getExchangeRates(Frequency.Monthly, listOf("NOK"), valutakursDato)
+        val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
         assertEquals(YearMonth.of(2022, 6).atEndOfMonth(), nokValutakurs?.date)
     }
@@ -121,7 +121,7 @@ class ECBClientTest {
             WireMock.get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val valutakurser = ecbRestClient.getExchangeRates(Frequency.Monthly, listOf("NOK"), valutakursDato)
+        val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
         assertEquals(YearMonth.of(2022, 7).atEndOfMonth(), nokValutakurs?.date)
     }
@@ -134,8 +134,8 @@ class ECBClientTest {
             WireMock.get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val ecbClientException = assertThrows<ECBClientException> { ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK", "SEK"), valutakursDato) }
-        assertTrue(ecbClientException.cause is NullPointerException)
+        val valutakursClientException = assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK", "SEK"), valutakursDato) }
+        assertTrue(valutakursClientException.cause is NullPointerException)
     }
 
     @Test
@@ -146,9 +146,9 @@ class ECBClientTest {
             WireMock.get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(400).withBody(body))
         )
-        val ecbClientException = assertThrows<ECBClientException> { ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK", "SEK"), valutakursDato) }
-        assertTrue(ecbClientException.cause is RestClientResponseException)
-        assertEquals(HttpStatus.BAD_REQUEST.value(), (ecbClientException.cause as RestClientResponseException).rawStatusCode)
+        val valutakursClientException = assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK", "SEK"), valutakursDato) }
+        assertTrue(valutakursClientException.cause is RestClientResponseException)
+        assertEquals(HttpStatus.BAD_REQUEST.value(), (valutakursClientException.cause as RestClientResponseException).rawStatusCode)
     }
 
     @Test
@@ -159,9 +159,9 @@ class ECBClientTest {
             WireMock.get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val ecbClientException = assertThrows<ECBClientException> { ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK"), valutakursDato) }
-        assertTrue(ecbClientException.cause is ECBTransformationException)
-        assertTrue((ecbClientException.cause as ECBTransformationException).cause is NoSuchElementException)
+        val valutakursClientException = assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK"), valutakursDato) }
+        assertTrue(valutakursClientException.cause is ValutakursTransformationException)
+        assertTrue((valutakursClientException.cause as ValutakursTransformationException).cause is NoSuchElementException)
     }
 
     @Test
@@ -172,9 +172,9 @@ class ECBClientTest {
             WireMock.get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body))
         )
-        val ecbClientException = assertThrows<ECBClientException> { ecbRestClient.getExchangeRates(Frequency.Daily, listOf("NOK"), valutakursDato) }
-        assertTrue(ecbClientException.cause is ECBTransformationException)
-        assertTrue((ecbClientException.cause as ECBTransformationException).cause is DateTimeParseException)
+        val valutakursClientException = assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK"), valutakursDato) }
+        assertTrue(valutakursClientException.cause is ValutakursTransformationException)
+        assertTrue((valutakursClientException.cause as ValutakursTransformationException).cause is DateTimeParseException)
     }
 
     private fun createECBResponseBody(frequency: Frequency, exchangeRates: List<Pair<String, BigDecimal>>, exchangeRateDate: String): String {

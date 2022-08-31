@@ -1,9 +1,8 @@
-package no.nav.familie.http.ecb.config
+package no.nav.familie.valutakurs.config
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.familie.http.ecb.interceptor.ECBRestClientInterceptor
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -14,7 +13,7 @@ import org.springframework.web.client.RestOperations
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-class ECBRestClientConfig {
+class ValutakursRestClientConfig {
 
     @Bean("ecbMapper")
     fun xmlMapper(): XmlMapper {
@@ -32,7 +31,6 @@ class ECBRestClientConfig {
         }
         return RestTemplateBuilder()
             .additionalMessageConverters(converter)
-            .additionalInterceptors(ECBRestClientInterceptor())
             .build()
     }
 }

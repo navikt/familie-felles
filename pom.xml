@@ -45,6 +45,7 @@
         <module>modell</module>
         <module>util</module>
         <module>kafka</module>
+        <module>valutakurs-klient</module>
     </modules>
 
     <dependencyManagement>

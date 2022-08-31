@@ -1,13 +1,13 @@
-package no.nav.familie.http.ecb
+package no.nav.familie.valutakurs
 
-import no.nav.familie.http.ecb.config.ECBRestClientConfig
-import no.nav.familie.http.ecb.domene.ECBExchangeRatesData
-import no.nav.familie.http.ecb.domene.exchangeRatesForCurrency
+import no.nav.familie.valutakurs.config.ValutakursRestClientConfig
+import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
+import no.nav.familie.valutakurs.domene.exchangeRatesForCurrency
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
-class ECBParsingTest {
+class ValutakursParsingTest {
     val ecbXml = """
         <?xml version="1.0" encoding="UTF-8"?>
         <message:GenericData xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:common="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:generic="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic" xsi:schemaLocation="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXMessage.xsd http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXCommon.xsd http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXDataGeneric.xsd">
@@ -99,7 +99,7 @@ class ECBParsingTest {
 
     @Test
     fun `Test at xml parses som forventet`() {
-        val mapper = ECBRestClientConfig().xmlMapper()
+        val mapper = ValutakursRestClientConfig().xmlMapper()
         val ecbExchangeRatesData = mapper.readValue(ecbXml, ECBExchangeRatesData::class.java)
         assertEquals(ecbExchangeRatesData.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies.size, 2)
         val nokExchangeRates = ecbExchangeRatesData.exchangeRatesForCurrency("NOK")
