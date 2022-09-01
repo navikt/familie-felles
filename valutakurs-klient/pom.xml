@@ -66,6 +66,13 @@
     <build>
         <plugins>
             <plugin>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
@@ -87,6 +94,9 @@
                 </executions>
                 <configuration>
                     <jvmTarget>17</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>spring</plugin>
+                    </compilerPlugins>
                 </configuration>
             </plugin>
             <plugin>
