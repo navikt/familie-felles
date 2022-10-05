@@ -17,7 +17,7 @@ class MdcValuesPropagatingClientInterceptor : ClientHttpRequestInterceptor {
         val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
         val requestId = MDC.get(MDCConstants.MDC_REQUEST_ID) ?: callId
         request.headers.add(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
-        request.headers.add(NavHttpHeaders.NGNINX__REQUEST_ID.asString(), requestId)
+        request.headers.add(NavHttpHeaders.NGNINX_REQUEST_ID.asString(), requestId)
 
         return execution.execute(request, body)
     }
