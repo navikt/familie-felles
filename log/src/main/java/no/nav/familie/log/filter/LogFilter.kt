@@ -106,6 +106,8 @@ class LogFilter(
             listOf(
                 "Request_Id",
                 "X_Request_Id",
+                "X-Request-Id",
+                "Request-Id",
                 "RequestId"
             )
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
