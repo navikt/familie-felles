@@ -104,11 +104,8 @@ class LogFilter(
 
         private val NAV_REQUEST_ID_HEADER_NAMES =
             listOf(
-                "Request_Id",
                 "X_Request_Id",
-                "X-Request-Id",
-                "Request-Id",
-                "RequestId"
+                "X-Request-Id"
             )
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
