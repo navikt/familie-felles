@@ -47,7 +47,7 @@ class LogFilter(
         MDC.put(MDC_CALL_ID, callId)
         MDC.put(MDC_USER_ID, userId)
         MDC.put(MDC_CONSUMER_ID, consumerId)
-        MDC.put(MDC_REQUEST_ID, IdUtils.generateId())
+        MDC.put(MDC_REQUEST_ID, resolveRequestId(httpServletRequest))
         httpServletResponse.setHeader(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
         if (serverName != null) {
             httpServletResponse.setHeader("Server", serverName)
@@ -95,11 +95,18 @@ class LogFilter(
         // there is no consensus in NAV about header-names for correlation ids, so we support 'em all!
         // https://nav-it.slack.com/archives/C9UQ16AH4/p1538488785000100
         private val NAV_CALL_ID_HEADER_NAMES =
-            arrayOf(
+            listOf(
                 NavHttpHeaders.NAV_CALL_ID.asString(),
                 "Nav-CallId",
                 "Nav-Callid",
                 "X-Correlation-Id"
+            )
+
+        private val NAV_REQUEST_ID_HEADER_NAMES =
+            listOf(
+                "Request_Id",
+                "X_Request_Id",
+                "RequestId"
             )
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
@@ -107,6 +114,13 @@ class LogFilter(
 
         private fun resolveCallId(httpServletRequest: HttpServletRequest): String {
             return NAV_CALL_ID_HEADER_NAMES
+                .mapNotNull { httpServletRequest.getHeader(it) }
+                .firstOrNull { it.isNotEmpty() }
+                ?: IdUtils.generateId()
+        }
+
+        private fun resolveRequestId(httpServletRequest: HttpServletRequest): String {
+            return NAV_REQUEST_ID_HEADER_NAMES
                 .mapNotNull { httpServletRequest.getHeader(it) }
                 .firstOrNull { it.isNotEmpty() }
                 ?: IdUtils.generateId()
