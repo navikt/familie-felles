@@ -1,0 +1,19 @@
+application:
+  name: test
+
+no.nav.security.jwt:
+  issuer.azuread:
+    discoveryurl: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+    proxy_url: #Default satt, skal være null i integrasjonstest
+  client:
+    test:
+      resource-url: http://localhost:8500
+      token-endpoint-url: ${AZUREAD_TOKEN_ENDPOINT_URL}
+      grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+      scope: ${FAMILIE_INTEGRASJONER_SCOPE}
+      authentication:
+        client-id: ${AZURE_APP_CLIENT_ID}
+        client-secret: ${AZURE_APP_CLIENT_SECRET}
+        client-auth-method: client_secret_basic
