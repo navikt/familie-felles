@@ -59,6 +59,7 @@ class AzureWebClientConfig(
         iNaisProxyCustomizer.ifAvailable {
             it.customize(builder)
         }
-        return builder.build()
+        return webClientBuilder
+            .filter(bearerTokenFilter).build()
     }
 }
