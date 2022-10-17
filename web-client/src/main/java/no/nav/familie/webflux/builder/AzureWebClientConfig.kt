@@ -16,13 +16,13 @@ import org.springframework.web.reactive.function.client.WebClient
 @Import(
     WebClientConfig::class,
     RestTemplateBuilderConfig::class,
-    NaisProxyCustomizer::class,
+    NaisProxyConfig::class,
     BearerTokenFilter::class,
     BearerTokenClientCredentialFilter::class,
     BearerTokenOnBehalfOfFilter::class
 )
 class AzureWebClientConfig(
-    private val iNaisProxyCustomizer: ObjectProvider<INaisProxyCustomizer>
+    private val naisProxyCustomizer: ObjectProvider<NaisProxyCustomizer>
 ) {
 
     @Bean("azureWebClient")
@@ -53,13 +53,10 @@ class AzureWebClientConfig(
     }
 
     private fun buildAzureWebClient(webClientBuilder: WebClient.Builder, bearerTokenFilter: BearerTokenFilterFunction): WebClient {
-        val builder = webClientBuilder
-            .filter(bearerTokenFilter)
-
-        iNaisProxyCustomizer.ifAvailable {
+        val builder = webClientBuilder.filter(bearerTokenFilter)
+        naisProxyCustomizer.ifAvailable {
             it.customize(builder)
         }
-        return webClientBuilder
-            .filter(bearerTokenFilter).build()
+        return builder.build()
     }
 }

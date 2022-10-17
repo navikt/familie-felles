@@ -5,21 +5,34 @@ import org.eclipse.jetty.client.HttpProxy
 import org.eclipse.jetty.client.Origin
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.JettyClientHttpConnector
 import org.springframework.http.client.reactive.JettyResourceFactory
-import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
-interface INaisProxyCustomizer : WebClientCustomizer
+@Configuration
+class NaisProxyConfig {
 
-@Component
-@ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
+    @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
+    @Bean
+    fun naisProxyCustomizer(
+        proxyTimeout: ProxyTimeout,
+        jettyResourceFactory: JettyResourceFactory
+    ): NaisProxyCustomizer {
+        return NaisProxyCustomizer(proxyTimeout, jettyResourceFactory)
+    }
+}
+
+/**
+ * Bruker ikke [WebClientCustomizer] + Component for å ikke få den inn automatisk i webClientBuilder
+ */
 class NaisProxyCustomizer(
     private val proxyTimeout: ProxyTimeout,
     private val jettyResourceFactory: JettyResourceFactory
-) : INaisProxyCustomizer {
+) {
 
-    override fun customize(webClientBuilder: WebClient.Builder) {
+    fun customize(webClientBuilder: WebClient.Builder) {
         class DynamicProxy(host: String, port: Int) : HttpProxy(host, port) {
 
             override fun matches(origin: Origin): Boolean {
