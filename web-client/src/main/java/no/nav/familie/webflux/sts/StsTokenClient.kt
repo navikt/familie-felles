@@ -1,6 +1,6 @@
 package no.nav.familie.webflux.sts
 
-import no.nav.familie.webflux.filter.MdcValuesPropagatingFilterFunction
+import no.nav.familie.webflux.filter.MdcValuesPropagatingFilter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -27,7 +27,7 @@ class StsTokenClient(
             if (!stsApiKey.isNullOrEmpty()) {
                 it.defaultHeader("x-nav-apiKey", stsApiKey)
             }
-        }.filter(MdcValuesPropagatingFilterFunction())
+        }.filter(MdcValuesPropagatingFilter())
         .build()
 
     private var cachedToken: AccessTokenResponse? = null

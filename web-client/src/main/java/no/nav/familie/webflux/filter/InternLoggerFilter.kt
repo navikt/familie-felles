@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
 @Import(OIDCUtil::class)
-class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
+class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
 
     override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
         preHandle(request)
@@ -68,7 +68,7 @@ class InternLoggerFilterFunction(private val oidcUtil: OIDCUtil) : ExchangeFilte
 
     companion object {
 
-        private val LOG = LoggerFactory.getLogger(InternLoggerFilterFunction::class.java)
+        private val LOG = LoggerFactory.getLogger(InternLoggerFilter::class.java)
         private const val BRUKERNAVN_MASKINKALL = "VL"
     }
 }
