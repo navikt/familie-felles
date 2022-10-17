@@ -1,13 +1,16 @@
 package no.nav.familie.webflux.client
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
+import no.nav.familie.kontrakter.felles.Ressurs
+import no.nav.familie.kontrakter.felles.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientException
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.net.URI
@@ -57,7 +60,7 @@ abstract class AbstractWebClient(
     }
 
     protected inline fun <reified S : WebClient.RequestHeadersSpec<*>>
-    WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
+            WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
         httpHeaders?.entries?.forEach { this.header(it.key, *it.value.toTypedArray()) }
         return this as S
     }
@@ -110,14 +113,27 @@ abstract class AbstractWebClient(
             responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
             responsSuccess.increment()
             return t
-        } catch (e: WebClientException) {
-            secureLogger.error("Feil ved kall mot uri=$uri", e)
+        } catch (e: WebClientResponseException) {
             responsFailure.increment()
-            throw e
+            secureLogger.warn("RestClientResponseException ved kall mot uri=$uri", e)
+            lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: Exception) {
-            secureLogger.error("Feil ved kall mot uri=$uri", e)
             responsFailure.increment()
+            secureLogger.warn("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }
+
+    private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? {
+        return try {
+            if (e.responseBodyAsString.contains("status")) {
+                objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
+            } else {
+                null
+            }
+        } catch (ex: Exception) {
+            null
+        }
+    }
+
 }
