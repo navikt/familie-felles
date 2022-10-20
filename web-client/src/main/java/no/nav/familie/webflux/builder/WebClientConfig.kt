@@ -29,6 +29,8 @@ const val FAMILIE_WEB_CLIENT_BUILDER = "familieWebClientBuilder"
  * Då vi bruker jetty som server så brukes jetty i stedet for netty her for å unngå konflikter
  *
  * https://github.com/jetty-project/jetty-reactive-httpclient
+ *
+ * Hvis man ønsker å bruke WebClientBuilder generellt men ikke få med metrics, ekskludere [WebClientMetricsConfiguration]
  */
 @Configuration
 @Import(ConsumerIdFilter::class, WebClientAutoConfiguration::class)
