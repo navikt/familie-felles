@@ -7,6 +7,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.boot.actuate.metrics.web.reactive.client.MetricsWebClientFilterFunction
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer
@@ -51,7 +52,7 @@ class WebClientConfig {
      * Default: [org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration.DefaultCodecsConfiguration]
      */
     @Bean
-    @Order(1)
+    @Order(-1)
     @ConditionalOnProperty("spring.codec.max-in-memory-size", matchIfMissing = true, havingValue = "Umulig verdi")
     fun codecCustomizer(): CodecCustomizer {
         return CodecCustomizer { it.defaultCodecs().maxInMemorySize(-1) }
@@ -63,6 +64,8 @@ class WebClientConfig {
      * @param connectTimeout – the max time, in milliseconds, a connection can take to connect to destinations. Zero value means infinite timeout.
      * @param socketTimeout - the socket address resolution timeout
      * @param requestTimeout - the max time, in milliseconds, a connection can be idle (that is, without traffic of bytes in either direction)
+     * @param webClientMetricsEnabled Pga av at MetricsWebClientCustomizer legger inn metric for hver url, og vi ikke bruker URI templates
+     *                       så fjernes MetricsWebClientCustomizer for å unngå allt for mye metrics. Kan tas i bruk med property. Hvis den hadde brukt Order hadde det vært enklere å skru den av
      */
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Bean(FAMILIE_WEB_CLIENT_BUILDER)
@@ -72,8 +75,8 @@ class WebClientConfig {
         consumerIdFilter: ConsumerIdFilter,
         @Value("\${familie.web.timeout.connect:2000}") connectTimeout: Long,
         @Value("\${familie.web.timeout.socket:15000}") socketTimeout: Long,
-        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long
-    ): WebClient.Builder {
+        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long,
+        @Value("\${familie.web.web-metrics.enabled:false}") webClientMetricsEnabled: Boolean): WebClient.Builder {
         if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
             error("Har ikke implementert støtte for andre clienter enn reactor client")
         }
@@ -82,6 +85,10 @@ class WebClientConfig {
         httpClient.connectTimeout = connectTimeout
         httpClient.addressResolutionTimeout = socketTimeout
         httpClient.idleTimeout = requestTimeout
+
+        if (!webClientMetricsEnabled) {
+            webClientBuilder.filters { filters -> filters.removeIf { it is MetricsWebClientFilterFunction } }
+        }
 
         return webClientBuilder
             .filter(consumerIdFilter)

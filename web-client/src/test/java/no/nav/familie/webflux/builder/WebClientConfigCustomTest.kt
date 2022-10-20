@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.actuate.metrics.web.reactive.client.MetricsWebClientFilterFunction
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -37,11 +39,18 @@ class WebClientConfigTestConfig {
 
 @EnableAutoConfiguration
 @ExtendWith(SpringExtension::class)
-@ContextConfiguration(classes = [WebClientConfig::class, WebClientConfigTestConfig::class])
+@ContextConfiguration(
+    classes = [
+        WebClientConfig::class,
+        WebClientConfigTestConfig::class,
+        WebClientMetricConfig::class
+    ]
+)
 @TestPropertySource(
     properties = [
         "application.name=test",
-        "spring.codec.max-in-memory-size=256KB"
+        "spring.codec.max-in-memory-size=256KB",
+        "familie.web.web-metrics.enabled=true"
     ]
 )
 internal class WebClientConfigEgenObjectMapperTest {
@@ -51,6 +60,13 @@ internal class WebClientConfigEgenObjectMapperTest {
     lateinit var webClientBuilder: WebClient.Builder
 
     data class TestDto(val dato: LocalDate = LocalDate.of(2020, 1, 1))
+
+    @Test
+    internal fun `familieWebClient skal inneholde metricsFilter hvis man satt property`() {
+        var finnes = false
+        webClientBuilder.filters { finnes = it.any { filter -> filter is MetricsWebClientFilterFunction } }
+        assertThat(finnes).isTrue
+    }
 
     @Test
     internal fun `default webClient skal skrive dato som iso-string`() {
