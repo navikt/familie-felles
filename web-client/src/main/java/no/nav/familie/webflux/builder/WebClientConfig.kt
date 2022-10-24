@@ -78,15 +78,10 @@ class WebClientConfig {
         @Value("\${familie.web.timeout.connect:2000}") connectTimeout: Long,
         @Value("\${familie.web.timeout.socket:15000}") socketTimeout: Long,
         @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long,
-        @Value("\${familie.web.web-metrics.enabled:false}") webClientMetricsEnabled: Boolean): WebClient.Builder {
-        if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
-            error("Har ikke implementert støtte for andre clienter enn reactor client")
-        }
+        @Value("\${familie.web.web-metrics.enabled:false}") webClientMetricsEnabled: Boolean
+    ): WebClient.Builder {
 
-        val httpClient = HttpClient(SslContextFactory.Client())
-        httpClient.connectTimeout = connectTimeout
-        httpClient.addressResolutionTimeout = socketTimeout
-        httpClient.idleTimeout = requestTimeout
+        val httpClient = lagHttpClient(connectTimeout, socketTimeout, requestTimeout)
 
         if (!webClientMetricsEnabled) {
             webClientBuilder.filters { filters -> filters.removeIf { it is MetricsWebClientFilterFunction } }
@@ -96,5 +91,25 @@ class WebClientConfig {
             .filter(consumerIdFilter)
             .filter(MdcValuesPropagatingFilter())
             .clientConnector(JettyClientHttpConnector(httpClient, jettyResourceFactory))
+    }
+
+    /**
+     * Då vi fortsatt bruker jetty server brukes jetty-klienten for å unngå konflikt med netty.
+     * Sjekker her at jetty client finnes, då det kun er satt opp timeout-config for jetty og ikke de andre klientene
+     */
+    private fun lagHttpClient(
+        connectTimeout: Long,
+        socketTimeout: Long,
+        requestTimeout: Long
+    ): HttpClient {
+        if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
+            error("Har ikke implementert støtte for andre clienter enn reactor client")
+        }
+
+        return HttpClient(SslContextFactory.Client()).apply {
+            this.connectTimeout = connectTimeout
+            this.addressResolutionTimeout = socketTimeout
+            this.idleTimeout = requestTimeout
+        }
     }
 }
