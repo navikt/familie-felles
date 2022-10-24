@@ -124,15 +124,13 @@ abstract class AbstractWebClient(
         }
     }
 
-    private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? {
-        return try {
-            if (e.responseBodyAsString.contains("status")) {
-                objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
-            } else {
-                null
-            }
-        } catch (ex: Exception) {
+    private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? = try {
+        if (e.responseBodyAsString.contains("status")) {
+            objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
+        } else {
             null
         }
+    } catch (ex: Exception) {
+        null
     }
 }
