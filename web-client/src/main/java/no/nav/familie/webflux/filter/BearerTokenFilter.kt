@@ -198,7 +198,7 @@ private fun erSystembruker(): Boolean {
         val preferred_username =
             SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
         return preferred_username == null
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
         true
     }
