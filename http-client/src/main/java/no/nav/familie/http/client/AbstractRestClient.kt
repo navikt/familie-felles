@@ -35,43 +35,23 @@ abstract class AbstractRestClient(
     protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
     protected val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    protected inline fun <reified T : Any> getForEntity(uri: URI): T {
-        return getForEntity(uri, null)
-    }
-
-    protected inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
     }
 
-    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any): T {
-        return postForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
     }
 
-    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any): T {
-        return putForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
     }
 
-    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any): T {
-        return patchForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
     }
 
-    protected inline fun <reified T : Any> deleteForEntity(uri: URI, payload: Any? = null): T {
-        return deleteForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> deleteForEntity(uri: URI, payload: Any?, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> deleteForEntity(uri: URI, payload: Any? = null, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
     }
 
