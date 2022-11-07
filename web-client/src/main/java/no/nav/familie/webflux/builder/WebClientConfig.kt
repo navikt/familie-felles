@@ -80,7 +80,6 @@ class WebClientConfig {
         @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long,
         @Value("\${familie.web.web-metrics.enabled:false}") webClientMetricsEnabled: Boolean
     ): WebClient.Builder {
-
         val httpClient = lagHttpClient(connectTimeout, socketTimeout, requestTimeout)
 
         if (!webClientMetricsEnabled) {

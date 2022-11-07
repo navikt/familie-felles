@@ -30,7 +30,7 @@ abstract class AbstractWebClient(
 
     protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
 
-    protected inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.get()
                 .uri(uri)
@@ -40,7 +40,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.post()
                 .uri(uri)
@@ -51,7 +51,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.put()
                 .uri(uri)
@@ -62,7 +62,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.patch()
                 .uri(uri)
@@ -73,7 +73,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.delete()
                 .uri(uri)
@@ -83,7 +83,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected fun <T> executeMedMetrics(uri: URI, function: () -> Mono<T>): T {
+    fun <T> executeMedMetrics(uri: URI, function: () -> Mono<T>): T {
         try {
             val startTime = System.nanoTime()
             val mono = function.invoke()
@@ -102,8 +102,8 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified S : WebClient.RequestHeadersSpec<*>>
-            WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
+    inline fun <reified S : WebClient.RequestHeadersSpec<*>>
+    WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
         httpHeaders?.entries?.forEach { this.header(it.key, *it.value.toTypedArray()) }
         return this as S
     }
