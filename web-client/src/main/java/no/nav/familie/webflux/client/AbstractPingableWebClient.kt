@@ -14,7 +14,7 @@ abstract class AbstractPingableWebClient(
     abstract val pingUri: URI
 
     override fun ping() {
-        super.getForEntity<String>(pingUri)
+        super.getForEntity<String>(pingUri, null)
     }
 
     override fun toString(): String = this::class.simpleName + " [operations=" + webClient + "]"

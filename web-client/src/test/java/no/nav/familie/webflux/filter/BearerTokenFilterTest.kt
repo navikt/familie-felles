@@ -16,15 +16,15 @@ import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFunction
 import java.net.URI
 
-class BearerTokenFilterFunctionTest {
+class BearerTokenFilterTest {
 
-    private lateinit var bearerTokenFilterFunction: BearerTokenFilterFunction
+    private lateinit var bearerTokenFilter: BearerTokenFilter
 
     private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        bearerTokenFilterFunction = BearerTokenFilterFunction(
+        bearerTokenFilter = BearerTokenFilter(
             oAuth2AccessTokenService,
             clientConfigurationProperties
         )
@@ -41,7 +41,7 @@ class BearerTokenFilterFunctionTest {
         every { req.url() } returns (URI("http://firstResource.no"))
         val execution = mockk<ExchangeFunction>(relaxed = true)
 
-        bearerTokenFilterFunction.filter(req, execution)
+        bearerTokenFilter.filter(req, execution)
 
         verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]) }
     }
@@ -54,7 +54,7 @@ class BearerTokenFilterFunctionTest {
         every { req.url() } returns (URI("http://firstResource.no"))
         val execution = mockk<ExchangeFunction>(relaxed = true)
 
-        bearerTokenFilterFunction.filter(req, execution)
+        bearerTokenFilter.filter(req, execution)
 
         verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]) }
     }

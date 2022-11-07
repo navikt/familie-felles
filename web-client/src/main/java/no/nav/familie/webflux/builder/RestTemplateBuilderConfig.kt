@@ -7,16 +7,16 @@ import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner
 import org.apache.http.protocol.HttpContext
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.client.RestTemplateCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Primary
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 /**
  * Kode for å gi nav security en restTemplateBuilder med proxy.
@@ -25,20 +25,18 @@ import org.springframework.web.client.RestTemplate
  */
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-@Import(NaisProxyCustomizer::class)
-class RestTemplateBuilderBean(
-    @Value("\${familie.nais.proxy.connectTimeout:15000}") val connectTimeout: Int,
-    @Value("\${familie.nais.proxy.socketTimeout:15000}") val socketTimeout: Int,
-    @Value("\${familie.nais.proxy.requestTimeout:15000}") val requestTimeout: Int
-) {
+@Import(ProxyTimeout::class)
+class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
 
     @Bean
+    @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true)
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
         return RestTemplateBuilder()
+            .setConnectTimeout(Duration.of(proxyTimeout.connectTimeout, ChronoUnit.MILLIS))
+            .setReadTimeout(Duration.of(proxyTimeout.requestTimeout, ChronoUnit.MILLIS))
     }
 
     @Bean
-    @Primary
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
     fun restTemplateBuilderWithProxy(): RestTemplateBuilder {
         val restTemplateCustomizer =
@@ -48,9 +46,9 @@ class RestTemplateBuilderBean(
                     val client: HttpClient = HttpClientBuilder.create()
                         .setDefaultRequestConfig(
                             RequestConfig.custom()
-                                .setConnectTimeout(connectTimeout)
-                                .setSocketTimeout(socketTimeout)
-                                .setConnectionRequestTimeout(requestTimeout)
+                                .setConnectTimeout(proxyTimeout.connectTimeout.toInt())
+                                .setSocketTimeout(proxyTimeout.socketTimeout.toInt())
+                                .setConnectionRequestTimeout(proxyTimeout.requestTimeout.toInt())
                                 .build()
                         )
                         .setRoutePlanner(object : DefaultProxyRoutePlanner(proxy) {
