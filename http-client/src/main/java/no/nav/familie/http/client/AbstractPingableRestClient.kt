@@ -15,7 +15,7 @@ abstract class AbstractPingableRestClient(
     abstract val pingUri: URI
 
     override fun ping() {
-        operations.getForEntity<String>(pingUri)
+        super.getForEntity<String>(pingUri, null)
     }
 
     override fun toString(): String = this::class.simpleName + " [operations=" + operations + "]"
