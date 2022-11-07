@@ -30,11 +30,7 @@ abstract class AbstractWebClient(
 
     protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
 
-    protected inline fun <reified T : Any> getForEntity(uri: URI): T {
-        return getForEntity(uri, null)
-    }
-
-    protected inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.get()
                 .uri(uri)
@@ -44,11 +40,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any): T {
-        return postForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.post()
                 .uri(uri)
@@ -59,17 +51,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified S : WebClient.RequestHeadersSpec<*>>
-            WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
-        httpHeaders?.entries?.forEach { this.header(it.key, *it.value.toTypedArray()) }
-        return this as S
-    }
-
-    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any): T {
-        return putForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.put()
                 .uri(uri)
@@ -80,11 +62,7 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any): T {
-        return patchForEntity(uri, payload, null)
-    }
-
-    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
             webClient.patch()
                 .uri(uri)
@@ -95,13 +73,13 @@ abstract class AbstractWebClient(
         }
     }
 
-    protected inline fun <reified T : Any> deleteForEntity(uri: URI): T {
-        return deleteForEntity(uri, null)
-    }
-
-    protected inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders?): T {
+    protected inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
         return executeMedMetrics(uri) {
-            webClient.delete().uri(uri).addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders).retrieve().bodyToMono()
+            webClient.delete()
+                .uri(uri)
+                .addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders)
+                .retrieve()
+                .bodyToMono()
         }
     }
 
@@ -122,6 +100,12 @@ abstract class AbstractWebClient(
             secureLogger.warn("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
+    }
+
+    protected inline fun <reified S : WebClient.RequestHeadersSpec<*>>
+            WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
+        httpHeaders?.entries?.forEach { this.header(it.key, *it.value.toTypedArray()) }
+        return this as S
     }
 
     private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? = try {
