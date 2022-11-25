@@ -1,10 +1,10 @@
 package no.nav.familie.sikkerhet
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Filter for å validere tokens, kan settes til å kun validere on behalf of/client credential eller begge

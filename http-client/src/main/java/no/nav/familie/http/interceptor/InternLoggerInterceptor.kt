@@ -1,5 +1,7 @@
 package no.nav.familie.http.interceptor
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import no.nav.familie.log.auditlogger.AuditLogger
 import no.nav.familie.sikkerhet.OIDCUtil
 import org.slf4j.LoggerFactory
@@ -8,8 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @Component
 @Import(OIDCUtil::class)
