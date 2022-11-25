@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 
 @Component
 @Import(OIDCUtil::class)
-class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptorAdapter() {
+class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptor {
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
