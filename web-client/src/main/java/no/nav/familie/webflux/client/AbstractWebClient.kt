@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
 /**
@@ -110,7 +111,7 @@ abstract class AbstractWebClient(
 
     private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? = try {
         if (e.responseBodyAsString.contains("status")) {
-            objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
+            objectMapper.readValue<Ressurs<Any>>(e.getResponseBodyAsString(StandardCharsets.UTF_8))
         } else {
             null
         }
