@@ -40,11 +40,10 @@ internal class AbstractWebClientTest {
     internal fun `happy case`() {
         val responseRessurs = Ressurs.success("Ok Åæø")
         val body = objectMapper.writeValueAsString(responseRessurs)
-        wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(200).withBody(body))
-        )
+        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl()).willReturn(WireMock.okJson(body)))
+
         val ressurs = client.test()
+
         assertThat(ressurs).isEqualTo(responseRessurs)
     }
 
