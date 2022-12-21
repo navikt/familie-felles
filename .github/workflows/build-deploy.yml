@@ -42,7 +42,6 @@ jobs:
         env:
           GITHUB_USERNAME: x-access-token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.base_ref == 'master' && github.event.pull_request.merged == true
         run: |
           export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
           export GIT_COMMIT_DATE=$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')
