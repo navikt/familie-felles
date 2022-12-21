@@ -45,7 +45,7 @@ jobs:
         run: |
           export GIT_COMMIT_HASH=$(git log -n 1 --pretty=format:'%h')
           export GIT_COMMIT_DATE=$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')
-          export VERSION=1.${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}
+          export VERSION=1.${GIT_COMMIT_DATE}_${GIT_COMMIT_HASH}-SNAPSHOT
           echo "Setting version $VERSION"
           mvn --settings .m2/maven-settings.xml versions:set -DnewVersion="$VERSION"
           mvn --settings .m2/maven-settings.xml versions:commit
