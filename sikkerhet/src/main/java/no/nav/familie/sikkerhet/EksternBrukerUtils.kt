@@ -8,7 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder
 
 object EksternBrukerUtils {
 
-    const val ISSUER = "selvbetjening"
+    const val ISSUER = "idporten"
     const val ISSUER_TOKENX = "tokenx"
 
     private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name

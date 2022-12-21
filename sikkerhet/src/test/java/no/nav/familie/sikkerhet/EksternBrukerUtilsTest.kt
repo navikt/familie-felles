@@ -16,7 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder
 
 internal class EksternBrukerUtilsTest {
 
-    private val selvbetjening = "selvbetjening" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMTExMTExMTExMSJ9.")
+    private val selvbetjening = "idporten" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMTExMTExMTExMSJ9.")
     private val tokenx = "tokenx" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
     private val annetToken = "annetToken" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
 
@@ -104,8 +104,8 @@ internal class EksternBrukerUtilsTest {
         sub?.let { builder.subject(it) }
         pid?.let { builder.claim("pid", it) }
         val tokenValidationContext = mockk<TokenValidationContext>()
-        every { tokenValidationContext.getClaims("selvbetjening") } returns JwtTokenClaims(builder.build())
-        every { tokenValidationContext.hasTokenFor("selvbetjening") } returns true
+        every { tokenValidationContext.getClaims("idporten") } returns JwtTokenClaims(builder.build())
+        every { tokenValidationContext.hasTokenFor("idporten") } returns true
         mockAttributes(tokenValidationContext)
     }
 
