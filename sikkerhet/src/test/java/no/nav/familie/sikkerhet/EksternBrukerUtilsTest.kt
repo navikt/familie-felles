@@ -16,14 +16,12 @@ import org.springframework.web.context.request.RequestContextHolder
 
 internal class EksternBrukerUtilsTest {
 
-    private val idporten = "idporten" to JwtToken("eyJhbGciOiJub25lIn0.eyJwaWQiOiIzMzMzMzMzMzMzMyJ9.")
     private val selvbetjening = "selvbetjening" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMTExMTExMTExMSJ9.")
     private val tokenx = "tokenx" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
     private val annetToken = "annetToken" to JwtToken("eyJhbGciOiJub25lIn0.eyJzdWIiOiIyMjIyMjIyMjIyMiJ9.")
 
     private val sub: String = "11111111111"
     private val pid: String = "22222222222"
-    private val idporten_pid: String = "33333333333"
 
     @AfterEach
     internal fun tearDown() {
@@ -34,12 +32,6 @@ internal class EksternBrukerUtilsTest {
     internal fun `skal hente selvbetjening hvis den finnes`() {
         mockRequestAttributes(mapOf(selvbetjening, tokenx))
         assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo(sub)
-    }
-
-    @Test
-    internal fun `skal hente idporten hvis den finnes`() {
-        mockRequestAttributes(mapOf(idporten, selvbetjening, tokenx))
-        assertThat(EksternBrukerUtils.hentFnrFraToken()).isEqualTo(idporten_pid)
     }
 
     @Test
@@ -112,8 +104,8 @@ internal class EksternBrukerUtilsTest {
         sub?.let { builder.subject(it) }
         pid?.let { builder.claim("pid", it) }
         val tokenValidationContext = mockk<TokenValidationContext>()
-        every { tokenValidationContext.getClaims("idporten") } returns JwtTokenClaims(builder.build())
-        every { tokenValidationContext.hasTokenFor("idporten") } returns true
+        every { tokenValidationContext.getClaims("selvbetjening") } returns JwtTokenClaims(builder.build())
+        every { tokenValidationContext.hasTokenFor("selvbetjening") } returns true
         mockAttributes(tokenValidationContext)
     }
 
