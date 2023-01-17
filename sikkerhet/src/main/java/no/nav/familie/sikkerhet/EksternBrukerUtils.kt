@@ -8,7 +8,6 @@ import org.springframework.web.context.request.RequestContextHolder
 
 object EksternBrukerUtils {
 
-    const val ISSUER_IDPORTEN = "idporten"
     const val ISSUER_SELVBETJENING = "selvbetjening"
     const val ISSUER_TOKENX = "tokenx"
 
@@ -46,7 +45,6 @@ object EksternBrukerUtils {
     private fun <T> getFromContext(fn: (TokenValidationContext, String) -> T): T {
         val validationContext = getTokenValidationContext()
         return when {
-            validationContext.hasTokenFor(ISSUER_IDPORTEN) -> fn.invoke(validationContext, ISSUER_IDPORTEN)
             validationContext.hasTokenFor(ISSUER_SELVBETJENING) -> fn.invoke(validationContext, ISSUER_SELVBETJENING)
             validationContext.hasTokenFor(ISSUER_TOKENX) -> fn.invoke(validationContext, ISSUER_TOKENX)
             else -> error("Finner ikke token for ekstern bruker - issuers=${validationContext.issuers}")
