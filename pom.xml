@@ -24,7 +24,7 @@
 
         <kontrakter.version>2.0_20220429151635_4bb9f6d</kontrakter.version>
         <kotest.version>5.4.2</kotest.version>
-        <kotlin.version>1.7.22</kotlin.version>
+        <kotlin.version>1.8.10</kotlin.version>
         <mockk.version>1.12.5</mockk.version>
         <nav.security.token.version>2.1.4</nav.security.token.version>
 
