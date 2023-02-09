@@ -24,9 +24,9 @@
 
         <kontrakter.version>2.0_20220429151635_4bb9f6d</kontrakter.version>
         <kotest.version>5.4.2</kotest.version>
-        <kotlin.version>1.7.10</kotlin.version>
+        <kotlin.version>1.8.10</kotlin.version>
         <mockk.version>1.12.5</mockk.version>
-        <nav.security.token.version>2.1.4</nav.security.token.version>
+        <nav.security.token.version>3.0.3</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -91,7 +91,7 @@
 
             <dependency>
                 <groupId>com.github.tomakehurst</groupId>
-                <artifactId>wiremock-jre8</artifactId>
+                <artifactId>wiremock-jre8-standalone</artifactId>
                 <version>2.34.0</version>
                 <scope>test</scope>
             </dependency>
