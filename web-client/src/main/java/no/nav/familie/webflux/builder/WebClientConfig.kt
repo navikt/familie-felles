@@ -2,12 +2,14 @@ package no.nav.familie.webflux.builder
 
 import no.nav.familie.webflux.filter.ConsumerIdFilter
 import no.nav.familie.webflux.filter.MdcValuesPropagatingFilter
-import org.eclipse.jetty.client.HttpClient
-import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.apache.hc.client5.http.config.RequestConfig
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
+import org.apache.hc.client5.http.impl.async.HttpAsyncClients
+import org.apache.hc.core5.reactor.IOReactorConfig
+import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
-import org.springframework.boot.actuate.metrics.web.reactive.client.MetricsWebClientFilterFunction
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer
@@ -17,8 +19,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Scope
 import org.springframework.core.annotation.Order
-import org.springframework.http.client.reactive.JettyClientHttpConnector
-import org.springframework.http.client.reactive.JettyResourceFactory
+import org.springframework.http.client.reactive.HttpComponentsClientHttpConnector
 import org.springframework.util.ClassUtils
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.stream.Collectors
@@ -73,23 +74,17 @@ class WebClientConfig {
     @Bean(FAMILIE_WEB_CLIENT_BUILDER)
     fun webClientBuilder(
         webClientBuilder: WebClient.Builder,
-        jettyResourceFactory: JettyResourceFactory,
         consumerIdFilter: ConsumerIdFilter,
         @Value("\${familie.web.timeout.connect:2000}") connectTimeout: Long,
         @Value("\${familie.web.timeout.socket:15000}") socketTimeout: Long,
-        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long,
-        @Value("\${familie.web.web-metrics.enabled:false}") webClientMetricsEnabled: Boolean
+        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long
     ): WebClient.Builder {
         val httpClient = lagHttpClient(connectTimeout, socketTimeout, requestTimeout)
-
-        if (!webClientMetricsEnabled) {
-            webClientBuilder.filters { filters -> filters.removeIf { it is MetricsWebClientFilterFunction } }
-        }
 
         return webClientBuilder
             .filter(consumerIdFilter)
             .filter(MdcValuesPropagatingFilter())
-            .clientConnector(JettyClientHttpConnector(httpClient, jettyResourceFactory))
+            .clientConnector(HttpComponentsClientHttpConnector(httpClient))
     }
 
     /**
@@ -100,15 +95,21 @@ class WebClientConfig {
         connectTimeout: Long,
         socketTimeout: Long,
         requestTimeout: Long
-    ): HttpClient {
+    ): CloseableHttpAsyncClient {
         if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
             error("Har ikke implementert støtte for andre clienter enn reactor client")
         }
-
-        return HttpClient(SslContextFactory.Client()).apply {
-            this.connectTimeout = connectTimeout
-            this.addressResolutionTimeout = socketTimeout
-            this.idleTimeout = requestTimeout
-        }
+        return HttpAsyncClients.custom()
+            .setIOReactorConfig(
+                IOReactorConfig.custom()
+                    .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
+                    .build()
+            )
+            .setDefaultRequestConfig(
+                RequestConfig.custom()
+                    .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
+                    .setConnectionRequestTimeout(Timeout.ofMilliseconds(requestTimeout))
+                    .build()
+            ).build()
     }
 }
