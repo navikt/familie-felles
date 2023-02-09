@@ -3,8 +3,10 @@ package no.nav.familie.webflux.builder
 import org.apache.hc.client5.http.classic.HttpClient
 import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner
 import org.apache.hc.core5.http.HttpHost
+import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.http.protocol.HttpContext
 import org.apache.hc.core5.util.Timeout
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -48,6 +50,15 @@ class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
                             RequestConfig.custom()
                                 .setConnectTimeout(Timeout.ofSeconds(proxyTimeout.connectTimeout))
                                 .setConnectionRequestTimeout(Timeout.ofSeconds(proxyTimeout.requestTimeout))
+                                .build()
+                        )
+                        .setConnectionManager(
+                            PoolingHttpClientConnectionManagerBuilder.create()
+                                .setDefaultSocketConfig(
+                                    SocketConfig.custom()
+                                        .setSoTimeout(Timeout.ofMilliseconds(proxyTimeout.socketTimeout))
+                                        .build()
+                                )
                                 .build()
                         )
                         .setRoutePlanner(object : DefaultProxyRoutePlanner(proxy) {
