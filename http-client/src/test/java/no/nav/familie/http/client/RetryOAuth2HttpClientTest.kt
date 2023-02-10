@@ -48,7 +48,7 @@ internal class RetryOAuth2HttpClientTest {
     internal fun `503 - skal prøve på nytt`() {
         stub(WireMock.aResponse().withStatus(503))
         post()
-        wireMockServer.verify(3, RequestPatternBuilder.allRequests())
+        wireMockServer.verify(2, RequestPatternBuilder.allRequests())
     }
 
     @Test
