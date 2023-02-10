@@ -1,4 +1,4 @@
-name: Build snapshot
+name: Build Spring 3
 on:
   workflow_dispatch:
 
@@ -44,6 +44,9 @@ jobs:
           echo "Setting version $VERSION"
           mvn --settings .m2/maven-settings.xml versions:set -DnewVersion="$VERSION"
           mvn --settings .m2/maven-settings.xml versions:commit
+
+      - name: Logger litt informasjon
+        run: echo '${{ toJSON(github) }}'
 
       - name: Deploy to Github Package
         if: github.head_ref == 'spring_boot_3'
