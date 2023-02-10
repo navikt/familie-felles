@@ -21,8 +21,8 @@ internal class AbstractWebClientTest {
 
     class TestClient(val uri: URI) : AbstractWebClient(WebClient.create(), "") {
 
-        fun test() {
-            getForEntity<Ressurs<Any>>(uri)
+        fun test(): Ressurs<String> {
+            return getForEntity(uri)
         }
     }
 
@@ -37,8 +37,19 @@ internal class AbstractWebClientTest {
     }
 
     @Test
+    internal fun `happy case`() {
+        val responseRessurs = Ressurs.success("Ok Åæø")
+        val body = objectMapper.writeValueAsString(responseRessurs)
+        wireMockServer.stubFor(WireMock.get(WireMock.anyUrl()).willReturn(WireMock.okJson(body)))
+
+        val ressurs = client.test()
+
+        assertThat(ressurs).isEqualTo(responseRessurs)
+    }
+
+    @Test
     internal fun `feil med ressurs kaster RessursException`() {
-        val ressurs = Ressurs.failure<Any>("Feilet")
+        val ressurs = Ressurs.failure<Any>("FeiletÅæø")
         val body = objectMapper.writeValueAsString(ressurs)
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
