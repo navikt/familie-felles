@@ -88,7 +88,7 @@ internal class WebClientConfigEgenObjectMapperTest {
                 .retrieve()
                 .bodyToMono<String>()
                 .block()
-        }.hasMessageContaining("Exceeded limit on max bytes to buffer : 262144")
+        }.hasRootCauseMessage("Exceeded limit on max bytes to buffer : 262144")
     }
 
     companion object {
