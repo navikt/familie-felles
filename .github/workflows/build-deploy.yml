@@ -37,6 +37,7 @@ jobs:
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
 
+      # TODO bump versjon til 2
       - name: Setting version
         env:
           GITHUB_USERNAME: x-access-token
