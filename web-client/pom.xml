@@ -14,11 +14,6 @@
     <name>Felles - WebClient</name>
     <description>Spring WebClient and STS for system OIDC</description>
 
-    <properties>
-        <kotlin.version>1.8.20-Beta</kotlin.version>
-    </properties>
-
-
     <packaging>jar</packaging>
 
     <dependencies>
@@ -145,19 +140,8 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
