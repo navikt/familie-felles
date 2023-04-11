@@ -26,7 +26,7 @@
         <kotest.version>5.4.2</kotest.version>
         <kotlin.version>1.7.22</kotlin.version>
         <mockk.version>1.12.5</mockk.version>
-        <nav.security.token.version>2.1.4</nav.security.token.version>
+        <nav.security.token.version>3.0.10</nav.security.token.version>
 
         <!--suppress UnresolvedMavenProperty  Ligger som secret i github-->
         <sonar.projectKey>${SONAR_PROJECTKEY}</sonar.projectKey>
@@ -279,8 +279,7 @@
                         <phase>verify</phase>
                         <configuration>
                             <target name="ktlint">
-                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                                     <arg value="src/**/*.kt"/>
                                 </java>
                             </target>
@@ -294,8 +293,7 @@
                         <phase>validate</phase>
                         <configuration>
                             <target name="ktlint">
-                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                                     <jvmarg value="--add-opens"/>
                                     <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
                                     <arg value="-F"/>
