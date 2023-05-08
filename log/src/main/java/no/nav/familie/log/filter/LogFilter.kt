@@ -1,5 +1,12 @@
 package no.nav.familie.log.filter
 
+import jakarta.servlet.FilterChain
+import jakarta.servlet.FilterConfig
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpFilter
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import no.nav.familie.log.IdUtils
 import no.nav.familie.log.NavHttpHeaders
 import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
@@ -11,13 +18,6 @@ import org.slf4j.MDC
 import java.io.EOFException
 import java.io.IOException
 import java.util.function.Supplier
-import javax.servlet.FilterChain
-import javax.servlet.FilterConfig
-import javax.servlet.ServletException
-import javax.servlet.http.Cookie
-import javax.servlet.http.HttpFilter
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class LogFilter(
     /**

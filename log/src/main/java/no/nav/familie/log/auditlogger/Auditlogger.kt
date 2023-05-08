@@ -1,9 +1,9 @@
 package no.nav.familie.log.auditlogger
 
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.ClientRequest
-import javax.servlet.http.HttpServletRequest
 
 object AuditLogger {
 

@@ -21,7 +21,6 @@ class RetryOAuth2HttpClient(
     private val retryExceptions = setOf(
         SocketException::class,
         SocketTimeoutException::class,
-        HttpServerErrorException.ServiceUnavailable::class,
         HttpServerErrorException.GatewayTimeout::class,
         HttpServerErrorException.BadGateway::class
     )

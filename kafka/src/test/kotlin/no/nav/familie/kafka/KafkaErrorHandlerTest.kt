@@ -5,7 +5,8 @@ import io.mockk.clearAllMocks
 import io.mockk.impl.annotations.MockK
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -34,16 +35,20 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `skal stoppe container hvis man mottar feil med en tom liste med records`() {
-        assertThatThrownBy { errorHandler.handleRemaining(RuntimeException("Feil i test"), emptyList(), consumer, container) }
-            .hasMessageNotContaining("Feil i test")
-            .hasMessageContaining("Sjekk securelogs for mer info")
+        val throwable = catchThrowable {
+            errorHandler.handleRemaining(RuntimeException("Feil i test"), emptyList(), consumer, container)
+        }
+
+        assertThat(throwable)
+            .hasStackTraceContaining("Sjekk securelogs for mer info")
             .hasCauseExactlyInstanceOf(Exception::class.java)
+        assertThat(throwable.stackTraceToString()).doesNotContain("Feil i test")
     }
 
     @Test
     fun `skal stoppe container hvis man mottar feil med en liste med records`() {
         val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
-        assertThatThrownBy {
+        val throwable = catchThrowable {
             errorHandler.handleRemaining(
                 RuntimeException("Feil i test"),
                 listOf(consumerRecord),
@@ -51,8 +56,9 @@ class KafkaErrorHandlerTest {
                 container
             )
         }
-            .hasMessageNotContaining("Feil i test")
-            .hasMessageContaining("Sjekk securelogs for mer info")
+        assertThat(throwable)
+            .hasStackTraceContaining("Sjekk securelogs for mer info")
             .hasCauseExactlyInstanceOf(Exception::class.java)
+        assertThat(throwable.stackTraceToString()).doesNotContain("Feil i test")
     }
 }
