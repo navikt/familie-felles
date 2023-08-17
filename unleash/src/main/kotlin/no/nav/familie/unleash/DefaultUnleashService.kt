@@ -5,7 +5,7 @@ import io.getunleash.UnleashContext
 import io.getunleash.UnleashContextProvider
 import io.getunleash.util.UnleashConfig
 
-class UnleashNextFeatureToggleService(
+class DefaultUnleashService(
     val apiUrl: String,
     val apiToken: String,
     val appName: String

@@ -5,30 +5,30 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.stereotype.Component
+import org.springframework.context.annotation.Configuration
 
+@Configuration
 @EnableConfigurationProperties(UnleashProperties::class)
-@Component
-class UnleashConfig(
+open class UnleashConfig(
     private val featureToggleProperties: UnleashProperties,
     @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
     @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
-    @Value("\${NAIS_APP_NAME}") val appName: String
+    @Value("\${NAIS_APP_NAME}") val appName: String,
 ) {
 
-    @Bean("unleashNext")
-    fun unleashNext(): UnleashService =
+    @Bean
+    open fun unleashNext(): UnleashService =
         if (featureToggleProperties.enabled) {
-            UnleashNextFeatureToggleService(apiUrl = apiUrl, apiToken = apiToken, appName = appName)
+            DefaultUnleashService(apiUrl = apiUrl, apiToken = apiToken, appName = appName)
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                    "Gir standardoppførsel for alle funksjonsbrytere, dvs 'false'"
+                    "isEnabled gir 'false' med mindre man har oppgitt en annen default verdi.",
             )
-            lagDummyFeatureToggleService()
+            lagDummyUnleashService()
         }
 
-    private fun lagDummyFeatureToggleService(): UnleashService {
+    private fun lagDummyUnleashService(): UnleashService {
         return object : UnleashService {
             override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
                 return System.getenv(toggleId).run { toBoolean() } || defaultValue
@@ -44,7 +44,7 @@ class UnleashConfig(
 
 @ConfigurationProperties("unleash")
 class UnleashProperties(
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
 )
 
 interface UnleashService {
