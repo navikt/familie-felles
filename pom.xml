@@ -46,6 +46,7 @@
         <module>util</module>
         <module>kafka</module>
         <module>valutakurs-klient</module>
+        <module>unleash</module>
     </modules>
 
     <dependencyManagement>
