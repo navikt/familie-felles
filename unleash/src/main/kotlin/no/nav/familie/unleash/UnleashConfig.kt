@@ -43,7 +43,7 @@ open class UnleashConfig(
 
     companion object {
 
-        private val logger = LoggerFactory.getLogger(UnleashProperties::class.java)
+        private val logger = LoggerFactory.getLogger(UnleashConfig::class.java)
     }
 }
 
