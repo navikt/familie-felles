@@ -35,4 +35,9 @@ class DefaultUnleashService(
     override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
         return defaultUnleash.isEnabled(toggleId, defaultValue)
     }
+
+    override fun destroy() {
+        // Spring trigger denne ved shutdown. Gjøres for å unngå at unleash fortsetter å gjøre kall ut
+        defaultUnleash.shutdown()
+    }
 }
