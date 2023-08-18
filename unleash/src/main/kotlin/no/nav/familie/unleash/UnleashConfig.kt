@@ -1,6 +1,7 @@
 package no.nav.familie.unleash
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -13,7 +14,7 @@ open class UnleashConfig(
     private val featureToggleProperties: UnleashProperties,
     @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
     @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
-    @Value("\${NAIS_APP_NAME}") val appName: String,
+    @Value("\${NAIS_APP_NAME}") val appName: String
 ) {
 
     @Bean
@@ -23,7 +24,7 @@ open class UnleashConfig(
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                    "isEnabled gir 'false' med mindre man har oppgitt en annen default verdi.",
+                    "isEnabled gir 'false' med mindre man har oppgitt en annen default verdi."
             )
             lagDummyUnleashService()
         }
@@ -32,6 +33,10 @@ open class UnleashConfig(
         return object : UnleashService {
             override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
                 return System.getenv(toggleId).run { toBoolean() } || defaultValue
+            }
+
+            override fun destroy() {
+                // Dummy featureToggleService trenger ikke destroy, då den ikke har en unleash å lukke
             }
         }
     }
@@ -44,10 +49,10 @@ open class UnleashConfig(
 
 @ConfigurationProperties("unleash")
 class UnleashProperties(
-    val enabled: Boolean = true,
+    val enabled: Boolean = true
 )
 
-interface UnleashService {
+interface UnleashService : DisposableBean {
 
     fun isEnabled(toggleId: String): Boolean {
         return isEnabled(toggleId, false)
