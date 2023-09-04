@@ -1,5 +1,6 @@
 package no.nav.familie.unleash
 
+import io.getunleash.strategy.Strategy
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
@@ -14,13 +15,14 @@ open class UnleashConfig(
     private val featureToggleProperties: UnleashProperties,
     @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
     @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
-    @Value("\${NAIS_APP_NAME}") val appName: String
+    @Value("\${NAIS_APP_NAME}") val appName: String,
+    private val strategies: List<Strategy>
 ) {
 
     @Bean
     open fun unleashNext(): UnleashService =
         if (featureToggleProperties.enabled) {
-            DefaultUnleashService(apiUrl = apiUrl, apiToken = apiToken, appName = appName)
+            DefaultUnleashService(apiUrl = apiUrl, apiToken = apiToken, appName = appName, strategies = strategies)
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +

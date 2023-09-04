@@ -3,12 +3,14 @@ package no.nav.familie.unleash
 import io.getunleash.DefaultUnleash
 import io.getunleash.UnleashContext
 import io.getunleash.UnleashContextProvider
+import io.getunleash.strategy.Strategy
 import io.getunleash.util.UnleashConfig
 
 class DefaultUnleashService(
     val apiUrl: String,
     val apiToken: String,
-    val appName: String
+    val appName: String,
+    val strategies: List<Strategy>,
 ) : UnleashService {
 
     private val defaultUnleash: DefaultUnleash
@@ -20,7 +22,8 @@ class DefaultUnleashService(
                 .appName(appName)
                 .unleashAPI("$apiUrl/api")
                 .apiKey(apiToken)
-                .unleashContextProvider(lagUnleashContextProvider()).build()
+                .unleashContextProvider(lagUnleashContextProvider()).build(),
+            *strategies.toTypedArray(),
         )
     }
 
