@@ -39,6 +39,12 @@ class DefaultUnleashService(
         return defaultUnleash.isEnabled(toggleId, defaultValue)
     }
 
+    override fun isEnabled(toggleId: String, properties: Map<String, String>): Boolean {
+        val builder = UnleashContext.builder()
+        properties.forEach { property -> builder.addProperty(property.key, property.value) }
+        return defaultUnleash.isEnabled(toggleId, builder.build())
+    }
+
     override fun destroy() {
         // Spring trigger denne ved shutdown. Gjøres for å unngå at unleash fortsetter å gjøre kall ut
         defaultUnleash.shutdown()

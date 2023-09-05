@@ -16,7 +16,7 @@ open class UnleashConfig(
     @Value("\${UNLEASH_SERVER_API_URL}") val apiUrl: String,
     @Value("\${UNLEASH_SERVER_API_TOKEN}") val apiToken: String,
     @Value("\${NAIS_APP_NAME}") val appName: String,
-    private val strategies: List<Strategy>
+    private val strategies: List<Strategy>,
 ) {
 
     @Bean
@@ -26,13 +26,17 @@ open class UnleashConfig(
         } else {
             logger.warn(
                 "Funksjonsbryter-funksjonalitet er skrudd AV. " +
-                    "isEnabled gir 'false' med mindre man har oppgitt en annen default verdi."
+                    "isEnabled gir 'false' med mindre man har oppgitt en annen default verdi.",
             )
             lagDummyUnleashService()
         }
 
     private fun lagDummyUnleashService(): UnleashService {
         return object : UnleashService {
+            override fun isEnabled(toggleId: String, properties: Map<String, String>): Boolean {
+                return isEnabled(toggleId, false)
+            }
+
             override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
                 return System.getenv(toggleId).run { toBoolean() } || defaultValue
             }
@@ -51,7 +55,7 @@ open class UnleashConfig(
 
 @ConfigurationProperties("unleash")
 class UnleashProperties(
-    val enabled: Boolean = true
+    val enabled: Boolean = true,
 )
 
 interface UnleashService : DisposableBean {
@@ -59,6 +63,7 @@ interface UnleashService : DisposableBean {
     fun isEnabled(toggleId: String): Boolean {
         return isEnabled(toggleId, false)
     }
+    fun isEnabled(toggleId: String, properties: Map<String, String>): Boolean
 
     fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean
 }
