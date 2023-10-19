@@ -4,5 +4,5 @@ package no.nav.familie.unleash
 // https://teamfamilie-unleash-web.nav.cloud.nais.io/context
 object UnleashContextFields {
     val FAGSAK_ID = "fagsakId"
-    val ENHET = "enhet"
+    val ENHET_ID = "enhetId"
 }
