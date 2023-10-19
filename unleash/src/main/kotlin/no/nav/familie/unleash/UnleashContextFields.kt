@@ -5,4 +5,6 @@ package no.nav.familie.unleash
 object UnleashContextFields {
     val FAGSAK_ID = "fagsakId"
     val ENHET_ID = "enhetId"
+    val NAV_IDENT = "navIdent"
+    val EPOST = "epost"
 }
