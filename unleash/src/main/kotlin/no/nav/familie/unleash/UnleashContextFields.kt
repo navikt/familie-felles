@@ -7,4 +7,5 @@ object UnleashContextFields {
     const val ENHET_ID = "enhetId"
     const val NAV_IDENT = "navIdent"
     const val EPOST = "epost"
+    const val BEHANDLING_ID = "behandlingId"
 }
