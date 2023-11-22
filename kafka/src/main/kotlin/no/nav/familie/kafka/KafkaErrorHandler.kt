@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicLong
 
 @Component
 class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContainerStoppingErrorHandler() {
-
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
 
@@ -26,7 +25,7 @@ class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContai
         e: Exception,
         records: List<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
-        container: MessageListenerContainer
+        container: MessageListenerContainer,
     ) {
         if (records.isEmpty()) {
             logger.error("Feil ved konsumering av melding. Ingen records. ${consumer.subscription()}", e)
@@ -35,7 +34,7 @@ class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContai
             records.first().run {
                 logger.error(
                     "Feil ved konsumering av melding fra ${this.topic()}. id ${this.key()}, " +
-                        "offset: ${this.offset()}, partition: ${this.partition()}"
+                        "offset: ${this.offset()}, partition: ${this.partition()}",
                 )
                 secureLogger.error("${this.topic()} - Problemer med prosessering av $records", e)
                 scheduleRestart(e, records, consumer, container, this.topic())
@@ -48,7 +47,7 @@ class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContai
         records: List<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
         container: MessageListenerContainer,
-        topic: String
+        topic: String,
     ) {
         val now = System.currentTimeMillis()
         if (now - lastError.getAndSet(now) > COUNTER_RESET_TIME) {
@@ -65,19 +64,18 @@ class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContai
                     logger.error("Feil oppstod ved venting og oppstart av kafka container", exception)
                 }
             },
-            Instant.ofEpochMilli(now + delayTime)
+            Instant.ofEpochMilli(now + delayTime),
         )
         logger.warn("Stopper kafka container for {} i {}", topic, Duration.ofMillis(delayTime).toString())
         super.handleRemaining(
             Exception("Sjekk securelogs for mer info - ${e::class.java.simpleName}"),
             records,
             consumer,
-            container
+            container,
         )
     }
 
     companion object {
-
         private val LONG_TIME = Duration.ofHours(3).toMillis()
         private val SHORT_TIME = Duration.ofSeconds(20).toMillis()
         private const val SLOW_ERROR_COUNT = 10

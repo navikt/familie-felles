@@ -13,17 +13,17 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import java.net.URI
 
 internal class BearerTokenClientCredentialsClientInterceptorTest {
-
     private lateinit var bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor
 
     private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        bearerTokenClientInterceptor = BearerTokenClientCredentialsClientInterceptor(
-            oAuth2AccessTokenService,
-            clientConfigurationProperties
-        )
+        bearerTokenClientInterceptor =
+            BearerTokenClientCredentialsClientInterceptor(
+                oAuth2AccessTokenService,
+                clientConfigurationProperties,
+            )
     }
 
     @Test
@@ -43,6 +43,9 @@ internal class BearerTokenClientCredentialsClientInterceptorTest {
         every { req.uri } returns (URI("http://jwtResource.no"))
         val execution = mockk<ClientHttpRequestExecution>(relaxed = true)
         assertThat(catchThrowable { bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution) })
-            .hasMessage("could not find oauth2 client config for uri=http://jwtResource.no and grant type=OAuth2GrantType[value=client_credentials]")
+            .hasMessage(
+                "could not find oauth2 client config for " +
+                    "uri=http://jwtResource.no and grant type=OAuth2GrantType[value=client_credentials]",
+            )
     }
 }

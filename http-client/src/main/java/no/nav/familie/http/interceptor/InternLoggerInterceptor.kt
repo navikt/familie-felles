@@ -14,8 +14,11 @@ import org.springframework.web.servlet.ModelAndView
 @Component
 @Import(OIDCUtil::class)
 class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptor {
-
-    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+    override fun preHandle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+    ): Boolean {
         val ansvarligSaksbehandler: String = hentSaksbehandler(oidcUtil)
 
         AuditLogger.logRequest(request, ansvarligSaksbehandler)
@@ -27,7 +30,7 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
         request: HttpServletRequest,
         response: HttpServletResponse,
         handler: Any,
-        modelAndView: ModelAndView?
+        modelAndView: ModelAndView?,
     ) {
         postLogRequest(request, response, hentSaksbehandler(oidcUtil))
         super.postHandle(request, response, handler, modelAndView)
@@ -36,7 +39,7 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
     private fun postLogRequest(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        ansvarligSaksbehandler: String
+        ansvarligSaksbehandler: String,
     ) {
         val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method}: ${request.requestURI} (${response.status})"
 
@@ -50,7 +53,7 @@ class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerIntercept
     private fun hentSaksbehandler(oidcUtil: OIDCUtil) =
         Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
             onSuccess = { it },
-            onFailure = { BRUKERNAVN_MASKINKALL }
+            onFailure = { BRUKERNAVN_MASKINKALL },
         )
 
     companion object {

@@ -18,9 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.net.URI
 
 internal class AbstractWebClientTest {
-
     class TestClient(val uri: URI) : AbstractWebClient(WebClient.create(), "") {
-
         fun test(): Ressurs<String> {
             return getForEntity(uri)
         }
@@ -53,7 +51,7 @@ internal class AbstractWebClientTest {
         val body = objectMapper.writeValueAsString(ressurs)
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
 
         val catchThrowable = catchThrowable { client.test() }
@@ -70,7 +68,7 @@ internal class AbstractWebClientTest {
         val body = objectMapper.writeValueAsString(mapOf("status" to "nei"))
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
 
         val catchThrowable = catchThrowable { client.test() }
@@ -84,7 +82,7 @@ internal class AbstractWebClientTest {
     internal fun `feil uten ressurs kaster videre spring exception`() {
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500))
+                .willReturn(WireMock.aResponse().withStatus(500)),
         )
 
         val catchThrowable = catchThrowable { client.test() }
@@ -95,7 +93,6 @@ internal class AbstractWebClientTest {
     }
 
     companion object {
-
         private lateinit var wireMockServer: WireMockServer
         private lateinit var client: TestClient
 

@@ -8,22 +8,29 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
 class MultipartBuilder {
-
     private val multipartRequest: MultiValueMap<String, Any> = LinkedMultiValueMap()
 
-    fun withJson(name: String, any: Any): MultipartBuilder {
+    fun withJson(
+        name: String,
+        any: Any,
+    ): MultipartBuilder {
         val headers = HttpHeaders()
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         multipartRequest.add(name, HttpEntity(any, headers))
         return this
     }
 
-    fun withByteArray(name: String, filename: String, bytes: ByteArray): MultipartBuilder {
-        val request = object : ByteArrayResource(bytes) {
-            override fun getFilename(): String? {
-                return filename
+    fun withByteArray(
+        name: String,
+        filename: String,
+        bytes: ByteArray,
+    ): MultipartBuilder {
+        val request =
+            object : ByteArrayResource(bytes) {
+                override fun getFilename(): String? {
+                    return filename
+                }
             }
-        }
         multipartRequest.add(name, request)
         return this
     }
@@ -37,8 +44,9 @@ class MultipartBuilder {
     }
 
     companion object {
-        val MULTIPART_HEADERS: HttpHeaders = HttpHeaders().apply {
-            this.set(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
-        }
+        val MULTIPART_HEADERS: HttpHeaders =
+            HttpHeaders().apply {
+                this.set(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE)
+            }
     }
 }

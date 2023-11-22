@@ -26,9 +26,8 @@ class StsRestClient(
     @Value("\${STS_URL}") private val stsUrl: URI,
     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null
+    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null,
 ) {
-
     private val responstid: Timer = Metrics.timer("sts.tid")
 
     private val client: HttpClient = HttpClientUtil.create()
@@ -44,7 +43,7 @@ class StsRestClient(
             log.debug(
                 "Skal refreshe token: {}. Tiden nå er: {}",
                 refreshCachedTokenTidspunkt,
-                LocalTime.now()
+                LocalTime.now(),
             )
 
             return refreshCachedTokenTidspunkt.isAfter(LocalDateTime.now())
@@ -68,26 +67,29 @@ class StsRestClient(
                         }
                     }.build()
 
-            val accessTokenResponse = try {
-                val startTime = System.nanoTime()
-                val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply { obj: HttpResponse<String?> -> obj.body() }
-                    .thenApply { it: String? ->
-                        håndterRespons(it)
-                    }
-                    .get()
-                responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
-                response
-            } catch (e: InterruptedException) {
-                throw StsAccessTokenFeilException("Feil i tilkobling", e)
-            } catch (e: ExecutionException) {
-                throw StsAccessTokenFeilException("Feil i tilkobling", e)
-            }
+            val accessTokenResponse =
+                try {
+                    val startTime = System.nanoTime()
+                    val response =
+                        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                            .thenApply { obj: HttpResponse<String?> -> obj.body() }
+                            .thenApply { it: String? ->
+                                håndterRespons(it)
+                            }
+                            .get()
+                    responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
+                    response
+                } catch (e: InterruptedException) {
+                    throw StsAccessTokenFeilException("Feil i tilkobling", e)
+                } catch (e: ExecutionException) {
+                    throw StsAccessTokenFeilException("Feil i tilkobling", e)
+                }
             if (accessTokenResponse != null) {
                 cachedToken = accessTokenResponse
-                refreshCachedTokenTidspunkt = LocalDateTime.now()
-                    .plusSeconds(accessTokenResponse.expires_in)
-                    .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
+                refreshCachedTokenTidspunkt =
+                    LocalDateTime.now()
+                        .plusSeconds(accessTokenResponse.expires_in)
+                        .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
                 return accessTokenResponse.access_token
             }
             throw StsAccessTokenFeilException("Manglende token")
@@ -102,9 +104,12 @@ class StsRestClient(
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(StsRestClient::class.java)
-        private fun basicAuth(username: String, password: String): String {
+
+        private fun basicAuth(
+            username: String,
+            password: String,
+        ): String {
             return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }
     }

@@ -15,9 +15,7 @@ import org.springframework.web.client.getForEntity
 import java.net.SocketTimeoutException
 
 internal class RestTemplateBuilderBeanTest {
-
     companion object {
-
         private lateinit var wireMockServer: WireMockServer
         private lateinit var restTemplate: RestTemplate
 
@@ -42,16 +40,17 @@ internal class RestTemplateBuilderBeanTest {
 
     @BeforeEach
     fun setupEachTest() {
-        restTemplate = RestTemplateBuilderBean()
-            .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
-            .build()
+        restTemplate =
+            RestTemplateBuilderBean()
+                .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
+                .build()
     }
 
     @Test
     internal fun `delay med 500 kaster exception`() {
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500))
+                .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500)),
         )
         assertThat(catchThrowable { restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}") })
             .hasCauseInstanceOf(SocketTimeoutException::class.java)
@@ -61,7 +60,7 @@ internal class RestTemplateBuilderBeanTest {
     internal fun `delay med 50 kaster ikke exception`() {
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withFixedDelay(50))
+                .willReturn(WireMock.aResponse().withFixedDelay(50)),
         )
         restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")
     }

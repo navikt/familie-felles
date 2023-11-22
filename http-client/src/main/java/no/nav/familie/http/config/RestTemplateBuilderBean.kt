@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(NaisProxyCustomizer::class)
 class RestTemplateBuilderBean {
-
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
     fun restTemplateBuilder(iNaisProxyCustomizer: INaisProxyCustomizer): RestTemplateBuilder {

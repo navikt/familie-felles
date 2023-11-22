@@ -8,9 +8,8 @@ import java.net.URI
  */
 abstract class AbstractPingableWebClient(
     webClient: WebClient,
-    metricsPrefix: String
+    metricsPrefix: String,
 ) : AbstractWebClient(webClient, metricsPrefix), Pingable {
-
     abstract val pingUri: URI
 
     override fun ping() {

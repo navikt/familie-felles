@@ -17,9 +17,7 @@ import org.junit.jupiter.api.Test
 import java.net.InetAddress
 
 class LeaderClientTest {
-
     companion object {
-
         private lateinit var wireMockServer: WireMockServer
 
         @BeforeAll
@@ -56,8 +54,8 @@ class LeaderClientTest {
             get(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("{\"name\": \"${InetAddress.getLocalHost().hostName}\"}")
-                )
+                        .withBody("{\"name\": \"${InetAddress.getLocalHost().hostName}\"}"),
+                ),
         )
 
         assertTrue(LeaderClient.isLeader()!!)
@@ -71,8 +69,8 @@ class LeaderClientTest {
             get(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("foobar")
-                )
+                        .withBody("foobar"),
+                ),
         )
 
         assertFalse(LeaderClient.isLeader()!!)
@@ -86,8 +84,8 @@ class LeaderClientTest {
             get(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withStatus(404)
-                )
+                        .withStatus(404),
+                ),
         )
 
         assertNull(LeaderClient.isLeader())

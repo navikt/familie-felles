@@ -16,7 +16,6 @@ import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KafkaErrorHandlerTest {
-
     @MockK(relaxed = true)
     lateinit var container: MessageListenerContainer
 
@@ -35,9 +34,10 @@ class KafkaErrorHandlerTest {
 
     @Test
     fun `skal stoppe container hvis man mottar feil med en tom liste med records`() {
-        val throwable = catchThrowable {
-            errorHandler.handleRemaining(RuntimeException("Feil i test"), emptyList(), consumer, container)
-        }
+        val throwable =
+            catchThrowable {
+                errorHandler.handleRemaining(RuntimeException("Feil i test"), emptyList(), consumer, container)
+            }
 
         assertThat(throwable)
             .hasStackTraceContaining("Sjekk securelogs for mer info")
@@ -48,14 +48,15 @@ class KafkaErrorHandlerTest {
     @Test
     fun `skal stoppe container hvis man mottar feil med en liste med records`() {
         val consumerRecord = ConsumerRecord("topic", 1, 1, 1, "record")
-        val throwable = catchThrowable {
-            errorHandler.handleRemaining(
-                RuntimeException("Feil i test"),
-                listOf(consumerRecord),
-                consumer,
-                container
-            )
-        }
+        val throwable =
+            catchThrowable {
+                errorHandler.handleRemaining(
+                    RuntimeException("Feil i test"),
+                    listOf(consumerRecord),
+                    consumer,
+                    container,
+                )
+            }
         assertThat(throwable)
             .hasStackTraceContaining("Sjekk securelogs for mer info")
             .hasCauseExactlyInstanceOf(Exception::class.java)

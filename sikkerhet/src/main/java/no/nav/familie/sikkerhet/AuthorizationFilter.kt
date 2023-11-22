@@ -8,10 +8,13 @@ import org.springframework.web.filter.OncePerRequestFilter
 class AuthorizationFilter(
     private val oidcUtil: OIDCUtil,
     private val acceptedClients: List<String>,
-    private val disabled: Boolean = false
+    private val disabled: Boolean = false,
 ) : OncePerRequestFilter() {
-
-    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain,
+    ) {
         when (disabled || acceptedClient()) {
             true -> filterChain.doFilter(request, response)
             false -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authenticated, but unauthorized application")

@@ -13,14 +13,17 @@ import reactor.core.publisher.Mono
 
 @Component
 class MdcValuesPropagatingFilter : ExchangeFilterFunction {
-
-    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(
+        request: ClientRequest,
+        function: ExchangeFunction,
+    ): Mono<ClientResponse> {
         val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
         val requestId = MDC.get(MDCConstants.MDC_REQUEST_ID) ?: callId
-        val modifiedRequest = ClientRequest.from(request)
-            .header(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
-            .header(NavHttpHeaders.NGNINX_REQUEST_ID.asString(), requestId)
-            .build()
+        val modifiedRequest =
+            ClientRequest.from(request)
+                .header(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
+                .header(NavHttpHeaders.NGNINX_REQUEST_ID.asString(), requestId)
+                .build()
 
         return function.exchange(modifiedRequest)
     }

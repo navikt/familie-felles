@@ -8,7 +8,6 @@ import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 
 object LeaderClient {
-
     /**
      * @return Om pod er leader eller ikke. null hvis leadersjekk ikke er implementert på pod
      */
@@ -17,10 +16,11 @@ object LeaderClient {
         val electorPath = Environment.hentLeaderSystemEnv() ?: return null
 
         val client = HttpClient.newHttpClient()
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("http://$electorPath"))
-            .GET()
-            .build()
+        val request =
+            HttpRequest.newBuilder()
+                .uri(URI.create("http://$electorPath"))
+                .GET()
+                .build()
 
         val response: HttpResponse<String> = client.send(request, BodyHandlers.ofString())
         if (response.body().isNullOrBlank()) return null

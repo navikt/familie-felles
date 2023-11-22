@@ -29,7 +29,6 @@ import java.time.temporal.ChronoUnit
 @Configuration
 @Import(ProxyTimeout::class)
 class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
-
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true)
     fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
@@ -45,35 +44,37 @@ class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
             object : RestTemplateCustomizer {
                 override fun customize(restTemplate: RestTemplate) {
                     val proxy = HttpHost("webproxy-nais.nav.no", 8088)
-                    val client: HttpClient = HttpClientBuilder.create()
-                        .setDefaultRequestConfig(
-                            RequestConfig.custom()
-                                .setConnectTimeout(Timeout.ofSeconds(proxyTimeout.connectTimeout))
-                                .setConnectionRequestTimeout(Timeout.ofSeconds(proxyTimeout.requestTimeout))
-                                .build()
-                        )
-                        .setConnectionManager(
-                            PoolingHttpClientConnectionManagerBuilder.create()
-                                .setDefaultSocketConfig(
-                                    SocketConfig.custom()
-                                        .setSoTimeout(Timeout.ofMilliseconds(proxyTimeout.socketTimeout))
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .setRoutePlanner(object : DefaultProxyRoutePlanner(proxy) {
-
-                            public override fun determineProxy(
-                                target: HttpHost,
-                                context: HttpContext
-                            ): HttpHost? {
-                                return if (target.hostName.contains("microsoft")) {
-                                    super.determineProxy(target, context)
-                                } else {
-                                    null
-                                }
-                            }
-                        }).build()
+                    val client: HttpClient =
+                        HttpClientBuilder.create()
+                            .setDefaultRequestConfig(
+                                RequestConfig.custom()
+                                    .setConnectTimeout(Timeout.ofSeconds(proxyTimeout.connectTimeout))
+                                    .setConnectionRequestTimeout(Timeout.ofSeconds(proxyTimeout.requestTimeout))
+                                    .build(),
+                            )
+                            .setConnectionManager(
+                                PoolingHttpClientConnectionManagerBuilder.create()
+                                    .setDefaultSocketConfig(
+                                        SocketConfig.custom()
+                                            .setSoTimeout(Timeout.ofMilliseconds(proxyTimeout.socketTimeout))
+                                            .build(),
+                                    )
+                                    .build(),
+                            )
+                            .setRoutePlanner(
+                                object : DefaultProxyRoutePlanner(proxy) {
+                                    public override fun determineProxy(
+                                        target: HttpHost,
+                                        context: HttpContext,
+                                    ): HttpHost? {
+                                        return if (target.hostName.contains("microsoft")) {
+                                            super.determineProxy(target, context)
+                                        } else {
+                                            null
+                                        }
+                                    }
+                                },
+                            ).build()
 
                     restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory(client)
                 }

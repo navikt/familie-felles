@@ -58,7 +58,10 @@ class FoedselsNrTest {
         testFdato("028200 000 69", 1900) // Skatt har +80 på måned
     }
 
-    fun testFdato(fnr: String, year: Int) {
+    fun testFdato(
+        fnr: String,
+        year: Int,
+    ) {
         assertThat(FoedselsNr(fnr.filter { it != ' ' }).foedselsdato.year).isEqualTo(year)
     }
 

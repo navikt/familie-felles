@@ -2,7 +2,10 @@ package no.nav.familie.log.mdc
 
 import org.slf4j.MDC
 
-fun <T> kjørMedCallId(callId: String, body: () -> T): T {
+fun <T> kjørMedCallId(
+    callId: String,
+    body: () -> T,
+): T {
     val originalCallId = MDC.get(MDCConstants.MDC_CALL_ID) ?: null
 
     return try {

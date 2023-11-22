@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.slf4j.MDC
 
 class LogFilterTest {
-
     private lateinit var httpServletRequest: HttpServletRequest
     private lateinit var httpServletResponse: HttpServletResponse
     private val logFilter = LogFilter()
@@ -29,7 +28,7 @@ class LogFilterTest {
 
         logFilter.doFilter(
             httpServletRequest,
-            httpServletResponse
+            httpServletResponse,
         ) { _, _ -> }
 
         assertThat(initialContextMap)
@@ -54,7 +53,6 @@ class LogFilterTest {
     }
 
     companion object {
-
         private fun fail() {
             throw IllegalStateException("")
         }

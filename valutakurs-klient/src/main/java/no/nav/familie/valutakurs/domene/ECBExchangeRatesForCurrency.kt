@@ -7,8 +7,7 @@ data class ECBExchangeRatesForCurrency(
     @field:JacksonXmlElementWrapper
     @field:JacksonXmlProperty(localName = "SeriesKey")
     val ecbExchangeRateKeys: List<ECBExchangeRateKey>,
-
     @field:JacksonXmlElementWrapper(useWrapping = false)
     @field:JacksonXmlProperty(localName = "Obs")
-    val ecbExchangeRates: List<ECBExchangeRate>
+    val ecbExchangeRates: List<ECBExchangeRate>,
 )

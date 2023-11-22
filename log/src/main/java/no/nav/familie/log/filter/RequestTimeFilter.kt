@@ -13,9 +13,12 @@ import org.springframework.util.StopWatch
 import java.io.IOException
 
 open class RequestTimeFilter : Filter {
-
     @Throws(IOException::class, ServletException::class)
-    override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+    override fun doFilter(
+        servletRequest: ServletRequest,
+        servletResponse: ServletResponse,
+        filterChain: FilterChain,
+    ) {
         val response = servletResponse as HttpServletResponse
         val request = servletRequest as HttpServletRequest
         val timer = StopWatch()
@@ -28,7 +31,11 @@ open class RequestTimeFilter : Filter {
         }
     }
 
-    private fun log(request: HttpServletRequest, code: Int, timer: StopWatch) {
+    private fun log(
+        request: HttpServletRequest,
+        code: Int,
+        timer: StopWatch,
+    ) {
         if (HttpStatus.valueOf(code).isError) {
             LOG.warn("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
         } else {
@@ -44,7 +51,6 @@ open class RequestTimeFilter : Filter {
     }
 
     companion object {
-
         private val LOG = LoggerFactory.getLogger(RequestTimeFilter::class.java)
     }
 }

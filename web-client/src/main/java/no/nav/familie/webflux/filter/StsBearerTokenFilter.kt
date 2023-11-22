@@ -12,8 +12,10 @@ import reactor.core.publisher.Mono
 @Import(StsTokenClient::class)
 @Component
 class StsBearerTokenFilter(private val stsTokenClient: StsTokenClient) : ExchangeFilterFunction {
-
-    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(
+        request: ClientRequest,
+        function: ExchangeFunction,
+    ): Mono<ClientResponse> {
         val systembrukerToken = stsTokenClient.systemOIDCToken
         val modifiedRequest = ClientRequest.from(request).header("Authorization", "Bearer $systembrukerToken").build()
         return function.exchange(modifiedRequest)

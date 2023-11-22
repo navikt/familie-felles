@@ -20,8 +20,10 @@ import java.time.LocalDate
 
 @Component
 @Import(ValutakursRestClientConfig::class)
-class ValutakursRestClient(@Qualifier("ecbRestTemplate") private val restOperations: RestOperations, @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/") : AbstractRestClient(restOperations, "ecb") {
-
+class ValutakursRestClient(
+    @Qualifier("ecbRestTemplate") private val restOperations: RestOperations,
+    @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/",
+) : AbstractRestClient(restOperations, "ecb") {
     /**
      * Henter valutakurser fra ECB (European Central Bank) for *currencies*
      * @param frequency spesifiserer om valutakurser skal hentes for spesifikk dag eller for måned.
@@ -29,8 +31,17 @@ class ValutakursRestClient(@Qualifier("ecbRestTemplate") private val restOperati
      * @param exchangeRateDate dato man ønsker valutakurser for. Dersom *frequency* er MONTHLY hentes forrige måneds kurs, med mindre man spør med *exchangeRateDate* = siste dag i mnd.
      * @return Liste over valutakurser med tilhørende kode, kurs og dato.
      */
-    fun hentValutakurs(frequency: Frequency, currencies: List<String>, exchangeRateDate: LocalDate): List<ExchangeRate> {
-        val uri = URI.create("${ecbApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(currencies)}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}")
+    fun hentValutakurs(
+        frequency: Frequency,
+        currencies: List<String>,
+        exchangeRateDate: LocalDate,
+    ): List<ExchangeRate> {
+        val uri =
+            URI.create(
+                "${ecbApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(
+                    currencies,
+                )}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}",
+            )
         try {
             HttpHeaders().apply {
                 add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
@@ -38,11 +49,17 @@ class ValutakursRestClient(@Qualifier("ecbRestTemplate") private val restOperati
             }
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: RestClientResponseException) {
-            throw ValutakursClientException("Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate", e)
+            throw ValutakursClientException(
+                "Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate",
+                e,
+            )
         } catch (e: ValutakursTransformationException) {
             throw ValutakursClientException(e.message, e)
         } catch (e: NullPointerException) {
-            throw ValutakursClientException("Fant ingen valutakurser for $currencies på dato: $exchangeRateDate ved kall mot European Central Bank", e)
+            throw ValutakursClientException(
+                "Fant ingen valutakurser for $currencies på dato: $exchangeRateDate ved kall mot European Central Bank",
+                e,
+            )
         } catch (e: Exception) {
             throw ValutakursClientException("Ukjent feil ved kall mot European Central Bank", e)
         }
@@ -55,14 +72,18 @@ class ValutakursRestClient(@Qualifier("ecbRestTemplate") private val restOperati
 
 enum class Frequency {
     Daily,
-    Monthly;
+    Monthly,
+    ;
 
-    fun toFrequencyParam() = when (this) {
-        Daily -> "D"
-        Monthly -> "M"
-    }
-    fun toQueryParams(exchangeRateDate: LocalDate) = when (this) {
-        Daily -> "?startPeriod=$exchangeRateDate&endPeriod=$exchangeRateDate"
-        Monthly -> "?endPeriod=$exchangeRateDate&lastNObservations=1"
-    }
+    fun toFrequencyParam() =
+        when (this) {
+            Daily -> "D"
+            Monthly -> "M"
+        }
+
+    fun toQueryParams(exchangeRateDate: LocalDate) =
+        when (this) {
+            Daily -> "?startPeriod=$exchangeRateDate&endPeriod=$exchangeRateDate"
+            Monthly -> "?endPeriod=$exchangeRateDate&lastNObservations=1"
+        }
 }

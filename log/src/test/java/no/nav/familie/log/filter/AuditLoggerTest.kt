@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class AuditLoggerTest {
-
     @Test
     fun `Skal auditlogge henting av fagsak`() {
         val logger: Logger = LoggerFactory.getLogger("auditLogger") as Logger
@@ -24,16 +23,16 @@ class AuditLoggerTest {
         AuditLogger.log(
             Sporingsdata(mapOf(SporingsloggId.ANSVALIG_SAKSBEHANDLER to "ansvarligSaksbehandler")),
             AuditLoggerType.READ,
-            "FAGSAK"
+            "FAGSAK",
         )
 
         val logsList = listAppender.list
         assertThat(logsList.size).isEqualTo(1)
         assertThat(
             logsList[0]
-                .message
+                .message,
         ).isEqualTo(
-            "action=FAGSAK actionType=READ ANSVALIG_SAKSBEHANDLER=ansvarligSaksbehandler"
+            "action=FAGSAK actionType=READ ANSVALIG_SAKSBEHANDLER=ansvarligSaksbehandler",
         )
     }
 }

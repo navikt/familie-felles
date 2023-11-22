@@ -10,10 +10,13 @@ import java.net.URI
 
 @Component
 class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String, String>>) : ClientHttpRequestInterceptor {
-
     private val logger = LoggerFactory.getLogger(ApiKeyInjectingClientInterceptor::class.java)
 
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         val apiKey = apiKeyFor(request.uri)
         if (apiKey != null) {
             logger.trace("Injisert API-key som header {} for {}", apiKey.first, request.uri)
@@ -22,7 +25,7 @@ class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String
             logger.trace(
                 "Ingen API-key ble funnet for {} (sjekket {} konfigurasjoner)",
                 request.uri,
-                apiKeys.values.size
+                apiKeys.values.size,
             )
         }
         return execution.execute(request, body)

@@ -5,14 +5,14 @@ import java.time.LocalDate
 import java.time.MonthDay
 
 object VirkedagerProvider {
-
-    private val FASTE_HELLIGDAGER = setOf(
-        MonthDay.of(1, 1),
-        MonthDay.of(5, 1),
-        MonthDay.of(5, 17),
-        MonthDay.of(12, 25),
-        MonthDay.of(12, 26)
-    )
+    private val FASTE_HELLIGDAGER =
+        setOf(
+            MonthDay.of(1, 1),
+            MonthDay.of(5, 1),
+            MonthDay.of(5, 17),
+            MonthDay.of(12, 25),
+            MonthDay.of(12, 26),
+        )
 
     private fun beregnBevegeligeHelligdager(år: Int): Set<MonthDay> {
         val påskedag = utledPåskedag(år)
@@ -30,7 +30,7 @@ object VirkedagerProvider {
             MonthDay.from(andrePåskedag),
             MonthDay.from(kristiHimmelfartsdag),
             MonthDay.from(førstePinsedag),
-            MonthDay.from(andrePinsedag)
+            MonthDay.from(andrePinsedag),
         )
     }
 

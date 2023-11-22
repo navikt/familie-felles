@@ -11,15 +11,14 @@ import org.springframework.web.reactive.function.client.WebClient
 @Configuration
 @Import(
     WebClientConfig::class,
-    StsBearerTokenFilter::class
+    StsBearerTokenFilter::class,
 )
 class StsWebClientConfig {
-
     @Bean("stsWebClient")
     fun stsWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
-        stsBearerTokenFilter: StsBearerTokenFilter
+        stsBearerTokenFilter: StsBearerTokenFilter,
     ): WebClient {
         return webClientBuilder
             .filter(stsBearerTokenFilter)

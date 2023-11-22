@@ -20,21 +20,20 @@ import org.springframework.web.client.RestOperations
     InternLoggerInterceptor::class,
     BearerTokenClientInterceptor::class,
     BearerTokenClientCredentialsClientInterceptor::class,
-    BearerTokenOnBehalfOfClientInterceptor::class
+    BearerTokenOnBehalfOfClientInterceptor::class,
 )
 class RestTemplateAzure {
-
     @Bean("azure")
     fun restTemplateJwtBearer(
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
         internLoggerInterceptor: InternLoggerInterceptor,
-        bearerTokenClientInterceptor: BearerTokenClientInterceptor
+        bearerTokenClientInterceptor: BearerTokenClientInterceptor,
     ): RestOperations {
         return restTemplateBuilder.additionalInterceptors(
             consumerIdClientInterceptor,
             bearerTokenClientInterceptor,
-            MdcValuesPropagatingClientInterceptor()
+            MdcValuesPropagatingClientInterceptor(),
         ).build()
     }
 
@@ -43,12 +42,12 @@ class RestTemplateAzure {
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
         internLoggerInterceptor: InternLoggerInterceptor,
-        bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor
+        bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
     ): RestOperations {
         return restTemplateBuilder.additionalInterceptors(
             consumerIdClientInterceptor,
             bearerTokenClientInterceptor,
-            MdcValuesPropagatingClientInterceptor()
+            MdcValuesPropagatingClientInterceptor(),
         ).build()
     }
 
@@ -57,12 +56,12 @@ class RestTemplateAzure {
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
         internLoggerInterceptor: InternLoggerInterceptor,
-        bearerTokenClientInterceptor: BearerTokenOnBehalfOfClientInterceptor
+        bearerTokenClientInterceptor: BearerTokenOnBehalfOfClientInterceptor,
     ): RestOperations {
         return restTemplateBuilder.additionalInterceptors(
             consumerIdClientInterceptor,
             bearerTokenClientInterceptor,
-            MdcValuesPropagatingClientInterceptor()
+            MdcValuesPropagatingClientInterceptor(),
         ).build()
     }
 }

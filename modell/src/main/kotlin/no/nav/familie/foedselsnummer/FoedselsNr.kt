@@ -1,7 +1,7 @@
 package no.nav.familie.foedselsnummer
 
-import no.nav.familie.foedselsnummer.FoedselsNr.Companion.tabeller.kontrollsiffer1
-import no.nav.familie.foedselsnummer.FoedselsNr.Companion.tabeller.kontrollsiffer2
+import no.nav.familie.foedselsnummer.FoedselsNr.Companion.Tabeller.kontrollsiffer1
+import no.nav.familie.foedselsnummer.FoedselsNr.Companion.Tabeller.kontrollsiffer2
 import java.time.LocalDate
 
 @Deprecated("Bruk eksisterende Fødselsnummer fra kontrakter.", ReplaceWith("no.nav.familie.kontrakter.felles.Fødselsnummer"))
@@ -80,7 +80,7 @@ data class FoedselsNr(val asString: String) {
             val fnrYear = asString.slice(4 until 6)
             val individnummer = asString.slice(6 until 9).toInt()
 
-            for ((individSerie, aarSerie) in tabeller.serier) {
+            for ((individSerie, aarSerie) in Tabeller.serier) {
                 val kandidat = (aarSerie.start.toString().slice(0 until 2) + fnrYear).toInt()
                 if (individSerie.contains(individnummer) && aarSerie.contains(kandidat)) {
                     return kandidat
@@ -90,20 +90,24 @@ data class FoedselsNr(val asString: String) {
         }
 
     companion object {
-        object tabeller {
+        object Tabeller {
             // https://www.skatteetaten.no/person/folkeregister/fodsel-og-navnevalg/barn-fodt-i-norge/fodselsnummer/
-            val serier: List<Pair<ClosedRange<Int>, ClosedRange<Int>>> = listOf(
-                500..749 to 1854..1899,
-                0..499 to 1900..1999,
-                900..999 to 1940..1999,
-                500..999 to 2000..2039
-            )
+            val serier: List<Pair<ClosedRange<Int>, ClosedRange<Int>>> =
+                listOf(
+                    500..749 to 1854..1899,
+                    0..499 to 1900..1999,
+                    900..999 to 1940..1999,
+                    500..999 to 2000..2039,
+                )
 
             val kontrollsiffer1: List<Int> = listOf(3, 7, 6, 1, 8, 9, 4, 5, 2)
             val kontrollsiffer2: List<Int> = listOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
         }
 
-        fun checksum(liste: List<Int>, str: String): Int {
+        fun checksum(
+            liste: List<Int>,
+            str: String,
+        ): Int {
             var sum = 0
             for ((i, m) in liste.withIndex()) {
                 sum += m * str[i].toString().toInt()

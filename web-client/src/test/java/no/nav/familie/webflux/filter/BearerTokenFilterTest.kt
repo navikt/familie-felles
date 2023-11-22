@@ -17,17 +17,17 @@ import org.springframework.web.reactive.function.client.ExchangeFunction
 import java.net.URI
 
 class BearerTokenFilterTest {
-
     private lateinit var bearerTokenFilter: BearerTokenFilter
 
     private val oAuth2AccessTokenService = mockk<OAuth2AccessTokenService>(relaxed = true)
 
     @BeforeEach
     fun setup() {
-        bearerTokenFilter = BearerTokenFilter(
-            oAuth2AccessTokenService,
-            clientConfigurationProperties
-        )
+        bearerTokenFilter =
+            BearerTokenFilter(
+                oAuth2AccessTokenService,
+                clientConfigurationProperties,
+            )
     }
 
     @AfterEach
@@ -67,7 +67,7 @@ class BearerTokenFilterTest {
         every {
             requestAttributes.getAttribute(
                 SpringTokenValidationContextHolder::class.java.name,
-                RequestAttributes.SCOPE_REQUEST
+                RequestAttributes.SCOPE_REQUEST,
             )
         } returns tokenValidationContext
         every { tokenValidationContext.getClaims("azuread") } returns jwtTokenClaims

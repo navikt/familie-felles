@@ -7,5 +7,5 @@ import org.springframework.web.client.RestClientResponseException
 class RessursException(
     val ressurs: Ressurs<Any>,
     cause: RestClientResponseException,
-    val httpStatus: HttpStatus = HttpStatus.valueOf(cause.rawStatusCode)
+    val httpStatus: HttpStatus = HttpStatus.valueOf(cause.rawStatusCode),
 ) : RuntimeException(cause)
