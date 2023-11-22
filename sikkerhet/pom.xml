@@ -16,9 +16,6 @@
     <description>Small lib for JWT operations</description>
     <packaging>jar</packaging>
 
-    <properties>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
