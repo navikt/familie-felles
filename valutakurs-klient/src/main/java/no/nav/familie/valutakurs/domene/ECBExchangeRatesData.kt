@@ -10,7 +10,7 @@ import kotlin.jvm.Throws
 @JacksonXmlRootElement(localName = "GenericData")
 data class ECBExchangeRatesData(
     @field:JacksonXmlProperty(localName = "DataSet")
-    val ecbExchangeRatesDataSet: ECBExchangeRatesDataSet
+    val ecbExchangeRatesDataSet: ECBExchangeRatesDataSet,
 )
 
 fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExchangeRate> {

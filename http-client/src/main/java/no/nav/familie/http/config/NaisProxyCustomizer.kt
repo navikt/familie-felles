@@ -21,40 +21,41 @@ interface INaisProxyCustomizer : RestTemplateCustomizer
 class NaisProxyCustomizer(
     @Value("\${familie.nais.proxy.connectTimeout:15000}") val connectTimeout: Long,
     @Value("\${familie.nais.proxy.socketTimeout:15000}") val socketTimeout: Long,
-    @Value("\${familie.nais.proxy.requestTimeout:15000}") val requestTimeout: Long
+    @Value("\${familie.nais.proxy.requestTimeout:15000}") val requestTimeout: Long,
 ) : INaisProxyCustomizer {
-
     override fun customize(restTemplate: RestTemplate) {
         val proxy = HttpHost("webproxy-nais.nav.no", 8088)
-        val client: HttpClient = HttpClientBuilder.create()
-            .setDefaultRequestConfig(
-                RequestConfig.custom()
-                    .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
-                    .setConnectionRequestTimeout(Timeout.ofSeconds(requestTimeout))
-                    .build()
-            )
-            .setConnectionManager(
-                PoolingHttpClientConnectionManagerBuilder.create()
-                    .setDefaultSocketConfig(
-                        SocketConfig.custom()
-                            .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
-                            .build()
-                    )
-                    .build()
-            )
-            .setRoutePlanner(object : DefaultProxyRoutePlanner(proxy) {
-
-                public override fun determineProxy(
-                    target: HttpHost,
-                    context: HttpContext
-                ): HttpHost? {
-                    return if (target.hostName.contains("microsoft")) {
-                        super.determineProxy(target, context)
-                    } else {
-                        null
-                    }
-                }
-            }).build()
+        val client: HttpClient =
+            HttpClientBuilder.create()
+                .setDefaultRequestConfig(
+                    RequestConfig.custom()
+                        .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
+                        .setConnectionRequestTimeout(Timeout.ofSeconds(requestTimeout))
+                        .build(),
+                )
+                .setConnectionManager(
+                    PoolingHttpClientConnectionManagerBuilder.create()
+                        .setDefaultSocketConfig(
+                            SocketConfig.custom()
+                                .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
+                                .build(),
+                        )
+                        .build(),
+                )
+                .setRoutePlanner(
+                    object : DefaultProxyRoutePlanner(proxy) {
+                        public override fun determineProxy(
+                            target: HttpHost,
+                            context: HttpContext,
+                        ): HttpHost? {
+                            return if (target.hostName.contains("microsoft")) {
+                                super.determineProxy(target, context)
+                            } else {
+                                null
+                            }
+                        }
+                    },
+                ).build()
 
         restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory(client)
     }

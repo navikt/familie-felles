@@ -17,8 +17,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Component
 @Import(OIDCUtil::class)
 class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
-
-    override fun filter(request: ClientRequest, function: ExchangeFunction): Mono<ClientResponse> {
+    override fun filter(
+        request: ClientRequest,
+        function: ExchangeFunction,
+    ): Mono<ClientResponse> {
         preHandle(request)
         return function.exchange(request).`as` { responseMono: Mono<ClientResponse> -> postHandle(request, responseMono) }
     }
@@ -33,7 +35,7 @@ class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunctio
     private fun postLogRequest(
         request: ClientRequest,
         signalType: SignalType,
-        ansvarligSaksbehandler: String
+        ansvarligSaksbehandler: String,
     ) {
         val melding = "[post-handle] $ansvarligSaksbehandler - ${request.method()}: ${request.url()} ($signalType)"
 
@@ -44,7 +46,10 @@ class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunctio
         }
     }
 
-    private fun postHandle(request: ClientRequest, responseMono: Mono<ClientResponse>): Mono<ClientResponse> {
+    private fun postHandle(
+        request: ClientRequest,
+        responseMono: Mono<ClientResponse>,
+    ): Mono<ClientResponse> {
         val responseReceived = AtomicBoolean()
         return Mono.defer {
             responseMono.doOnEach { signal: Signal<ClientResponse> ->
@@ -63,11 +68,10 @@ class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunctio
     private fun hentSaksbehandler(oidcUtil: OIDCUtil) =
         Result.runCatching { oidcUtil.getClaim("preferred_username") }.fold(
             onSuccess = { it },
-            onFailure = { BRUKERNAVN_MASKINKALL }
+            onFailure = { BRUKERNAVN_MASKINKALL },
         )
 
     companion object {
-
         private val LOG = LoggerFactory.getLogger(InternLoggerFilter::class.java)
         private const val BRUKERNAVN_MASKINKALL = "VL"
     }

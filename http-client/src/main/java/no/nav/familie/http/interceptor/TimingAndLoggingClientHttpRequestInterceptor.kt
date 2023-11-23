@@ -9,8 +9,11 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.util.StopWatch
 
 class TimingAndLoggingClientHttpRequestInterceptor : ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         val timer = StopWatch()
         timer.start()
         val respons = execution.execute(request, body)
@@ -22,7 +25,11 @@ class TimingAndLoggingClientHttpRequestInterceptor : ClientHttpRequestIntercepto
     companion object {
         private val LOG = LoggerFactory.getLogger(TimingAndLoggingClientHttpRequestInterceptor::class.java)
 
-        private fun log(request: HttpRequest, code: HttpStatusCode, timer: StopWatch) {
+        private fun log(
+            request: HttpRequest,
+            code: HttpStatusCode,
+            timer: StopWatch,
+        ) {
             if (hasError(code)) {
                 LOG.warn("{} - {} - ({}). Dette tok {}ms", request.methodValue, request.uri, code, timer.totalTimeMillis)
             } else {

@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class ValutakursParsingTest {
-    val ecbXml = """
+    val ecbXml =
+        """
         <?xml version="1.0" encoding="UTF-8"?>
         <message:GenericData xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:common="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:generic="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic" xsi:schemaLocation="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXMessage.xsd http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXCommon.xsd http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic https://sdw-wsrest.ecb.europa.eu:443/vocabulary/sdmx/2_1/SDMXDataGeneric.xsd">
             <message:Header>
@@ -95,7 +96,7 @@ class ValutakursParsingTest {
                 </generic:Series>
             </message:DataSet>
         </message:GenericData>
-    """.trimIndent()
+        """.trimIndent()
 
     @Test
     fun `Test at xml parses som forventet`() {

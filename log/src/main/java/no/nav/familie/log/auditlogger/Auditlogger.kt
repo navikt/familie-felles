@@ -6,38 +6,56 @@ import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.ClientRequest
 
 object AuditLogger {
-
-    fun log(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String) {
+    fun log(
+        sporingsdata: Sporingsdata,
+        type: AuditLoggerType,
+        action: String,
+    ) {
         LoggerFactory.getLogger("auditLogger").info(opprettMelding(sporingsdata, type, action))
     }
 
-    fun logRequest(request: HttpServletRequest, ansvarligSaksbehandler: String) {
-        val sporingsdata = Sporingsdata(
-            verdier = mapOf(
-                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler
+    fun logRequest(
+        request: HttpServletRequest,
+        ansvarligSaksbehandler: String,
+    ) {
+        val sporingsdata =
+            Sporingsdata(
+                verdier =
+                    mapOf(
+                        SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler,
+                    ),
             )
-        )
 
         LoggerFactory.getLogger("auditLogger")
             .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method), request.requestURI.toString()))
     }
 
-    fun logRequest(request: ClientRequest, ansvarligSaksbehandler: String) {
-        val sporingsdata = Sporingsdata(
-            verdier = mapOf(
-                SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler
+    fun logRequest(
+        request: ClientRequest,
+        ansvarligSaksbehandler: String,
+    ) {
+        val sporingsdata =
+            Sporingsdata(
+                verdier =
+                    mapOf(
+                        SporingsloggId.ANSVALIG_SAKSBEHANDLER to ansvarligSaksbehandler,
+                    ),
             )
-        )
 
         LoggerFactory.getLogger("auditLogger")
             .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method()), request.url().toString()))
     }
 
-    private fun opprettMelding(sporingsdata: Sporingsdata, type: AuditLoggerType, action: String): String {
-        val msg: StringBuilder = StringBuilder()
-            .append("action=").append(action).append(SPACE)
-            .append("actionType=").append(type)
-            .append(SPACE)
+    private fun opprettMelding(
+        sporingsdata: Sporingsdata,
+        type: AuditLoggerType,
+        action: String,
+    ): String {
+        val msg: StringBuilder =
+            StringBuilder()
+                .append("action=").append(action).append(SPACE)
+                .append("actionType=").append(type)
+                .append(SPACE)
 
         sporingsdata.verdier.map {
             msg.append(it.key).append('=').append(it.value)
@@ -51,11 +69,11 @@ object AuditLogger {
 const val SPACE = " "
 
 data class Sporingsdata(
-    val verdier: Map<SporingsloggId, String>
+    val verdier: Map<SporingsloggId, String>,
 )
 
 enum class SporingsloggId {
-    ANSVALIG_SAKSBEHANDLER
+    ANSVALIG_SAKSBEHANDLER,
 }
 
 enum class AuditLoggerType(val httpMethod: HttpMethod) {
@@ -63,10 +81,10 @@ enum class AuditLoggerType(val httpMethod: HttpMethod) {
     UPDATE(HttpMethod.PUT),
     CREATE(HttpMethod.POST),
     DELETE(HttpMethod.DELETE),
-    PATCH(HttpMethod.PATCH);
+    PATCH(HttpMethod.PATCH),
+    ;
 
     companion object {
-
         fun hentType(method: String): AuditLoggerType {
             return values().find { it.httpMethod.matches(method) } ?: throw IllegalStateException("Ikke godkjent http metode")
         }

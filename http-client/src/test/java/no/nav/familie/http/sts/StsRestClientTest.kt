@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test
 import java.net.URI
 
 class StsRestClientTest {
-
     companion object {
-
         private lateinit var stsRestClient: StsRestClient
         private val objectMapper = ObjectMapper().registerModule(KotlinModule())
         private lateinit var wireMockServer: WireMockServer
@@ -54,8 +52,8 @@ class StsRestClientTest {
             post(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("{\"access_token\": \"token1\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\"}")
-                )
+                        .withBody("{\"access_token\": \"token1\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\"}"),
+                ),
         )
 
         assertThat(stsRestClient.systemOIDCToken).isEqualTo("token1")
@@ -64,8 +62,8 @@ class StsRestClientTest {
             post(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("{\"access_token\": \"token2\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\"}")
-                )
+                        .withBody("{\"access_token\": \"token2\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\"}"),
+                ),
         )
         assertThat(stsRestClient.systemOIDCToken).isEqualTo("token1")
     }
@@ -76,8 +74,8 @@ class StsRestClientTest {
             post(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("{\"access_token\": \"token1\", \"token_type\": \"Bearer\", \"expires_in\": \"1\"}")
-                )
+                        .withBody("{\"access_token\": \"token1\", \"token_type\": \"Bearer\", \"expires_in\": \"1\"}"),
+                ),
         )
 
         assertThat(stsRestClient.systemOIDCToken).isEqualTo("token1")
@@ -87,8 +85,8 @@ class StsRestClientTest {
             post(anyUrl())
                 .willReturn(
                     aResponse()
-                        .withBody("{\"access_token\": \"token2\", \"token_type\": \"Bearer\", \"expires_in\": \"1\"}")
-                )
+                        .withBody("{\"access_token\": \"token2\", \"token_type\": \"Bearer\", \"expires_in\": \"1\"}"),
+                ),
         )
         assertThat(stsRestClient.systemOIDCToken).isEqualTo("token2")
     }

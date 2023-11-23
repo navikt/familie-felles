@@ -15,9 +15,8 @@ import org.springframework.core.NestedExceptionUtils
 abstract class AbstractHealthIndicator(
     private val pingable: Pingable,
     metricsNavn: String,
-    private val statusCode: String = "DOWN-NONCRITICAL"
+    private val statusCode: String = "DOWN-NONCRITICAL",
 ) : HealthIndicator {
-
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
     private val failureCounter: Counter = Metrics.counter(metricsNavn, "status", "nede")
 

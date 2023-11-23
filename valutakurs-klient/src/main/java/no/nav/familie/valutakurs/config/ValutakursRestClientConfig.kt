@@ -14,21 +14,24 @@ import org.springframework.web.client.RestOperations
 @Suppress("SpringFacetCodeInspection")
 @Configuration
 class ValutakursRestClientConfig {
-
     @Bean("ecbMapper")
     fun xmlMapper(): XmlMapper {
-        val mapper = XmlMapper().apply {
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            registerKotlinModule()
-        }
+        val mapper =
+            XmlMapper().apply {
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                registerKotlinModule()
+            }
         return mapper
     }
 
     @Bean("ecbRestTemplate")
-    fun xmlRestTemplate(@Qualifier("ecbMapper") xmlMapper: XmlMapper): RestOperations {
-        val converter = MappingJackson2HttpMessageConverter(xmlMapper).apply {
-            supportedMediaTypes = listOf(MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"))
-        }
+    fun xmlRestTemplate(
+        @Qualifier("ecbMapper") xmlMapper: XmlMapper,
+    ): RestOperations {
+        val converter =
+            MappingJackson2HttpMessageConverter(xmlMapper).apply {
+                supportedMediaTypes = listOf(MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"))
+            }
         return RestTemplateBuilder()
             .additionalMessageConverters(converter)
             .build()

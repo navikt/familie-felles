@@ -26,7 +26,6 @@ import java.time.LocalDate
 
 @Configuration
 class WebClientConfigTestConfig {
-
     @Bean
     fun objectMapper(): ObjectMapper {
         return ObjectMapper()
@@ -40,17 +39,16 @@ class WebClientConfigTestConfig {
 @ContextConfiguration(
     classes = [
         WebClientConfig::class,
-        WebClientConfigTestConfig::class
-    ]
+        WebClientConfigTestConfig::class,
+    ],
 )
 @TestPropertySource(
     properties = [
         "application.name=test",
-        "spring.codec.max-in-memory-size=256KB"
-    ]
+        "spring.codec.max-in-memory-size=256KB",
+    ],
 )
 internal class WebClientConfigEgenObjectMapperTest {
-
     @Autowired
     @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
     lateinit var webClientBuilder: WebClient.Builder
@@ -71,7 +69,7 @@ internal class WebClientConfigEgenObjectMapperTest {
 
         wiremockServerItem.verify(
             WireMock.postRequestedFor(WireMock.anyUrl())
-                .withRequestBody(WireMock.equalToJson("""{"dato" : [ 2020, 1, 1 ] } """))
+                .withRequestBody(WireMock.equalToJson("""{"dato" : [ 2020, 1, 1 ] } """)),
         )
     }
 
@@ -92,7 +90,6 @@ internal class WebClientConfigEgenObjectMapperTest {
     }
 
     companion object {
-
         lateinit var wiremockServerItem: WireMockServer
 
         @BeforeAll

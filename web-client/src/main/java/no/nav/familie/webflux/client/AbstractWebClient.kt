@@ -22,16 +22,18 @@ import java.util.concurrent.TimeUnit
  */
 abstract class AbstractWebClient(
     val webClient: WebClient,
-    metricsPrefix: String
+    metricsPrefix: String,
 ) {
-
     protected val responstid: Timer = Metrics.timer("$metricsPrefix.tid")
     protected val responsSuccess: Counter = Metrics.counter("$metricsPrefix.response", "status", "success")
     protected val responsFailure: Counter = Metrics.counter("$metricsPrefix.response", "status", "failure")
 
     protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
 
-    inline fun <reified T : Any> getForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> getForEntity(
+        uri: URI,
+        httpHeaders: HttpHeaders? = null,
+    ): T {
         return executeMedMetrics(uri) {
             webClient.get()
                 .uri(uri)
@@ -41,7 +43,11 @@ abstract class AbstractWebClient(
         }
     }
 
-    inline fun <reified T : Any> postForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> postForEntity(
+        uri: URI,
+        payload: Any,
+        httpHeaders: HttpHeaders? = null,
+    ): T {
         return executeMedMetrics(uri) {
             webClient.post()
                 .uri(uri)
@@ -52,7 +58,11 @@ abstract class AbstractWebClient(
         }
     }
 
-    inline fun <reified T : Any> putForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> putForEntity(
+        uri: URI,
+        payload: Any,
+        httpHeaders: HttpHeaders? = null,
+    ): T {
         return executeMedMetrics(uri) {
             webClient.put()
                 .uri(uri)
@@ -63,7 +73,11 @@ abstract class AbstractWebClient(
         }
     }
 
-    inline fun <reified T : Any> patchForEntity(uri: URI, payload: Any, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> patchForEntity(
+        uri: URI,
+        payload: Any,
+        httpHeaders: HttpHeaders? = null,
+    ): T {
         return executeMedMetrics(uri) {
             webClient.patch()
                 .uri(uri)
@@ -74,7 +88,10 @@ abstract class AbstractWebClient(
         }
     }
 
-    inline fun <reified T : Any> deleteForEntity(uri: URI, httpHeaders: HttpHeaders? = null): T {
+    inline fun <reified T : Any> deleteForEntity(
+        uri: URI,
+        httpHeaders: HttpHeaders? = null,
+    ): T {
         return executeMedMetrics(uri) {
             webClient.delete()
                 .uri(uri)
@@ -84,7 +101,10 @@ abstract class AbstractWebClient(
         }
     }
 
-    fun <T> executeMedMetrics(uri: URI, function: () -> Mono<T>): T {
+    fun <T> executeMedMetrics(
+        uri: URI,
+        function: () -> Mono<T>,
+    ): T {
         try {
             val startTime = System.nanoTime()
             val mono = function.invoke()
@@ -103,19 +123,19 @@ abstract class AbstractWebClient(
         }
     }
 
-    inline fun <reified S : WebClient.RequestHeadersSpec<*>>
-    WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
+    inline fun <reified S : WebClient.RequestHeadersSpec<*>> WebClient.RequestHeadersSpec<*>.addHeaders(httpHeaders: HttpHeaders?): S {
         httpHeaders?.entries?.forEach { this.header(it.key, *it.value.toTypedArray()) }
         return this as S
     }
 
-    private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? = try {
-        if (e.responseBodyAsString.contains("status")) {
-            objectMapper.readValue<Ressurs<Any>>(e.getResponseBodyAsString(StandardCharsets.UTF_8))
-        } else {
+    private fun lesRessurs(e: WebClientResponseException): Ressurs<Any>? =
+        try {
+            if (e.responseBodyAsString.contains("status")) {
+                objectMapper.readValue<Ressurs<Any>>(e.getResponseBodyAsString(StandardCharsets.UTF_8))
+            } else {
+                null
+            }
+        } catch (ex: Exception) {
             null
         }
-    } catch (ex: Exception) {
-        null
-    }
 }

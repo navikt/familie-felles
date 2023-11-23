@@ -18,7 +18,6 @@ open class UnleashConfig(
     @Value("\${NAIS_APP_NAME}") val appName: String,
     private val strategies: List<Strategy>,
 ) {
-
     @Bean
     open fun unleashNext(): UnleashService =
         if (featureToggleProperties.enabled) {
@@ -33,11 +32,17 @@ open class UnleashConfig(
 
     private fun lagDummyUnleashService(): UnleashService {
         return object : UnleashService {
-            override fun isEnabled(toggleId: String, properties: Map<String, String>): Boolean {
+            override fun isEnabled(
+                toggleId: String,
+                properties: Map<String, String>,
+            ): Boolean {
                 return isEnabled(toggleId, false)
             }
 
-            override fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean {
+            override fun isEnabled(
+                toggleId: String,
+                defaultValue: Boolean,
+            ): Boolean {
                 return System.getenv(toggleId).run { toBoolean() } || defaultValue
             }
 
@@ -48,7 +53,6 @@ open class UnleashConfig(
     }
 
     companion object {
-
         private val logger = LoggerFactory.getLogger(UnleashConfig::class.java)
     }
 }
@@ -59,11 +63,17 @@ class UnleashProperties(
 )
 
 interface UnleashService : DisposableBean {
-
     fun isEnabled(toggleId: String): Boolean {
         return isEnabled(toggleId, false)
     }
-    fun isEnabled(toggleId: String, properties: Map<String, String>): Boolean
 
-    fun isEnabled(toggleId: String, defaultValue: Boolean): Boolean
+    fun isEnabled(
+        toggleId: String,
+        properties: Map<String, String>,
+    ): Boolean
+
+    fun isEnabled(
+        toggleId: String,
+        defaultValue: Boolean,
+    ): Boolean
 }

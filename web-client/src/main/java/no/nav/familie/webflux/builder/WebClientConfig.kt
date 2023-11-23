@@ -36,7 +36,6 @@ const val FAMILIE_WEB_CLIENT_BUILDER = "familieWebClientBuilder"
 @Configuration
 @Import(ConsumerIdFilter::class, WebClientAutoConfiguration::class)
 class WebClientConfig {
-
     /**
      * Overskrever [WebClientCodecsConfiguration] fordi den ikke blir initiert av noen grunn
      * [org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration.WebClientCodecsConfiguration]
@@ -77,7 +76,7 @@ class WebClientConfig {
         consumerIdFilter: ConsumerIdFilter,
         @Value("\${familie.web.timeout.connect:2000}") connectTimeout: Long,
         @Value("\${familie.web.timeout.socket:15000}") socketTimeout: Long,
-        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long
+        @Value("\${familie.web.timeout.requestTimeout:30000}") requestTimeout: Long,
     ): WebClient.Builder {
         val httpClient = lagHttpClient(connectTimeout, socketTimeout, requestTimeout)
 
@@ -94,7 +93,7 @@ class WebClientConfig {
     private fun lagHttpClient(
         connectTimeout: Long,
         socketTimeout: Long,
-        requestTimeout: Long
+        requestTimeout: Long,
     ): CloseableHttpAsyncClient {
         if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
             error("Har ikke implementert støtte for andre clienter enn reactor client")
@@ -103,13 +102,13 @@ class WebClientConfig {
             .setIOReactorConfig(
                 IOReactorConfig.custom()
                     .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
-                    .build()
+                    .build(),
             )
             .setDefaultRequestConfig(
                 RequestConfig.custom()
                     .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
                     .setConnectionRequestTimeout(Timeout.ofMilliseconds(requestTimeout))
-                    .build()
+                    .build(),
             ).build()
     }
 }

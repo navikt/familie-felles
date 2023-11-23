@@ -18,17 +18,17 @@ class StsTokenClient(
     @Value("\${STS_URL}") private val stsUrl: String,
     @Value("\${CREDENTIAL_USERNAME}") private val stsUsername: String,
     @Value("\${CREDENTIAL_PASSWORD}") private val stsPassword: String,
-    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null
+    @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null,
 ) {
-
-    private val client = WebClient.builder()
-        .baseUrl(stsUrl)
-        .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword)).apply {
-            if (!stsApiKey.isNullOrEmpty()) {
-                it.defaultHeader("x-nav-apiKey", stsApiKey)
-            }
-        }.filter(MdcValuesPropagatingFilter())
-        .build()
+    private val client =
+        WebClient.builder()
+            .baseUrl(stsUrl)
+            .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword)).apply {
+                if (!stsApiKey.isNullOrEmpty()) {
+                    it.defaultHeader("x-nav-apiKey", stsApiKey)
+                }
+            }.filter(MdcValuesPropagatingFilter())
+            .build()
 
     private var cachedToken: AccessTokenResponse? = null
 
@@ -40,7 +40,7 @@ class StsTokenClient(
             log.debug(
                 "Tokenet løper ut: {}. Tiden nå er: {}",
                 Instant.ofEpochMilli(cachedToken!!.expires_in).atZone(ZoneId.systemDefault()).toLocalTime(),
-                LocalTime.now(ZoneId.systemDefault())
+                LocalTime.now(ZoneId.systemDefault()),
             )
 
             return cachedToken!!.expires_in - MILLISEKUNDER_I_KVARTER > LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
@@ -54,11 +54,12 @@ class StsTokenClient(
             }
             log.debug("Henter token fra STS")
 
-            val accessTokenResponse = try {
-                client.get().retrieve().bodyToMono(AccessTokenResponse::class.java).block(Duration.ofSeconds(30))
-            } catch (e: RuntimeException) {
-                throw StsAccessTokenFeilException("Feil i tilkobling", e)
-            }
+            val accessTokenResponse =
+                try {
+                    client.get().retrieve().bodyToMono(AccessTokenResponse::class.java).block(Duration.ofSeconds(30))
+                } catch (e: RuntimeException) {
+                    throw StsAccessTokenFeilException("Feil i tilkobling", e)
+                }
 
             if (accessTokenResponse != null) {
                 cachedToken = accessTokenResponse
@@ -68,10 +69,13 @@ class StsTokenClient(
         }
 
     companion object {
-
         private const val MILLISEKUNDER_I_KVARTER = 15 * 60 * 1000
         private val log = LoggerFactory.getLogger(StsTokenClient::class.java)
-        private fun basicAuth(username: String, password: String): String {
+
+        private fun basicAuth(
+            username: String,
+            password: String,
+        ): String {
             return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         }
     }

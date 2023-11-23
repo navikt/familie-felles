@@ -7,7 +7,6 @@ import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.web.context.request.RequestContextHolder
 
 object EksternBrukerUtils {
-
     const val ISSUER_SELVBETJENING = "selvbetjening"
     const val ISSUER_TOKENX = "tokenx"
 
@@ -20,15 +19,14 @@ object EksternBrukerUtils {
         val fnr = (
             claims.getStringClaim("pid") ?: claims.subject
                 ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token")
-            )
+        )
         if (!FNR_REGEX.matches(fnr)) {
             error("$fnr er ikke gyldig fnr")
         }
         return fnr
     }
 
-    fun personIdentErLikInnloggetBruker(personIdent: String): Boolean =
-        personIdent == hentFnrFraToken()
+    fun personIdentErLikInnloggetBruker(personIdent: String): Boolean = personIdent == hentFnrFraToken()
 
     fun getBearerTokenForLoggedInUser(): String {
         return getFromContext { validationContext, issuer ->

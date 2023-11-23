@@ -13,17 +13,16 @@ import org.springframework.web.client.RestOperations
 @Configuration
 @Import(RestTemplateBuilderBean::class, StsBearerTokenClientInterceptor::class, ConsumerIdClientInterceptor::class)
 class RestTemplateSts {
-
     @Bean("sts")
     fun restTemplateSts(
         restTemplateBuilder: RestTemplateBuilder,
         stsBearerTokenClientInterceptor: StsBearerTokenClientInterceptor,
-        consumerIdClientInterceptor: ConsumerIdClientInterceptor
+        consumerIdClientInterceptor: ConsumerIdClientInterceptor,
     ): RestOperations {
         return restTemplateBuilder.additionalInterceptors(
             consumerIdClientInterceptor,
             stsBearerTokenClientInterceptor,
-            MdcValuesPropagatingClientInterceptor()
+            MdcValuesPropagatingClientInterceptor(),
         ).build()
     }
 }

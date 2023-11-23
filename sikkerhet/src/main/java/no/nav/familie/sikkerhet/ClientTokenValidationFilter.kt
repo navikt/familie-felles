@@ -18,13 +18,12 @@ class ClientTokenValidationFilter(
     private val acceptClientCredential: Boolean = false,
     private val acceptOnBehalfOf: Boolean = false,
     private val issuerName: String = "azuread",
-    private val logOnly: Boolean = false
+    private val logOnly: Boolean = false,
 ) : OncePerRequestFilter() {
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val accepted = accepted()
         loggResultat(accepted)
@@ -82,7 +81,9 @@ class ClientTokenValidationFilter(
             if (acceptOnBehalfOf && !erClientCredential) {
                 return true
             }
-            logger.warn("Mangler noe i token - accessAsApplication=$accessAsApplication clientId=$clientId erClientCredential=$erClientCredential")
+            logger.warn(
+                "Mangler noe i token - accessAsApplication=$accessAsApplication clientId=$clientId erClientCredential=$erClientCredential",
+            )
             return false
         } catch (e: Exception) {
             logger.error("Feilet sjekk av access_as_application", e)

@@ -18,16 +18,13 @@ import org.springframework.web.client.RestTemplate
 import java.net.URI
 
 internal class AbstractRestClientTest {
-
     class TestClient(val uri: URI) : AbstractRestClient(RestTemplate(), "") {
-
         fun test() {
             getForEntity<Ressurs<Any>>(uri)
         }
     }
 
     companion object {
-
         private lateinit var wireMockServer: WireMockServer
         private lateinit var client: TestClient
 
@@ -61,7 +58,7 @@ internal class AbstractRestClientTest {
         val body = objectMapper.writeValueAsString(ressurs)
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(RessursException::class.java)
@@ -76,7 +73,7 @@ internal class AbstractRestClientTest {
         val body = objectMapper.writeValueAsString(mapOf("status" to "nei"))
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500).withBody(body))
+                .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(HttpServerErrorException::class.java)
@@ -87,7 +84,7 @@ internal class AbstractRestClientTest {
     internal fun `feil uten ressurs kaster videre spring exception`() {
         wireMockServer.stubFor(
             WireMock.get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse().withStatus(500))
+                .willReturn(WireMock.aResponse().withStatus(500)),
         )
         val catchThrowable = catchThrowable { client.test() }
         assertThat(catchThrowable).isInstanceOfAny(HttpServerErrorException::class.java)

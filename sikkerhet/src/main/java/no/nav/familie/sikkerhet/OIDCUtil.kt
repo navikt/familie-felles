@@ -11,7 +11,6 @@ import java.util.Date
 
 @Component
 class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
-
     @Autowired
     private lateinit var environment: Environment
 
@@ -39,16 +38,18 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     }
 
     val navIdent: String
-        get() = if (erDevProfil()) {
-            "TEST_Z123"
-        } else {
-            claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
-        }
+        get() =
+            if (erDevProfil()) {
+                "TEST_Z123"
+            } else {
+                claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
+            }
 
     val groups: List<String>?
-        get() = (claimSet()?.get("groups") as List<*>?)
-            ?.filterNotNull()
-            ?.map { it.toString() }
+        get() =
+            (claimSet()?.get("groups") as List<*>?)
+                ?.filterNotNull()
+                ?.map { it.toString() }
 
     fun claimSet(): JwtTokenClaims? {
         return context()?.getClaims("azuread")

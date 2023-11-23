@@ -8,5 +8,5 @@ data class ECBExchangeRateKey(
     @field:JacksonXmlProperty(isAttribute = true)
     val id: String,
     @field:JacksonXmlProperty(isAttribute = true)
-    val value: String
+    val value: String,
 )

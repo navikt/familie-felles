@@ -16,17 +16,20 @@ import java.net.URI
 @Component
 class BearerTokenClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val clientConfigurationProperties: ClientConfigurationProperties
+    private val clientConfigurationProperties: ClientConfigurationProperties,
 ) :
     ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         request.headers.setBearerAuth(
             genererAccessToken(
                 request,
                 clientConfigurationProperties,
-                oAuth2AccessTokenService
-            )
+                oAuth2AccessTokenService,
+            ),
         )
         return execution.execute(request, body)
     }
@@ -35,18 +38,21 @@ class BearerTokenClientInterceptor(
 @Component
 class BearerTokenClientCredentialsClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val clientConfigurationProperties: ClientConfigurationProperties
+    private val clientConfigurationProperties: ClientConfigurationProperties,
 ) :
     ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         request.headers.setBearerAuth(
             genererAccessToken(
                 request,
                 clientConfigurationProperties,
                 oAuth2AccessTokenService,
-                OAuth2GrantType.CLIENT_CREDENTIALS
-            )
+                OAuth2GrantType.CLIENT_CREDENTIALS,
+            ),
         )
         return execution.execute(request, body)
     }
@@ -55,18 +61,21 @@ class BearerTokenClientCredentialsClientInterceptor(
 @Component
 class BearerTokenExchangeClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val clientConfigurationProperties: ClientConfigurationProperties
+    private val clientConfigurationProperties: ClientConfigurationProperties,
 ) :
     ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         request.headers.setBearerAuth(
             genererAccessToken(
                 request,
                 clientConfigurationProperties,
                 oAuth2AccessTokenService,
-                OAuth2GrantType.TOKEN_EXCHANGE
-            )
+                OAuth2GrantType.TOKEN_EXCHANGE,
+            ),
         )
         return execution.execute(request, body)
     }
@@ -75,18 +84,21 @@ class BearerTokenExchangeClientInterceptor(
 @Component
 class BearerTokenOnBehalfOfClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
-    private val clientConfigurationProperties: ClientConfigurationProperties
+    private val clientConfigurationProperties: ClientConfigurationProperties,
 ) :
     ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         request.headers.setBearerAuth(
             genererAccessToken(
                 request,
                 clientConfigurationProperties,
                 oAuth2AccessTokenService,
-                OAuth2GrantType.JWT_BEARER
-            )
+                OAuth2GrantType.JWT_BEARER,
+            ),
         )
         return execution.execute(request, body)
     }
@@ -96,11 +108,14 @@ class BearerTokenOnBehalfOfClientInterceptor(
 class BearerTokenWithSTSFallbackClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-    private val stsRestClient: StsRestClient
+    private val stsRestClient: StsRestClient,
 ) :
     ClientHttpRequestInterceptor {
-
-    override fun intercept(request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution): ClientHttpResponse {
+    override fun intercept(
+        request: HttpRequest,
+        body: ByteArray,
+        execution: ClientHttpRequestExecution,
+    ): ClientHttpResponse {
         if (erSystembruker()) {
             request.headers.setBearerAuth(stsRestClient.systemOIDCToken)
         } else {
@@ -108,8 +123,8 @@ class BearerTokenWithSTSFallbackClientInterceptor(
                 genererAccessToken(
                     request,
                     clientConfigurationProperties,
-                    oAuth2AccessTokenService
-                )
+                    oAuth2AccessTokenService,
+                ),
             )
         }
         return execution.execute(request, body)
@@ -120,13 +135,14 @@ private fun genererAccessToken(
     request: HttpRequest,
     clientConfigurationProperties: ClientConfigurationProperties,
     oAuth2AccessTokenService: OAuth2AccessTokenService,
-    grantType: OAuth2GrantType? = null
+    grantType: OAuth2GrantType? = null,
 ): String {
-    val clientProperties = clientPropertiesFor(
-        request.uri,
-        clientConfigurationProperties,
-        grantType
-    )
+    val clientProperties =
+        clientPropertiesFor(
+            request.uri,
+            clientConfigurationProperties,
+            grantType,
+        )
     return oAuth2AccessTokenService.getAccessToken(clientProperties).accessToken
 }
 
@@ -140,7 +156,7 @@ private fun genererAccessToken(
 private fun clientPropertiesFor(
     uri: URI,
     clientConfigurationProperties: ClientConfigurationProperties,
-    grantType: OAuth2GrantType?
+    grantType: OAuth2GrantType?,
 ): ClientProperties {
     val clientProperties = filterClientProperties(clientConfigurationProperties, uri)
     return if (grantType == null) {
@@ -156,7 +172,7 @@ private fun clientPropertiesFor(
 
 private fun filterClientProperties(
     clientConfigurationProperties: ClientConfigurationProperties,
-    uri: URI
+    uri: URI,
 ) = clientConfigurationProperties
     .registration
     .values
@@ -165,20 +181,19 @@ private fun filterClientProperties(
 private fun clientPropertiesForGrantType(
     values: List<ClientProperties>,
     grantType: OAuth2GrantType,
-    uri: URI
+    uri: URI,
 ): ClientProperties {
     return values.firstOrNull { grantType == it.grantType }
         ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
 }
 
-private fun clientCredentialOrJwtBearer() =
-    if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
+private fun clientCredentialOrJwtBearer() = if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
 
 private fun erSystembruker(): Boolean {
     return try {
-        val preferred_username =
+        val preferredUsername =
             SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
-        return preferred_username == null
+        return preferredUsername == null
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
         true

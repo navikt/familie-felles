@@ -19,17 +19,16 @@ import org.springframework.web.reactive.function.client.WebClient
     NaisProxyConfig::class,
     BearerTokenFilter::class,
     BearerTokenClientCredentialFilter::class,
-    BearerTokenOnBehalfOfFilter::class
+    BearerTokenOnBehalfOfFilter::class,
 )
 class AzureWebClientConfig(
-    private val naisProxyCustomizer: ObjectProvider<NaisProxyCustomizer>
+    private val naisProxyCustomizer: ObjectProvider<NaisProxyCustomizer>,
 ) {
-
     @Bean("azureWebClient")
     fun azureWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
-        bearerTokenFilter: BearerTokenFilter
+        bearerTokenFilter: BearerTokenFilter,
     ): WebClient {
         return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
     }
@@ -38,7 +37,7 @@ class AzureWebClientConfig(
     fun azureClientCredentialWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
-        bearerTokenFilter: BearerTokenClientCredentialFilter
+        bearerTokenFilter: BearerTokenClientCredentialFilter,
     ): WebClient {
         return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
     }
@@ -47,12 +46,15 @@ class AzureWebClientConfig(
     fun azureOnBehalfOfWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
-        bearerTokenFilter: BearerTokenOnBehalfOfFilter
+        bearerTokenFilter: BearerTokenOnBehalfOfFilter,
     ): WebClient {
         return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
     }
 
-    private fun buildAzureWebClient(webClientBuilder: WebClient.Builder, bearerTokenFilter: BearerTokenFilterFunction): WebClient {
+    private fun buildAzureWebClient(
+        webClientBuilder: WebClient.Builder,
+        bearerTokenFilter: BearerTokenFilterFunction,
+    ): WebClient {
         val builder = webClientBuilder.filter(bearerTokenFilter)
         naisProxyCustomizer.ifAvailable {
             it.customize(builder)

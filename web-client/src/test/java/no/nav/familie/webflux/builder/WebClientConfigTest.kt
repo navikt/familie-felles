@@ -26,7 +26,6 @@ import java.time.LocalDate
 @ContextConfiguration(classes = [WebClientConfig::class])
 @TestPropertySource(properties = ["application.name=test"])
 internal class WebClientConfigTest {
-
     @Autowired
     @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
     lateinit var familieWebClientBuilder: WebClient.Builder
@@ -50,7 +49,7 @@ internal class WebClientConfigTest {
 
         wiremockServerItem.verify(
             postRequestedFor(WireMock.anyUrl())
-                .withRequestBody(WireMock.equalToJson("""{"dato" : "2020-01-01"} """))
+                .withRequestBody(WireMock.equalToJson("""{"dato" : "2020-01-01"} """)),
         )
     }
 
@@ -86,7 +85,6 @@ internal class WebClientConfigTest {
     }
 
     companion object {
-
         lateinit var wiremockServerItem: WireMockServer
 
         @BeforeAll

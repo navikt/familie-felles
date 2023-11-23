@@ -6,7 +6,6 @@ import io.micrometer.core.instrument.Timer
 import java.util.concurrent.TimeUnit
 
 abstract class AbstractSoapClient(metricsPrefix: String) {
-
     protected val responstid: Timer = Metrics.timer("$metricsPrefix.tid")
     protected val responsSuccess: Counter = Metrics.counter("$metricsPrefix.response", "status", "success")
     protected val responsFailure: Counter = Metrics.counter("$metricsPrefix.response", "status", "failure")

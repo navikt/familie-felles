@@ -26,14 +26,13 @@ class LogFilter(
      * Defaults to always false
      */
     private val exposeErrorDetails: Supplier<Boolean> = Supplier { false },
-    private val serverName: String? = null
+    private val serverName: String? = null,
 ) : HttpFilter() {
-
     @Throws(ServletException::class, IOException::class)
     override fun doFilter(
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val userId = resolveUserId(httpServletRequest)
         if (userId == null || userId.isEmpty()) {
@@ -66,7 +65,7 @@ class LogFilter(
     private fun filterWithErrorHandling(
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         try {
             filterChain.doFilter(httpServletRequest, httpServletResponse)
@@ -99,13 +98,13 @@ class LogFilter(
                 NavHttpHeaders.NAV_CALL_ID.asString(),
                 "Nav-CallId",
                 "Nav-Callid",
-                "X-Correlation-Id"
+                "X-Correlation-Id",
             )
 
         private val NAV_REQUEST_ID_HEADER_NAMES =
             listOf(
                 "X_Request_Id",
-                "X-Request-Id"
+                "X-Request-Id",
             )
         private val log = LoggerFactory.getLogger(LogFilter::class.java)
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
@@ -127,12 +126,13 @@ class LogFilter(
 
         private fun generateUserIdCookie(httpServletResponse: HttpServletResponse) {
             val userId = IdUtils.generateId()
-            val cookie = Cookie(RANDOM_USER_ID_COOKIE_NAME, userId).apply {
-                path = "/"
-                maxAge = ONE_MONTH_IN_SECONDS
-                isHttpOnly = true
-                secure = true
-            }
+            val cookie =
+                Cookie(RANDOM_USER_ID_COOKIE_NAME, userId).apply {
+                    path = "/"
+                    maxAge = ONE_MONTH_IN_SECONDS
+                    isHttpOnly = true
+                    secure = true
+                }
             httpServletResponse.addCookie(cookie)
         }
 

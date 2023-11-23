@@ -13,12 +13,11 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 class NaisProxyConfig {
-
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
     @Bean
     fun naisProxyCustomizer(
         proxyTimeout: ProxyTimeout,
-        jettyResourceFactory: JettyResourceFactory
+        jettyResourceFactory: JettyResourceFactory,
     ): NaisProxyCustomizer {
         return NaisProxyCustomizer(proxyTimeout, jettyResourceFactory)
     }
@@ -29,12 +28,10 @@ class NaisProxyConfig {
  */
 class NaisProxyCustomizer(
     private val proxyTimeout: ProxyTimeout,
-    private val jettyResourceFactory: JettyResourceFactory
+    private val jettyResourceFactory: JettyResourceFactory,
 ) {
-
     fun customize(webClientBuilder: WebClient.Builder) {
         class DynamicProxy(host: String, port: Int) : HttpProxy(host, port) {
-
             override fun matches(origin: Origin): Boolean {
                 if (origin.address.host.contains("microsoft")) {
                     return true

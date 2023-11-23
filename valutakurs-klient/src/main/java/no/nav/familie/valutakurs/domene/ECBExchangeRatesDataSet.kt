@@ -6,5 +6,5 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 data class ECBExchangeRatesDataSet(
     @field:JacksonXmlElementWrapper(useWrapping = false)
     @field:JacksonXmlProperty(localName = "Series")
-    val ecbExchangeRatesForCurrencies: List<ECBExchangeRatesForCurrency>
+    val ecbExchangeRatesForCurrencies: List<ECBExchangeRatesForCurrency>,
 )
