@@ -50,7 +50,7 @@ class ValutakursRestClientTest {
 
             val config = ValutakursRestClientConfig()
             xmlMapper = config.xmlMapper()
-            val restTemplate = config.xmlRestTemplate(xmlMapper)
+            val restTemplate = config.xmlRestTemplate()
             valutakursRestClient = ValutakursRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
         }
 
