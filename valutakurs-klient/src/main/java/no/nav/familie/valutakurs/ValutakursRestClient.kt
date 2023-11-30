@@ -1,5 +1,8 @@
 package no.nav.familie.valutakurs
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.familie.http.client.AbstractRestClient
 import no.nav.familie.valutakurs.config.ValutakursRestClientConfig
 import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
@@ -7,21 +10,20 @@ import no.nav.familie.valutakurs.domene.ExchangeRate
 import no.nav.familie.valutakurs.domene.toExchangeRates
 import no.nav.familie.valutakurs.exception.ValutakursClientException
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDate
 
 @Component
 @Import(ValutakursRestClientConfig::class)
 class ValutakursRestClient(
-    @Qualifier("ecbRestTemplate") private val restOperations: RestOperations,
     @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/",
 ) : AbstractRestClient(restOperations, "ecb") {
     /**
@@ -67,6 +69,24 @@ class ValutakursRestClient(
 
     private fun toCurrencyParams(currencies: List<String>): String {
         return currencies.reduceIndexed { index, params, currency -> if (index != 0) "$params+$currency" else currency }
+    }
+
+    companion object Config {
+        val mapper =
+            XmlMapper().apply {
+                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                registerKotlinModule()
+            }
+
+        val converter =
+            MappingJackson2HttpMessageConverter(mapper).apply {
+                supportedMediaTypes = listOf(MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"))
+            }
+
+        val restOperations =
+            RestTemplateBuilder()
+                .additionalMessageConverters(converter)
+                .build()
     }
 }
 
