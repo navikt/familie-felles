@@ -22,7 +22,7 @@ import java.time.LocalDate
 @Import(ValutakursRestClientConfig::class)
 class ValutakursRestClient(
     @Qualifier("ecbRestTemplate") private val restOperations: RestOperations,
-    @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/",
+    @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://data-api.ecb.europa.eu/service/data/EXR/",
 ) : AbstractRestClient(restOperations, "ecb") {
     /**
      * Henter valutakurser fra ECB (European Central Bank) for *currencies*
