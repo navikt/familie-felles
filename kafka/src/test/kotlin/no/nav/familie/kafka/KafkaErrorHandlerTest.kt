@@ -3,6 +3,7 @@ package no.nav.familie.kafka
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.assertj.core.api.Assertions.assertThat
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.kafka.listener.MessageListenerContainer
 import org.springframework.scheduling.TaskScheduler
-import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KafkaErrorHandlerTest {
@@ -22,7 +22,7 @@ class KafkaErrorHandlerTest {
     @MockK(relaxed = true)
     lateinit var consumer: Consumer<*, *>
 
-    private val taskScheduler: TaskScheduler = DefaultManagedTaskScheduler()
+    private val taskScheduler: TaskScheduler = mockk(relaxed = true)
 
     private val errorHandler: KafkaErrorHandler = KafkaErrorHandler(taskScheduler)
 
