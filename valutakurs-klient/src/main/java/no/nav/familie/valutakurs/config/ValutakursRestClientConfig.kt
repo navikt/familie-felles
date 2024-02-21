@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestTemplate
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
@@ -23,7 +23,7 @@ class ValutakursRestClientConfig {
     }
 
     @Bean("ecbRestTemplate")
-    fun xmlRestTemplate(): RestOperations {
+    fun xmlRestTemplate(): RestTemplate {
         val converter =
             MappingJackson2HttpMessageConverter(xmlMapper()).apply {
                 supportedMediaTypes = listOf(MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"))

@@ -15,6 +15,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
+// TODO Skriv om til RestClientCustomizer
 interface INaisProxyCustomizer : RestTemplateCustomizer
 
 @Component

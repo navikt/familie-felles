@@ -56,7 +56,7 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     }
 
     private fun context(): TokenValidationContext? {
-        return ctxHolder.tokenValidationContext
+        return ctxHolder.getTokenValidationContext()
     }
 
     val expiryDate: Date?
