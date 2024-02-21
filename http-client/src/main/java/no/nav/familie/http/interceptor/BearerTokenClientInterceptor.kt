@@ -1,10 +1,12 @@
 package no.nav.familie.http.interceptor
 
+import com.nimbusds.oauth2.sdk.GrantType
 import no.nav.familie.http.sts.StsRestClient
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.OAuth2GrantType
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
@@ -51,7 +53,7 @@ class BearerTokenClientCredentialsClientInterceptor(
                 request,
                 clientConfigurationProperties,
                 oAuth2AccessTokenService,
-                OAuth2GrantType.CLIENT_CREDENTIALS,
+                GrantType.CLIENT_CREDENTIALS,
             ),
         )
         return execution.execute(request, body)
@@ -135,7 +137,7 @@ private fun genererAccessToken(
     request: HttpRequest,
     clientConfigurationProperties: ClientConfigurationProperties,
     oAuth2AccessTokenService: OAuth2AccessTokenService,
-    grantType: OAuth2GrantType? = null,
+    grantType: GrantType? = null,
 ): String {
     val clientProperties =
         clientPropertiesFor(
@@ -143,7 +145,9 @@ private fun genererAccessToken(
             clientConfigurationProperties,
             grantType,
         )
-    return oAuth2AccessTokenService.getAccessToken(clientProperties).accessToken
+    return oAuth2AccessTokenService.getAccessToken(
+        clientProperties,
+    ).accessToken ?: throw JwtTokenValidatorException("Kunne ikke hente accesstoken")
 }
 
 /**
@@ -156,7 +160,7 @@ private fun genererAccessToken(
 private fun clientPropertiesFor(
     uri: URI,
     clientConfigurationProperties: ClientConfigurationProperties,
-    grantType: OAuth2GrantType?,
+    grantType: GrantType?,
 ): ClientProperties {
     val clientProperties = filterClientProperties(clientConfigurationProperties, uri)
     return if (grantType == null) {
@@ -180,7 +184,7 @@ private fun filterClientProperties(
 
 private fun clientPropertiesForGrantType(
     values: List<ClientProperties>,
-    grantType: OAuth2GrantType,
+    grantType: GrantType,
     uri: URI,
 ): ClientProperties {
     return values.firstOrNull { grantType == it.grantType }
@@ -192,7 +196,7 @@ private fun clientCredentialOrJwtBearer() = if (erSystembruker()) OAuth2GrantTyp
 private fun erSystembruker(): Boolean {
     return try {
         val preferredUsername =
-            SpringTokenValidationContextHolder().tokenValidationContext.getClaims("azuread")["preferred_username"]
+            SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread").get("preferred_username")
         return preferredUsername == null
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
