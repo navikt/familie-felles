@@ -13,17 +13,18 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestTemplate
 import java.net.URI
 import java.time.LocalDate
 
 @Component
 @Import(ValutakursRestClientConfig::class)
 class ValutakursRestClient(
-    @Qualifier("ecbRestTemplate") private val restOperations: RestOperations,
+    @Qualifier("ecbRestTemplate") private val restOperations: RestTemplate,
     @Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://data-api.ecb.europa.eu/service/data/EXR/",
-) : AbstractRestClient(restOperations, "ecb") {
+) : AbstractRestClient(RestClient.create(restOperations), "ecb") {
     /**
      * Henter valutakurser fra ECB (European Central Bank) for *currencies*
      * @param frequency spesifiserer om valutakurser skal hentes for spesifikk dag eller for måned.
@@ -50,7 +51,7 @@ class ValutakursRestClient(
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: RestClientResponseException) {
             throw ValutakursClientException(
-                "Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate",
+                "Kall mot European Central Bank feiler med statuskode ${e.statusCode.value()} for $currencies på dato: $exchangeRateDate",
                 e,
             )
         } catch (e: ValutakursTransformationException) {

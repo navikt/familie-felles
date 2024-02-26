@@ -14,11 +14,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.RestClient
 import java.net.URI
 
 internal class AbstractRestClientTest {
-    class TestClient(val uri: URI) : AbstractRestClient(RestTemplate(), "") {
+    class TestClient(val uri: URI) : AbstractRestClient(RestClient.builder().build(), "") {
         fun test() {
             getForEntity<Ressurs<Any>>(uri)
         }

@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package no.nav.familie.http.client
 
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -8,15 +10,10 @@ import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.RestClientResponseException
-import org.springframework.web.client.RestOperations
-import org.springframework.web.client.exchange
+import org.springframework.web.client.*
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -24,7 +21,7 @@ import java.util.concurrent.TimeUnit
  * Abstract klasse for å kalle rest-tjenester med metrics og utpakking av ev. body.
  */
 abstract class AbstractRestClient(
-    val operations: RestOperations,
+    val restClient: RestClient,
     metricsPrefix: String,
 ) {
     protected val responstid: Timer = Metrics.timer("$metricsPrefix.tid")
@@ -38,7 +35,12 @@ abstract class AbstractRestClient(
         uri: URI,
         httpHeaders: HttpHeaders? = null,
     ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
+        return executeMedMetrics(uri) {
+            restClient.get()
+                .uri(uri)
+                .headers { httpHeaders }
+                .retrieve().toEntity<T>()
+        }
     }
 
     inline fun <reified T : Any> postForEntity(
@@ -46,7 +48,13 @@ abstract class AbstractRestClient(
         payload: Any,
         httpHeaders: HttpHeaders? = null,
     ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
+        return executeMedMetrics(uri) {
+            restClient.post()
+                .uri(uri)
+                .body(payload)
+                .headers { httpHeaders }
+                .retrieve().toEntity<T>()
+        }
     }
 
     inline fun <reified T : Any> putForEntity(
@@ -54,7 +62,13 @@ abstract class AbstractRestClient(
         payload: Any,
         httpHeaders: HttpHeaders? = null,
     ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
+        return executeMedMetrics(uri) {
+            restClient.put()
+                .uri(uri)
+                .body(payload)
+                .headers { httpHeaders }
+                .retrieve().toEntity<T>()
+        }
     }
 
     inline fun <reified T : Any> patchForEntity(
@@ -62,7 +76,13 @@ abstract class AbstractRestClient(
         payload: Any,
         httpHeaders: HttpHeaders? = null,
     ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
+        return executeMedMetrics(uri) {
+            restClient.patch()
+                .uri(uri)
+                .body(payload)
+                .headers { httpHeaders }
+                .retrieve().toEntity<T>()
+        }
     }
 
     inline fun <reified T : Any> deleteForEntity(
@@ -70,7 +90,13 @@ abstract class AbstractRestClient(
         payload: Any? = null,
         httpHeaders: HttpHeaders? = null,
     ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
+        return executeMedMetrics(uri) {
+            restClient.method(HttpMethod.DELETE)
+                .uri(uri)
+                .body(payload)
+                .headers { httpHeaders }
+                .retrieve().toEntity<T>()
+        }
     }
 
     private fun <T> validerOgPakkUt(
@@ -99,6 +125,10 @@ abstract class AbstractRestClient(
             responsFailure.increment()
             secureLogger.warn("RestClientResponseException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
+        } catch (e: RestClientException) {
+            responsFailure.increment()
+            secureLogger.warn("RestClientException ved kall mot uri=$uri", e)
+            throw e
         } catch (e: HttpClientErrorException) {
             responsFailure.increment()
             secureLogger.warn("HttpClientErrorException ved kall mot uri=$uri", e)
@@ -122,5 +152,5 @@ abstract class AbstractRestClient(
         }
     }
 
-    override fun toString(): String = this::class.simpleName + " [operations=" + operations + "]"
+    override fun toString(): String = this::class.simpleName + " [restClient=" + restClient + "]"
 }

@@ -30,7 +30,7 @@ object EksternBrukerUtils {
 
     fun getBearerTokenForLoggedInUser(): String {
         return getFromContext { validationContext, issuer ->
-            validationContext.getJwtToken(issuer).tokenAsString
+            validationContext.getJwtToken(issuer)?.encodedToken ?: ""
         }
     }
 

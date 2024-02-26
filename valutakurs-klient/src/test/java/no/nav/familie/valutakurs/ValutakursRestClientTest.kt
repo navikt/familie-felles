@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.client.RestClientResponseException
 import java.math.BigDecimal
 import java.net.URI
@@ -147,7 +148,8 @@ class ValutakursRestClientTest {
                     valutakursDato,
                 )
             }
-        assertTrue(valutakursClientException.cause is NullPointerException)
+
+        assertTrue(valutakursClientException.cause?.cause is HttpMessageNotReadableException)
     }
 
     @Test
