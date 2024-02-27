@@ -43,7 +43,7 @@ class BearerTokenFilterTest {
 
         bearerTokenFilter.filter(req, execution)
 
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]) }
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]!!) }
     }
 
     @Test
@@ -56,7 +56,7 @@ class BearerTokenFilterTest {
 
         bearerTokenFilter.filter(req, execution)
 
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]) }
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]!!) }
     }
 
     private fun mockBrukerContext(preferredUsername: String) {

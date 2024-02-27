@@ -12,18 +12,25 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.web.client.ClientHttpRequestFactories
+import org.springframework.boot.web.client.ClientHttpRequestFactorySettings
+import org.springframework.web.client.RestClient
 import java.net.URI
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 internal class RetryOAuth2HttpClientTest {
-    private val restTemplateBuilder =
-        RestTemplateBuilder()
-            .setConnectTimeout(Duration.of(1, ChronoUnit.SECONDS))
-            .setReadTimeout(Duration.of(1, ChronoUnit.SECONDS))
+    val clientHttpRequestFactorySettings =
+        ClientHttpRequestFactorySettings.DEFAULTS
+            .withConnectTimeout(Duration.of(1, ChronoUnit.SECONDS))
+            .withReadTimeout(Duration.of(1, ChronoUnit.SECONDS))
 
-    private val client = RetryOAuth2HttpClient(restTemplateBuilder)
+    val requestFactory = ClientHttpRequestFactories.get(clientHttpRequestFactorySettings)
+    val restClient =
+        RestClient.builder()
+            .requestFactory(requestFactory)
+            .build()
+    val client = RetryOAuth2HttpClient(restClient)
 
     @BeforeEach
     internal fun setUp() {
@@ -39,21 +46,21 @@ internal class RetryOAuth2HttpClientTest {
 
     @Test
     internal fun `404 - skal kun kalle en gang`() {
-        stub(WireMock.serverError().withStatus(404))
+        stub(WireMock.notFound())
         post()
         wireMockServer.verify(1, RequestPatternBuilder.allRequests())
     }
 
     @Test
     internal fun `503 - skal prøve på nytt`() {
-        stub(WireMock.aResponse().withStatus(503))
+        stub(WireMock.serviceUnavailable())
         post()
         wireMockServer.verify(2, RequestPatternBuilder.allRequests())
     }
 
     @Test
     internal fun `502 - skal prøve på nytt`() {
-        stub(WireMock.serverError().withStatus(502))
+        stub(WireMock.serverError().withStatus(502).withFault(Fault.CONNECTION_RESET_BY_PEER))
         post()
         wireMockServer.verify(3, RequestPatternBuilder.allRequests())
     }
@@ -82,8 +89,7 @@ internal class RetryOAuth2HttpClientTest {
     private fun post(): Exception? {
         return try {
             client.post(
-                OAuth2HttpRequest.builder()
-                    .tokenEndpointUrl(URI.create(wireMockServer.baseUrl()))
+                OAuth2HttpRequest.builder(URI.create(wireMockServer.baseUrl()))
                     .oAuth2HttpHeaders(OAuth2HttpHeaders.builder().build())
                     .build(),
             )

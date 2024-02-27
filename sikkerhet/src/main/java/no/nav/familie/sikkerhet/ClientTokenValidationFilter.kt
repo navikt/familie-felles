@@ -59,12 +59,7 @@ class ClientTokenValidationFilter(
 
     private fun accepted(): Boolean {
         try {
-            val claims = SpringTokenValidationContextHolder().tokenValidationContext.getClaims(issuerName)
-
-            if (claims == null) {
-                logger.warn("Finner ikke claim=$issuerName")
-                return false
-            }
+            val claims = SpringTokenValidationContextHolder().getTokenValidationContext().getClaims(issuerName)
 
             val sub = claims.get("sub") as String?
             val oid = claims.get("oid") as String?
