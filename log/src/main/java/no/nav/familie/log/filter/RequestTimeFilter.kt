@@ -44,7 +44,7 @@ open class RequestTimeFilter : Filter {
             }
         }
     }
-
+    
     open fun shouldNotFilter(uri: String): Boolean {
         return uri.contains("/internal") || uri == "/api/ping"
     }

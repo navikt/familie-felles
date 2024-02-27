@@ -15,7 +15,7 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
     private lateinit var environment: Environment
 
     val subject: String?
-        get() = claimSet().subject
+        get() = claimSet()?.subject
 
     fun autentisertBruker(): String {
         return subject ?: jwtError("Fant ikke subject")
@@ -27,14 +27,14 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
 
     fun getClaim(claim: String): String {
         return if (erDevProfil()) {
-            claimSet().get(claim)?.toString() ?: "DEV_$claim"
+            claimSet()?.get(claim)?.toString() ?: "DEV_$claim"
         } else {
-            claimSet().get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
+            claimSet()?.get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
         }
     }
 
     fun getClaimAsList(claim: String): List<String>? {
-        return if (erDevProfil()) listOf("group1") else claimSet().getAsList(claim)
+        return if (erDevProfil()) listOf("group1") else claimSet()?.getAsList(claim)
     }
 
     val navIdent: String
@@ -42,21 +42,21 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
             if (erDevProfil()) {
                 "TEST_Z123"
             } else {
-                claimSet().get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
+                claimSet()?.get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
             }
 
     val groups: List<String>?
         get() =
-            (claimSet().get("groups") as List<*>?)
+            (claimSet()?.get("groups") as List<*>?)
                 ?.filterNotNull()
                 ?.map { it.toString() }
 
-    fun claimSet(): JwtTokenClaims {
-        return context().getClaims("azuread")
+    fun claimSet(): JwtTokenClaims? {
+        return context()?.getClaims("azuread")
     }
 
-    private fun context(): TokenValidationContext {
-        return ctxHolder.getTokenValidationContext()
+    private fun context(): TokenValidationContext? {
+        return ctxHolder.tokenValidationContext
     }
 
     val expiryDate: Date?

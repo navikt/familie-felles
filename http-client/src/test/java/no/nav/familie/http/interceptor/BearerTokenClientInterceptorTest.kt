@@ -43,7 +43,7 @@ class BearerTokenClientInterceptorTest {
 
         bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution)
 
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]!!) }
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]) }
     }
 
     @Test
@@ -56,7 +56,7 @@ class BearerTokenClientInterceptorTest {
 
         bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution)
 
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]!!) }
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["2"]) }
     }
 
     fun mockBrukerContext(preferredUsername: String) {
