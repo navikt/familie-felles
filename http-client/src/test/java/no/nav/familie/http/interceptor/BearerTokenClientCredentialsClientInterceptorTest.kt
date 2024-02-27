@@ -34,7 +34,7 @@ internal class BearerTokenClientCredentialsClientInterceptorTest {
 
         bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution)
 
-        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration.get("1")!!) }
+        verify { oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["1"]) }
     }
 
     @Test
@@ -45,7 +45,7 @@ internal class BearerTokenClientCredentialsClientInterceptorTest {
         assertThat(catchThrowable { bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution) })
             .hasMessage(
                 "could not find oauth2 client config for " +
-                    "uri=http://jwtResource.no and grant type=client_credentials",
+                    "uri=http://jwtResource.no and grant type=OAuth2GrantType[value=client_credentials]",
             )
     }
 }
