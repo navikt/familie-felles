@@ -7,6 +7,7 @@ import java.time.LocalDate
 class VirkedagerProviderTest {
     val skjærTorsdag2021 = LocalDate.of(2021, 4, 1)
     val skjærTorsdag2022 = LocalDate.of(2022, 4, 14)
+    val førstePåskedag2024 = LocalDate.of(2024, 3, 31)
 
     @Test
     fun `Hent virkedag allmenlig måndag`() {
@@ -28,5 +29,10 @@ class VirkedagerProviderTest {
     @Test
     fun `Hent virkedag skjærtorsdag 2022`() {
         assertEquals(VirkedagerProvider.nesteVirkedag(skjærTorsdag2022), skjærTorsdag2022.plusDays(5))
+    }
+
+    @Test
+    fun `Hent siste virkedag dag mars 2024`() {
+        assertEquals(førstePåskedag2024.minusDays(4), VirkedagerProvider.senesteVirkedagFørEllerMed(førstePåskedag2024))
     }
 }
