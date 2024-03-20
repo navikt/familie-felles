@@ -17,6 +17,8 @@ import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDate
+import no.nav.familie.valutakurs.exception.IngenValutakursException
+import no.nav.familie.valutakurs.exception.ValutakursFeilException
 
 @Component
 @Import(ValutakursRestClientConfig::class)
@@ -49,19 +51,19 @@ class ValutakursRestClient(
             }
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: RestClientResponseException) {
-            throw ValutakursClientException(
+            throw ValutakursFeilException(
                 "Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate",
                 e,
             )
         } catch (e: ValutakursTransformationException) {
-            throw ValutakursClientException(e.message, e)
+            throw ValutakursFeilException(e.message, e)
         } catch (e: NullPointerException) {
-            throw ValutakursClientException(
+            throw IngenValutakursException(
                 "Fant ingen valutakurser for $currencies på dato: $exchangeRateDate ved kall mot European Central Bank",
                 e,
             )
         } catch (e: Exception) {
-            throw ValutakursClientException("Ukjent feil ved kall mot European Central Bank", e)
+            throw ValutakursFeilException("Ukjent feil ved kall mot European Central Bank", e)
         }
     }
 
