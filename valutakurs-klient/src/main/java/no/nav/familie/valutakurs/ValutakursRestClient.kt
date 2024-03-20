@@ -5,7 +5,6 @@ import no.nav.familie.valutakurs.config.ValutakursRestClientConfig
 import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
 import no.nav.familie.valutakurs.domene.ExchangeRate
 import no.nav.familie.valutakurs.domene.toExchangeRates
-import no.nav.familie.valutakurs.exception.ValutakursClientException
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -17,6 +16,8 @@ import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDate
+import no.nav.familie.valutakurs.exception.IngenValutakursException
+import no.nav.familie.valutakurs.exception.ValutakursException
 
 @Component
 @Import(ValutakursRestClientConfig::class)
@@ -49,19 +50,19 @@ class ValutakursRestClient(
             }
             return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
         } catch (e: RestClientResponseException) {
-            throw ValutakursClientException(
+            throw ValutakursException(
                 "Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate",
                 e,
             )
         } catch (e: ValutakursTransformationException) {
-            throw ValutakursClientException(e.message, e)
+            throw ValutakursException(e.message, e)
         } catch (e: NullPointerException) {
-            throw ValutakursClientException(
+            throw IngenValutakursException(
                 "Fant ingen valutakurser for $currencies på dato: $exchangeRateDate ved kall mot European Central Bank",
                 e,
             )
         } catch (e: Exception) {
-            throw ValutakursClientException("Ukjent feil ved kall mot European Central Bank", e)
+            throw ValutakursException("Ukjent feil ved kall mot European Central Bank", e)
         }
     }
 
