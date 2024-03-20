@@ -43,7 +43,16 @@ object VirkedagerProvider {
         return nesteDag
     }
 
-    private fun erHelgEllerHelligdag(dato: LocalDate): Boolean {
+    fun senesteVirkedagFørEllerMed(dato: LocalDate): LocalDate {
+        var sisteVirkedag = dato
+
+        while (erHelgEllerHelligdag(sisteVirkedag)) {
+            sisteVirkedag = sisteVirkedag.minusDays(1)
+        }
+        return sisteVirkedag
+    }
+
+    fun erHelgEllerHelligdag(dato: LocalDate): Boolean {
         val helligDager = FASTE_HELLIGDAGER + beregnBevegeligeHelligdager(dato.year)
 
         return dato.dayOfWeek == DayOfWeek.SATURDAY ||
