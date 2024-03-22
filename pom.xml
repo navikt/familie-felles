@@ -24,7 +24,7 @@
 
         <kontrakter.version>3.0_20230428084827_0b6a892-JAKARTA</kontrakter.version>
         <kotest.version>5.8.1</kotest.version>
-        <kotlin.version>1.9.22</kotlin.version>
+        <kotlin.version>1.9.23</kotlin.version>
         <mockk.version>1.13.9</mockk.version>
         <nav.security.token.version>4.1.3</nav.security.token.version>
 
