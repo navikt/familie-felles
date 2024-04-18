@@ -5,6 +5,8 @@ import no.nav.familie.valutakurs.config.ValutakursRestClientConfig
 import no.nav.familie.valutakurs.domene.ECBExchangeRatesData
 import no.nav.familie.valutakurs.domene.ExchangeRate
 import no.nav.familie.valutakurs.domene.toExchangeRates
+import no.nav.familie.valutakurs.exception.IngenValutakursException
+import no.nav.familie.valutakurs.exception.ValutakursException
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -16,8 +18,6 @@ import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
 import java.net.URI
 import java.time.LocalDate
-import no.nav.familie.valutakurs.exception.IngenValutakursException
-import no.nav.familie.valutakurs.exception.ValutakursException
 
 @Component
 @Import(ValutakursRestClientConfig::class)
