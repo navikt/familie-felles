@@ -42,6 +42,7 @@
         <module>kafka</module>
         <module>valutakurs-klient</module>
         <module>unleash</module>
+        <module>metrikker</module>
     </modules>
 
     <dependencyManagement>
@@ -60,7 +61,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <artifactId>kotlin-stdlib</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
