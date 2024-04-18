@@ -36,7 +36,7 @@ class TellAPIEndepunkterIBrukTest {
     }
 
     @Test
-    fun `skal opprette map med key og counter når det finnes en requestmapping, hvor requesten har pathParam og navnet på counteren saneres`() {
+    fun `skal opprette map med key og counter når det finnes en requestmapping med pathParam og navnet på counteren saneres`() {
         settOppTestData("/api/foo/{fooId}", RequestMethod.POST)
 
         TellAPIEndepunkterIBrukInitialiserer("test", applicationContext).populerMapMedCountersForRestEndepunkt()
