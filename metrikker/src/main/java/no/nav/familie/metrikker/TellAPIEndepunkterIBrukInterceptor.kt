@@ -10,6 +10,10 @@ import org.springframework.web.servlet.HandlerMapping
 /**
  * Sett property familie.tellAPIEndepunkterIBruk: true i application.yaml for å skru
  * på metrikker for hvor mange ganger et endepunkt har blitt kalt
+ *
+ * For å konfigurere andre endepunkter enn de som starter på /api så kan man bruke
+ * familie.tellAPIEndepunkterIBruk.paths: /foo,/bar
+ *
  */
 @Component
 @ConditionalOnProperty("familie.tellAPIEndepunkterIBruk")

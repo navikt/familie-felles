@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 class TellAPIEndepunkterIBrukInitialiserer(
     @Value("\${NAIS_APP_NAME}") private val applicationName: String,
     private val applicationContext: ApplicationContext,
+    @Value("\${familie.tellAPIEndepunkterIBruk.paths:/api}") private val pathStartWidth: List<String>,
 ) {
     init {
         metrikker.clear()
@@ -30,7 +31,7 @@ class TellAPIEndepunkterIBrukInitialiserer(
 
         requestMappings.forEach { (info, handler) ->
             info.patternValues.forEach { path ->
-                if (path.startsWith("/api")) {
+                if (pathStartWidth.any { path.startsWith(it) }) {
                     val metrikknavn = "$applicationName.${info.methodsCondition}$path".tilMetrikknavn()
                     val key = "${info.methodsCondition}$path"
                     metrikker.put(
