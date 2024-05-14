@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-@ConditionalOnProperty("familie.tellAPIEndepunkterIBruk")
+@ConditionalOnProperty("familie.tellAPIEndepunkterIBruk.enabled")
 open class TellAPIEndpunkterIBrukWebConfig : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(TellAPIEndepunkterIBrukInterceptor()).addPathPatterns("/api/**")
