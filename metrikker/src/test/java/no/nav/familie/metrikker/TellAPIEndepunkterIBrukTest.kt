@@ -26,7 +26,11 @@ class TellAPIEndepunkterIBrukTest {
     fun `skal opprette map med key og counter når det finnes en requestmapping`() {
         settOppTestData("/api/foo", RequestMethod.GET)
 
-        TellAPIEndepunkterIBrukInitialiserer("test", applicationContext, listOf("/api")).populerMapMedCountersForRestEndepunkt()
+        TellAPIEndepunkterIBrukInitialiserer(
+            "test",
+            applicationContext,
+            listOf("/internal"),
+        ).populerMapMedCountersForRestEndepunkt()
 
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter).hasSize(1)
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.containsKey("[GET]/api/foo")).isTrue()
@@ -39,7 +43,11 @@ class TellAPIEndepunkterIBrukTest {
     fun `skal opprette map med key og counter når det finnes en requestmapping med pathParam og navnet på counteren saneres`() {
         settOppTestData("/api/foo/{fooId}", RequestMethod.POST)
 
-        TellAPIEndepunkterIBrukInitialiserer("test", applicationContext, listOf("/api")).populerMapMedCountersForRestEndepunkt()
+        TellAPIEndepunkterIBrukInitialiserer(
+            "test",
+            applicationContext,
+            listOf("/internal"),
+        ).populerMapMedCountersForRestEndepunkt()
 
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter).hasSize(1)
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.containsKey("[POST]/api/foo/{fooId}")).isTrue()
@@ -52,7 +60,11 @@ class TellAPIEndepunkterIBrukTest {
     fun `skal ikke opprette map med counter for annet enn pathparam som starter med api`() {
         settOppTestData("/internal/foobar", RequestMethod.POST)
 
-        TellAPIEndepunkterIBrukInitialiserer("test", applicationContext, listOf("/api")).populerMapMedCountersForRestEndepunkt()
+        TellAPIEndepunkterIBrukInitialiserer(
+            "test",
+            applicationContext,
+            listOf("/internal"),
+        ).populerMapMedCountersForRestEndepunkt()
 
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter).hasSize(0)
     }
