@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kontrakter.version>3.0_20230428084827_0b6a892-JAKARTA</kontrakter.version>
-        <kotest.version>5.8.1</kotest.version>
+        <kotest.version>5.9.0</kotest.version>
         <kotlin.version>1.9.24</kotlin.version>
         <mockk.version>1.13.10</mockk.version>
         <nav.security.token.version>4.1.4</nav.security.token.version>
