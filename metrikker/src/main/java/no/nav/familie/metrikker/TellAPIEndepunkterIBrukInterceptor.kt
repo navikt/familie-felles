@@ -8,15 +8,15 @@ import org.springframework.web.servlet.AsyncHandlerInterceptor
 import org.springframework.web.servlet.HandlerMapping
 
 /**
- * Sett property familie.tellAPIEndepunkterIBruk: true i application.yaml for å skru
+ * Sett property familie.tellAPIEndepunkterIBruk.enabled: true i application.yaml for å skru
  * på metrikker for hvor mange ganger et endepunkt har blitt kalt
  *
- * For å konfigurere andre endepunkter enn de som starter på /api så kan man bruke
- * familie.tellAPIEndepunkterIBruk.paths: /foo,/bar
+ * For å ekskludere endepunkter så kan man bruke
+ * familie.tellAPIEndepunkterIBruk.ekskluder: /foo,/bar
  *
  */
 @Component
-@ConditionalOnProperty("familie.tellAPIEndepunkterIBruk")
+@ConditionalOnProperty("familie.tellAPIEndepunkterIBruk.enabled")
 class TellAPIEndepunkterIBrukInterceptor : AsyncHandlerInterceptor {
     override fun preHandle(
         request: HttpServletRequest,
