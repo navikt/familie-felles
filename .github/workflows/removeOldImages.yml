@@ -1,0 +1,83 @@
+name: 'Remove Old Images'
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2-5 * * *'
+
+jobs:
+  remove-images:
+    name: 'Remove old images job'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.log'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.sikkerhet'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.http-client'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.util'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.leader'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.prosessering'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.felles'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.modell'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.valutakurs-klient'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.unleash'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.kafka'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.kontrakt'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.metrikker'
+          package-type: 'container'
+          min-versions-to-keep: 1
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'no.nav.familie.felles.web-client'
+          package-type: 'container'
+          min-versions-to-keep: 1
