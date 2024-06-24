@@ -36,7 +36,7 @@ open class RequestTimeFilter : Filter {
         code: Int,
         timer: StopWatch,
     ) {
-        if (HttpStatus.valueOf(code).isError) {
+        if (HttpStatus.valueOf(code).is5xxServerError) {
             LOG.warn("{} - {} - ({}). Dette tok {}ms", request.method, request.requestURI, code, timer.totalTimeMillis)
         } else {
             if (!shouldNotFilter(request.requestURI)) {
