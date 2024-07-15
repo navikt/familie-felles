@@ -26,7 +26,7 @@
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.0.0</kotlin.version>
         <mockk.version>1.13.11</mockk.version>
-        <nav.security.token.version>4.1.5</nav.security.token.version>
+        <nav.security.token.version>4.1.8</nav.security.token.version>
         <wiremock.version>3.8.0</wiremock.version>        
     </properties>
 
