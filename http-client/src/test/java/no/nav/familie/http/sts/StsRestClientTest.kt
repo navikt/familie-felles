@@ -18,7 +18,7 @@ import java.net.URI
 class StsRestClientTest {
     companion object {
         private lateinit var stsRestClient: StsRestClient
-        private val objectMapper = ObjectMapper().registerModule(KotlinModule())
+        private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         private lateinit var wireMockServer: WireMockServer
 
         @BeforeAll
