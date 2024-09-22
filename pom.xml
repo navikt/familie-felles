@@ -22,7 +22,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20240906070327_03089ba</kontrakter.version>
+        <kontrakter.version>3.0_20240919121839_57daa74</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.0.20</kotlin.version>
         <mockk.version>1.13.12</mockk.version>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.3</version>
+                <version>3.3.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
