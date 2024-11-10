@@ -22,12 +22,12 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20240906070327_03089ba</kontrakter.version>
+        <kontrakter.version>3.0_20241102131210_d65efd1</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
-        <kotlin.version>2.0.20</kotlin.version>
-        <mockk.version>1.13.12</mockk.version>
-        <nav.security.token.version>5.0.5</nav.security.token.version>
-        <wiremock.version>3.9.1</wiremock.version>        
+        <kotlin.version>2.0.21</kotlin.version>
+        <mockk.version>1.13.13</mockk.version>
+        <nav.security.token.version>5.0.10</nav.security.token.version>
+        <wiremock.version>3.9.2</wiremock.version>        
     </properties>
 
     <modules>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.3.3</version>
+                <version>3.3.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -87,7 +87,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.19.1</version>
+                <version>11.20.1</version>
             </dependency>
 
             <dependency>
@@ -233,7 +233,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.5.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -318,7 +318,7 @@
                     <dependency>
                         <groupId>com.pinterest.ktlint</groupId>
                         <artifactId>ktlint-cli</artifactId>
-                        <version>1.3.1</version>
+                        <version>1.4.1</version>
                     </dependency>
                     <!-- additional 3rd party ruleset(s) can be specified here -->
                 </dependencies>
