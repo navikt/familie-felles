@@ -28,14 +28,15 @@ import java.time.temporal.ChronoUnit
 @Suppress("SpringFacetCodeInspection")
 @Configuration
 @Import(ProxyTimeout::class)
-class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
+class RestTemplateBuilderConfig(
+    private val proxyTimeout: ProxyTimeout,
+) {
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl", matchIfMissing = true)
-    fun restTemplateBuilderNoProxy(): RestTemplateBuilder {
-        return RestTemplateBuilder()
+    fun restTemplateBuilderNoProxy(): RestTemplateBuilder =
+        RestTemplateBuilder()
             .setConnectTimeout(Duration.of(proxyTimeout.connectTimeout, ChronoUnit.MILLIS))
             .setReadTimeout(Duration.of(proxyTimeout.requestTimeout, ChronoUnit.MILLIS))
-    }
 
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
@@ -45,34 +46,34 @@ class RestTemplateBuilderConfig(private val proxyTimeout: ProxyTimeout) {
                 override fun customize(restTemplate: RestTemplate) {
                     val proxy = HttpHost("webproxy-nais.nav.no", 8088)
                     val client: HttpClient =
-                        HttpClientBuilder.create()
+                        HttpClientBuilder
+                            .create()
                             .setDefaultRequestConfig(
-                                RequestConfig.custom()
+                                RequestConfig
+                                    .custom()
                                     .setConnectTimeout(Timeout.ofSeconds(proxyTimeout.connectTimeout))
                                     .setConnectionRequestTimeout(Timeout.ofSeconds(proxyTimeout.requestTimeout))
                                     .build(),
-                            )
-                            .setConnectionManager(
-                                PoolingHttpClientConnectionManagerBuilder.create()
+                            ).setConnectionManager(
+                                PoolingHttpClientConnectionManagerBuilder
+                                    .create()
                                     .setDefaultSocketConfig(
-                                        SocketConfig.custom()
+                                        SocketConfig
+                                            .custom()
                                             .setSoTimeout(Timeout.ofMilliseconds(proxyTimeout.socketTimeout))
                                             .build(),
-                                    )
-                                    .build(),
-                            )
-                            .setRoutePlanner(
+                                    ).build(),
+                            ).setRoutePlanner(
                                 object : DefaultProxyRoutePlanner(proxy) {
                                     public override fun determineProxy(
                                         target: HttpHost,
                                         context: HttpContext,
-                                    ): HttpHost? {
-                                        return if (target.hostName.contains("microsoft")) {
+                                    ): HttpHost? =
+                                        if (target.hostName.contains("microsoft")) {
                                             super.determineProxy(target, context)
                                         } else {
                                             null
                                         }
-                                    }
                                 },
                             ).build()
 

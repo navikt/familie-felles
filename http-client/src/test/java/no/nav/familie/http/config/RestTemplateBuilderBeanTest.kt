@@ -49,7 +49,8 @@ internal class RestTemplateBuilderBeanTest {
     @Test
     internal fun `delay med 500 kaster exception`() {
         wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
+            WireMock
+                .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500)),
         )
         assertThat(catchThrowable { restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}") })
@@ -59,7 +60,8 @@ internal class RestTemplateBuilderBeanTest {
     @Test
     internal fun `delay med 50 kaster ikke exception`() {
         wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
+            WireMock
+                .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withFixedDelay(50)),
         )
         restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")

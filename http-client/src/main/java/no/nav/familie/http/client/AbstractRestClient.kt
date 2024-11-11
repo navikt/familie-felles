@@ -37,41 +37,31 @@ abstract class AbstractRestClient(
     inline fun <reified T : Any> getForEntity(
         uri: URI,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
-    }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
 
     inline fun <reified T : Any> postForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
-    }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> putForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
-    }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> patchForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
-    }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> deleteForEntity(
         uri: URI,
         payload: Any? = null,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
-    }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
 
     private fun <T> validerOgPakkUt(
         respons: ResponseEntity<T>,
@@ -110,8 +100,8 @@ abstract class AbstractRestClient(
         }
     }
 
-    private fun lesRessurs(e: RestClientResponseException): Ressurs<Any>? {
-        return try {
+    private fun lesRessurs(e: RestClientResponseException): Ressurs<Any>? =
+        try {
             if (e.responseBodyAsString.contains("status")) {
                 objectMapper.readValue<Ressurs<Any>>(e.responseBodyAsString)
             } else {
@@ -120,7 +110,6 @@ abstract class AbstractRestClient(
         } catch (ex: Exception) {
             null
         }
-    }
 
     override fun toString(): String = this::class.simpleName + " [operations=" + operations + "]"
 }

@@ -27,15 +27,14 @@ class BearerTokenFilter(
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
-    ): Mono<ClientResponse> {
-        return retrieveAndAddBearerToken(
+    ): Mono<ClientResponse> =
+        retrieveAndAddBearerToken(
             oAuth2AccessTokenService,
             clientConfigurationProperties,
             request,
             function,
             null,
         )
-    }
 }
 
 @Component
@@ -46,15 +45,14 @@ class BearerTokenClientCredentialFilter(
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
-    ): Mono<ClientResponse> {
-        return retrieveAndAddBearerToken(
+    ): Mono<ClientResponse> =
+        retrieveAndAddBearerToken(
             oAuth2AccessTokenService,
             clientConfigurationProperties,
             request,
             function,
             GrantType.CLIENT_CREDENTIALS,
         )
-    }
 }
 
 @Component
@@ -65,15 +63,14 @@ class BearerTokenOnBehalfOfFilter(
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
-    ): Mono<ClientResponse> {
-        return retrieveAndAddBearerToken(
+    ): Mono<ClientResponse> =
+        retrieveAndAddBearerToken(
             oAuth2AccessTokenService,
             clientConfigurationProperties,
             request,
             function,
             OAuth2GrantType.JWT_BEARER,
         )
-    }
 }
 
 @Component
@@ -84,15 +81,14 @@ class BearerTokenExchangeFilter(
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
-    ): Mono<ClientResponse> {
-        return retrieveAndAddBearerToken(
+    ): Mono<ClientResponse> =
+        retrieveAndAddBearerToken(
             oAuth2AccessTokenService,
             clientConfigurationProperties,
             request,
             function,
             OAuth2GrantType.TOKEN_EXCHANGE,
         )
-    }
 }
 
 @Import(StsTokenClient::class)
@@ -105,8 +101,8 @@ class BearerTokenStsFallbackFilter(
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
-    ): Mono<ClientResponse> {
-        return if (erSystembruker()) {
+    ): Mono<ClientResponse> =
+        if (erSystembruker()) {
             addBearerToken(request, function, stsRestClient.systemOIDCToken)
         } else {
             retrieveAndAddBearerToken(
@@ -116,7 +112,6 @@ class BearerTokenStsFallbackFilter(
                 function,
             )
         }
-    }
 }
 
 private fun retrieveAndAddBearerToken(
@@ -142,10 +137,12 @@ private fun addBearerToken(
     accessToken: String,
 ): Mono<ClientResponse> {
     val modifiedRequest =
-        ClientRequest.from(request).header(
-            "Authorization",
-            "Bearer " + accessToken,
-        ).build()
+        ClientRequest
+            .from(request)
+            .header(
+                "Authorization",
+                "Bearer " + accessToken,
+            ).build()
     return function.exchange(modifiedRequest)
 }
 
@@ -200,10 +197,9 @@ private fun clientPropertiesForGrantType(
     values: List<ClientProperties>,
     grantType: GrantType,
     uri: URI,
-): ClientProperties {
-    return values.firstOrNull { grantType == it.grantType }
+): ClientProperties =
+    values.firstOrNull { grantType == it.grantType }
         ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
-}
 
 private fun clientCredentialOrJwtBearer() = if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
 

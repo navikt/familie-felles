@@ -41,7 +41,8 @@ internal class BearerTokenOnBehalfOfClientInterceptorTest {
         val req = mockk<HttpRequest>(relaxed = true, relaxUnitFun = true)
         every { req.uri } returns (URI("http://clientResource.no"))
         val execution = mockk<ClientHttpRequestExecution>(relaxed = true)
-        Assertions.assertThat(Assertions.catchThrowable { bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution) })
+        Assertions
+            .assertThat(Assertions.catchThrowable { bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution) })
             .hasMessage(
                 "could not find oauth2 client config for " +
                     "uri=http://clientResource.no and grant type=urn:ietf:params:oauth:grant-type:jwt-bearer",

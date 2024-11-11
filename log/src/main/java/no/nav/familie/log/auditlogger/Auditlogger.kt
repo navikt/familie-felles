@@ -26,7 +26,8 @@ object AuditLogger {
                     ),
             )
 
-        LoggerFactory.getLogger("auditLogger")
+        LoggerFactory
+            .getLogger("auditLogger")
             .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method), request.requestURI.toString()))
     }
 
@@ -42,7 +43,8 @@ object AuditLogger {
                     ),
             )
 
-        LoggerFactory.getLogger("auditLogger")
+        LoggerFactory
+            .getLogger("auditLogger")
             .info(opprettMelding(sporingsdata, AuditLoggerType.hentType(request.method()), request.url().toString()))
     }
 
@@ -53,12 +55,18 @@ object AuditLogger {
     ): String {
         val msg: StringBuilder =
             StringBuilder()
-                .append("action=").append(action).append(SPACE)
-                .append("actionType=").append(type)
+                .append("action=")
+                .append(action)
+                .append(SPACE)
+                .append("actionType=")
+                .append(type)
                 .append(SPACE)
 
         sporingsdata.verdier.map {
-            msg.append(it.key).append('=').append(it.value)
+            msg
+                .append(it.key)
+                .append('=')
+                .append(it.value)
                 .append(SPACE)
         }
 
@@ -76,7 +84,9 @@ enum class SporingsloggId {
     ANSVALIG_SAKSBEHANDLER,
 }
 
-enum class AuditLoggerType(val httpMethod: HttpMethod) {
+enum class AuditLoggerType(
+    val httpMethod: HttpMethod,
+) {
     READ(HttpMethod.GET),
     UPDATE(HttpMethod.PUT),
     CREATE(HttpMethod.POST),
@@ -85,12 +95,12 @@ enum class AuditLoggerType(val httpMethod: HttpMethod) {
     ;
 
     companion object {
-        fun hentType(method: String): AuditLoggerType {
-            return values().find { it.httpMethod.matches(method) } ?: throw IllegalStateException("Ikke godkjent http metode")
-        }
+        fun hentType(method: String): AuditLoggerType =
+            values().find { it.httpMethod.matches(method) } ?: throw IllegalStateException("Ikke godkjent http metode")
 
-        fun hentType(method: HttpMethod): AuditLoggerType {
-            return values().find { it.httpMethod == method } ?: throw IllegalStateException("Ikke godkjent http metode")
-        }
+        fun hentType(method: HttpMethod): AuditLoggerType =
+            values().find {
+                it.httpMethod == method
+            } ?: throw IllegalStateException("Ikke godkjent http metode")
     }
 }

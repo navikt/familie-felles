@@ -38,7 +38,8 @@ class SecureLoggerRestAppender : AppenderBase<ch.qos.logback.classic.spi.ILoggin
             }
 
             val request =
-                HttpRequest.newBuilder()
+                HttpRequest
+                    .newBuilder()
                     .version(HttpClient.Version.HTTP_1_1)
                     .uri(URI.create("http://localhost:19880/"))
                     .timeout(Duration.ofSeconds(10))

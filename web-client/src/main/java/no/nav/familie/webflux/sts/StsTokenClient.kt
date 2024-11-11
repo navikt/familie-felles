@@ -21,9 +21,11 @@ class StsTokenClient(
     @Value("\${STS_APIKEY:#{null}}") private val stsApiKey: String? = null,
 ) {
     private val client =
-        WebClient.builder()
+        WebClient
+            .builder()
             .baseUrl(stsUrl)
-            .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword)).apply {
+            .defaultHeader("Authorization", basicAuth(stsUsername, stsPassword))
+            .apply {
                 if (!stsApiKey.isNullOrEmpty()) {
                     it.defaultHeader("x-nav-apiKey", stsApiKey)
                 }
@@ -56,7 +58,11 @@ class StsTokenClient(
 
             val accessTokenResponse =
                 try {
-                    client.get().retrieve().bodyToMono(AccessTokenResponse::class.java).block(Duration.ofSeconds(30))
+                    client
+                        .get()
+                        .retrieve()
+                        .bodyToMono(AccessTokenResponse::class.java)
+                        .block(Duration.ofSeconds(30))
                 } catch (e: RuntimeException) {
                     throw StsAccessTokenFeilException("Feil i tilkobling", e)
                 }
@@ -75,8 +81,6 @@ class StsTokenClient(
         private fun basicAuth(
             username: String,
             password: String,
-        ): String {
-            return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
-        }
+        ): String = "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
     }
 }

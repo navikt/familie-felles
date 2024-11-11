@@ -8,7 +8,9 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 
 @Component
-class StsBearerTokenClientInterceptor(private val stsRestClient: StsRestClient) : ClientHttpRequestInterceptor {
+class StsBearerTokenClientInterceptor(
+    private val stsRestClient: StsRestClient,
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,

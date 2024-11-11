@@ -27,11 +27,10 @@ import java.time.LocalDate
 @Configuration
 class WebClientConfigTestConfig {
     @Bean
-    fun objectMapper(): ObjectMapper {
-        return ObjectMapper()
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper()
             .registerModule(JavaTimeModule())
             .enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
 }
 
 @EnableAutoConfiguration
@@ -53,7 +52,9 @@ internal class WebClientConfigEgenObjectMapperTest {
     @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
     lateinit var webClientBuilder: WebClient.Builder
 
-    data class TestDto(val dato: LocalDate = LocalDate.of(2020, 1, 1))
+    data class TestDto(
+        val dato: LocalDate = LocalDate.of(2020, 1, 1),
+    )
 
     @Test
     internal fun `default webClient skal skrive dato som iso-string`() {
@@ -68,14 +69,18 @@ internal class WebClientConfigEgenObjectMapperTest {
             .block()
 
         wiremockServerItem.verify(
-            WireMock.postRequestedFor(WireMock.anyUrl())
+            WireMock
+                .postRequestedFor(WireMock.anyUrl())
                 .withRequestBody(WireMock.equalToJson("""{"dato" : [ 2020, 1, 1 ] } """)),
         )
     }
 
     @Test
     internal fun `skal kunne motta en stor fil`() {
-        val fil = this::class.java.classLoader.getResource("dummy/image_large.jpg")!!.readText()
+        val fil =
+            this::class.java.classLoader
+                .getResource("dummy/image_large.jpg")!!
+                .readText()
         wiremockServerItem.stubFor(WireMock.post(WireMock.anyUrl()).willReturn(WireMock.ok().withBody(fil)))
         val build = webClientBuilder.build()
         assertThatThrownBy {

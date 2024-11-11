@@ -19,8 +19,7 @@ import java.net.URI
 class BearerTokenClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-) :
-    ClientHttpRequestInterceptor {
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -41,8 +40,7 @@ class BearerTokenClientInterceptor(
 class BearerTokenClientCredentialsClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-) :
-    ClientHttpRequestInterceptor {
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -64,8 +62,7 @@ class BearerTokenClientCredentialsClientInterceptor(
 class BearerTokenExchangeClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-) :
-    ClientHttpRequestInterceptor {
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -87,8 +84,7 @@ class BearerTokenExchangeClientInterceptor(
 class BearerTokenOnBehalfOfClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
-) :
-    ClientHttpRequestInterceptor {
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -111,8 +107,7 @@ class BearerTokenWithSTSFallbackClientInterceptor(
     private val oAuth2AccessTokenService: OAuth2AccessTokenService,
     private val clientConfigurationProperties: ClientConfigurationProperties,
     private val stsRestClient: StsRestClient,
-) :
-    ClientHttpRequestInterceptor {
+) : ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -145,9 +140,10 @@ private fun genererAccessToken(
             clientConfigurationProperties,
             grantType,
         )
-    return oAuth2AccessTokenService.getAccessToken(
-        clientProperties,
-    ).accessToken ?: throw JwtTokenValidatorException("Kunne ikke hente accesstoken")
+    return oAuth2AccessTokenService
+        .getAccessToken(
+            clientProperties,
+        ).accessToken ?: throw JwtTokenValidatorException("Kunne ikke hente accesstoken")
 }
 
 /**
@@ -186,10 +182,9 @@ private fun clientPropertiesForGrantType(
     values: List<ClientProperties>,
     grantType: GrantType,
     uri: URI,
-): ClientProperties {
-    return values.firstOrNull { grantType == it.grantType }
+): ClientProperties =
+    values.firstOrNull { grantType == it.grantType }
         ?: error("could not find oauth2 client config for uri=$uri and grant type=$grantType")
-}
 
 private fun clientCredentialOrJwtBearer() = if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
 

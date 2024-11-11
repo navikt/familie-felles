@@ -18,29 +18,29 @@ class DefaultUnleashService(
 
         defaultUnleash =
             DefaultUnleash(
-                UnleashConfig.builder()
+                UnleashConfig
+                    .builder()
                     .appName(appName)
                     .unleashAPI("$apiUrl/api")
                     .apiKey(apiToken)
-                    .unleashContextProvider(lagUnleashContextProvider()).build(),
+                    .unleashContextProvider(lagUnleashContextProvider())
+                    .build(),
                 *strategies.toTypedArray(),
             )
     }
 
-    private fun lagUnleashContextProvider(): UnleashContextProvider {
-        return UnleashContextProvider {
-            UnleashContext.builder()
+    private fun lagUnleashContextProvider(): UnleashContextProvider =
+        UnleashContextProvider {
+            UnleashContext
+                .builder()
                 .appName(appName)
                 .build()
         }
-    }
 
     override fun isEnabled(
         toggleId: String,
         defaultValue: Boolean,
-    ): Boolean {
-        return defaultUnleash.isEnabled(toggleId, defaultValue)
-    }
+    ): Boolean = defaultUnleash.isEnabled(toggleId, defaultValue)
 
     override fun isEnabled(
         toggleId: String,

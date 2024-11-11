@@ -44,9 +44,8 @@ class WebClientConfig {
      */
     @Bean
     @ConditionalOnProperty("familie.web.exchangeStrategiesCustomizer", matchIfMissing = true)
-    fun exchangeStrategiesCustomizer(codecCustomizers: ObjectProvider<CodecCustomizer>): WebClientCodecCustomizer {
-        return WebClientCodecCustomizer(codecCustomizers.orderedStream().collect(Collectors.toList()))
-    }
+    fun exchangeStrategiesCustomizer(codecCustomizers: ObjectProvider<CodecCustomizer>): WebClientCodecCustomizer =
+        WebClientCodecCustomizer(codecCustomizers.orderedStream().collect(Collectors.toList()))
 
     /**
      * Spring har default 256KB, denne settes automatisk til unlimited for å unngå trøbbel.
@@ -56,9 +55,7 @@ class WebClientConfig {
     @Bean
     @Order(-1)
     @ConditionalOnProperty("spring.codec.max-in-memory-size", matchIfMissing = true, havingValue = "Umulig verdi")
-    fun codecCustomizer(): CodecCustomizer {
-        return CodecCustomizer { it.defaultCodecs().maxInMemorySize(-1) }
-    }
+    fun codecCustomizer(): CodecCustomizer = CodecCustomizer { it.defaultCodecs().maxInMemorySize(-1) }
 
     /**
      * Scope: prototype - for å generere en ny webbuilder for hver gang som den blir injectad, ellers er den singleton
@@ -98,14 +95,16 @@ class WebClientConfig {
         if (!ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", this::class.java.classLoader)) {
             error("Har ikke implementert støtte for andre clienter enn reactor client")
         }
-        return HttpAsyncClients.custom()
+        return HttpAsyncClients
+            .custom()
             .setIOReactorConfig(
-                IOReactorConfig.custom()
+                IOReactorConfig
+                    .custom()
                     .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
                     .build(),
-            )
-            .setDefaultRequestConfig(
-                RequestConfig.custom()
+            ).setDefaultRequestConfig(
+                RequestConfig
+                    .custom()
                     .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
                     .setConnectionRequestTimeout(Timeout.ofMilliseconds(requestTimeout))
                     .build(),

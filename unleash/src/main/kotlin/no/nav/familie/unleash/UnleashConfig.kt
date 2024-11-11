@@ -30,27 +30,22 @@ open class UnleashConfig(
             lagDummyUnleashService()
         }
 
-    private fun lagDummyUnleashService(): UnleashService {
-        return object : UnleashService {
+    private fun lagDummyUnleashService(): UnleashService =
+        object : UnleashService {
             override fun isEnabled(
                 toggleId: String,
                 properties: Map<String, String>,
-            ): Boolean {
-                return isEnabled(toggleId, false)
-            }
+            ): Boolean = isEnabled(toggleId, false)
 
             override fun isEnabled(
                 toggleId: String,
                 defaultValue: Boolean,
-            ): Boolean {
-                return System.getenv(toggleId).run { toBoolean() } || defaultValue
-            }
+            ): Boolean = System.getenv(toggleId).run { toBoolean() } || defaultValue
 
             override fun destroy() {
                 // Dummy featureToggleService trenger ikke destroy, då den ikke har en unleash å lukke
             }
         }
-    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(UnleashConfig::class.java)
@@ -63,9 +58,7 @@ class UnleashProperties(
 )
 
 interface UnleashService : DisposableBean {
-    fun isEnabled(toggleId: String): Boolean {
-        return isEnabled(toggleId, false)
-    }
+    fun isEnabled(toggleId: String): Boolean = isEnabled(toggleId, false)
 
     fun isEnabled(
         toggleId: String,

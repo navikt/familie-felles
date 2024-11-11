@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
 @Import(OIDCUtil::class)
-class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunction {
+class InternLoggerFilter(
+    private val oidcUtil: OIDCUtil,
+) : ExchangeFilterFunction {
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
@@ -52,16 +54,17 @@ class InternLoggerFilter(private val oidcUtil: OIDCUtil) : ExchangeFilterFunctio
     ): Mono<ClientResponse> {
         val responseReceived = AtomicBoolean()
         return Mono.defer {
-            responseMono.doOnEach { signal: Signal<ClientResponse> ->
-                if (signal.isOnNext || signal.isOnError) {
-                    responseReceived.set(true)
-                    postLogRequest(request, signal.type, hentSaksbehandler(oidcUtil))
+            responseMono
+                .doOnEach { signal: Signal<ClientResponse> ->
+                    if (signal.isOnNext || signal.isOnError) {
+                        responseReceived.set(true)
+                        postLogRequest(request, signal.type, hentSaksbehandler(oidcUtil))
+                    }
+                }.doFinally { signalType: SignalType ->
+                    if (!responseReceived.get() && SignalType.CANCEL == signalType) {
+                        postLogRequest(request, signalType, hentSaksbehandler(oidcUtil))
+                    }
                 }
-            }.doFinally { signalType: SignalType ->
-                if (!responseReceived.get() && SignalType.CANCEL == signalType) {
-                    postLogRequest(request, signalType, hentSaksbehandler(oidcUtil))
-                }
-            }
         }
     }
 

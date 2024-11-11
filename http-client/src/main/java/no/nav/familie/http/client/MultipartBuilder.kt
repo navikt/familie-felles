@@ -27,21 +27,15 @@ class MultipartBuilder {
     ): MultipartBuilder {
         val request =
             object : ByteArrayResource(bytes) {
-                override fun getFilename(): String? {
-                    return filename
-                }
+                override fun getFilename(): String? = filename
             }
         multipartRequest.add(name, request)
         return this
     }
 
-    fun build(): MultiValueMap<String, Any> {
-        return multipartRequest
-    }
+    fun build(): MultiValueMap<String, Any> = multipartRequest
 
-    fun asEntity(): HttpEntity<MultiValueMap<String, Any>> {
-        return HttpEntity(multipartRequest, MULTIPART_HEADERS)
-    }
+    fun asEntity(): HttpEntity<MultiValueMap<String, Any>> = HttpEntity(multipartRequest, MULTIPART_HEADERS)
 
     companion object {
         val MULTIPART_HEADERS: HttpHeaders =

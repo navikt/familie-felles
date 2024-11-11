@@ -10,32 +10,27 @@ import org.springframework.stereotype.Component
 import java.util.Date
 
 @Component
-class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
+class OIDCUtil(
+    private val ctxHolder: TokenValidationContextHolder,
+) {
     @Autowired
     private lateinit var environment: Environment
 
     val subject: String?
         get() = claimSet().subject
 
-    fun autentisertBruker(): String {
-        return subject ?: jwtError("Fant ikke subject")
-    }
+    fun autentisertBruker(): String = subject ?: jwtError("Fant ikke subject")
 
-    fun jwtError(message: String): Nothing {
-        throw JwtTokenValidatorException(message)
-    }
+    fun jwtError(message: String): Nothing = throw JwtTokenValidatorException(message)
 
-    fun getClaim(claim: String): String {
-        return if (erDevProfil()) {
+    fun getClaim(claim: String): String =
+        if (erDevProfil()) {
             claimSet().get(claim)?.toString() ?: "DEV_$claim"
         } else {
             claimSet().get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
         }
-    }
 
-    fun getClaimAsList(claim: String): List<String>? {
-        return if (erDevProfil()) listOf("group1") else claimSet().getAsList(claim)
-    }
+    fun getClaimAsList(claim: String): List<String>? = if (erDevProfil()) listOf("group1") else claimSet().getAsList(claim)
 
     val navIdent: String
         get() =
@@ -51,20 +46,15 @@ class OIDCUtil(private val ctxHolder: TokenValidationContextHolder) {
                 ?.filterNotNull()
                 ?.map { it.toString() }
 
-    fun claimSet(): JwtTokenClaims {
-        return context().getClaims("azuread")
-    }
+    fun claimSet(): JwtTokenClaims = context().getClaims("azuread")
 
-    private fun context(): TokenValidationContext {
-        return ctxHolder.getTokenValidationContext()
-    }
+    private fun context(): TokenValidationContext = ctxHolder.getTokenValidationContext()
 
     val expiryDate: Date?
         get() = claimSet()?.expirationTime
 
-    private fun erDevProfil(): Boolean {
-        return environment.activeProfiles.any {
+    private fun erDevProfil(): Boolean =
+        environment.activeProfiles.any {
             listOf("dev", "mock-auth").contains(it.trim(' '))
         }
-    }
 }

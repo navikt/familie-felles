@@ -10,7 +10,8 @@ import java.net.URI
 abstract class AbstractPingableRestClient(
     operations: RestOperations,
     metricsPrefix: String,
-) : AbstractRestClient(operations, metricsPrefix), Pingable {
+) : AbstractRestClient(operations, metricsPrefix),
+    Pingable {
     abstract val pingUri: URI
 
     override fun ping() {

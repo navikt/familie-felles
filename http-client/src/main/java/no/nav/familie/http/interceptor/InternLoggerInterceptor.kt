@@ -13,7 +13,9 @@ import org.springframework.web.servlet.ModelAndView
 
 @Component
 @Import(OIDCUtil::class)
-class InternLoggerInterceptor(private val oidcUtil: OIDCUtil) : HandlerInterceptor {
+class InternLoggerInterceptor(
+    private val oidcUtil: OIDCUtil,
+) : HandlerInterceptor {
     override fun preHandle(
         request: HttpServletRequest,
         response: HttpServletResponse,

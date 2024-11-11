@@ -33,73 +33,73 @@ abstract class AbstractWebClient(
     inline fun <reified T : Any> getForEntity(
         uri: URI,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) {
-            webClient.get()
+    ): T =
+        executeMedMetrics(uri) {
+            webClient
+                .get()
                 .uri(uri)
                 .addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders)
                 .retrieve()
                 .bodyToMono()
         }
-    }
 
     inline fun <reified T : Any> postForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) {
-            webClient.post()
+    ): T =
+        executeMedMetrics(uri) {
+            webClient
+                .post()
                 .uri(uri)
                 .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                 .bodyValue(payload)
                 .retrieve()
                 .bodyToMono()
         }
-    }
 
     inline fun <reified T : Any> putForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) {
-            webClient.put()
+    ): T =
+        executeMedMetrics(uri) {
+            webClient
+                .put()
                 .uri(uri)
                 .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                 .bodyValue(payload)
                 .retrieve()
                 .bodyToMono()
         }
-    }
 
     inline fun <reified T : Any> patchForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) {
-            webClient.patch()
+    ): T =
+        executeMedMetrics(uri) {
+            webClient
+                .patch()
                 .uri(uri)
                 .addHeaders<WebClient.RequestBodyUriSpec>(httpHeaders)
                 .bodyValue(payload)
                 .retrieve()
                 .bodyToMono()
         }
-    }
 
     inline fun <reified T : Any> deleteForEntity(
         uri: URI,
         httpHeaders: HttpHeaders? = null,
-    ): T {
-        return executeMedMetrics(uri) {
-            webClient.delete()
+    ): T =
+        executeMedMetrics(uri) {
+            webClient
+                .delete()
                 .uri(uri)
                 .addHeaders<WebClient.RequestHeadersUriSpec<*>>(httpHeaders)
                 .retrieve()
                 .bodyToMono()
         }
-    }
 
     fun <T> executeMedMetrics(
         uri: URI,

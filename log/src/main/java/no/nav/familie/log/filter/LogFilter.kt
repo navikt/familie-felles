@@ -110,19 +110,17 @@ class LogFilter(
         private const val RANDOM_USER_ID_COOKIE_NAME = "RUIDC"
         private const val ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30
 
-        private fun resolveCallId(httpServletRequest: HttpServletRequest): String {
-            return NAV_CALL_ID_HEADER_NAMES
+        private fun resolveCallId(httpServletRequest: HttpServletRequest): String =
+            NAV_CALL_ID_HEADER_NAMES
                 .mapNotNull { httpServletRequest.getHeader(it) }
                 .firstOrNull { it.isNotEmpty() }
                 ?: IdUtils.generateId()
-        }
 
-        private fun resolveRequestId(httpServletRequest: HttpServletRequest): String {
-            return NAV_REQUEST_ID_HEADER_NAMES
+        private fun resolveRequestId(httpServletRequest: HttpServletRequest): String =
+            NAV_REQUEST_ID_HEADER_NAMES
                 .mapNotNull { httpServletRequest.getHeader(it) }
                 .firstOrNull { it.isNotEmpty() }
                 ?: IdUtils.generateId()
-        }
 
         private fun generateUserIdCookie(httpServletResponse: HttpServletResponse) {
             val userId = IdUtils.generateId()
@@ -136,8 +134,7 @@ class LogFilter(
             httpServletResponse.addCookie(cookie)
         }
 
-        private fun resolveUserId(httpServletRequest: HttpServletRequest): String? {
-            return httpServletRequest.cookies?.firstOrNull { it -> RANDOM_USER_ID_COOKIE_NAME == it.name }?.value
-        }
+        private fun resolveUserId(httpServletRequest: HttpServletRequest): String? =
+            httpServletRequest.cookies?.firstOrNull { it -> RANDOM_USER_ID_COOKIE_NAME == it.name }?.value
     }
 }
