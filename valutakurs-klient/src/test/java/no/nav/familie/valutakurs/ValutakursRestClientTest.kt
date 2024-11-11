@@ -71,8 +71,15 @@ class ValutakursRestClientTest {
                 valutakursDato.toString(),
             )
         wireMockServer.stubFor(
-            WireMock.get("/D.SEK+NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/D.SEK+NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
         assertNotNull(valutakurser)
@@ -90,8 +97,15 @@ class ValutakursRestClientTest {
         val valutakursDato = LocalDate.of(2022, 7, 22)
         val body = createECBResponseBody(Frequency.Daily, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), valutakursDato.toString())
         wireMockServer.stubFor(
-            WireMock.get("/D.NOK+EUR.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/D.NOK+EUR.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
         assertNotNull(valutakurser)
@@ -109,8 +123,15 @@ class ValutakursRestClientTest {
         val body =
             createECBResponseBody(Frequency.Monthly, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 6).toString())
         wireMockServer.stubFor(
-            WireMock.get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
@@ -123,8 +144,15 @@ class ValutakursRestClientTest {
         val body =
             createECBResponseBody(Frequency.Monthly, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
-            WireMock.get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
         val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
@@ -136,8 +164,15 @@ class ValutakursRestClientTest {
         val valutakursDato = LocalDate.of(2022, 7, 31)
         val body = ""
         wireMockServer.stubFor(
-            WireMock.get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakursClientException =
             assertThrows<ValutakursClientException> {
@@ -155,8 +190,15 @@ class ValutakursRestClientTest {
         val valutakursDato = LocalDate.of(2022, 7, 31)
         val body = ""
         wireMockServer.stubFor(
-            WireMock.get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(400).withBody(body)),
+            WireMock
+                .get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(400)
+                        .withBody(body),
+                ),
         )
         val valutakursClientException =
             assertThrows<ValutakursClientException> {
@@ -175,8 +217,15 @@ class ValutakursRestClientTest {
         val valutakursDato = LocalDate.of(2022, 7, 31)
         val body = createIncompleteECBResponseBody(listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
-            WireMock.get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakursClientException =
             assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK"), valutakursDato) }
@@ -189,8 +238,15 @@ class ValutakursRestClientTest {
         val valutakursDato = LocalDate.of(2022, 7, 31)
         val body = createECBResponseBody(Frequency.Daily, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
-            WireMock.get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
-                .willReturn(WireMock.aResponse().withHeader("Content-Type", contentType).withStatus(200).withBody(body)),
+            WireMock
+                .get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .willReturn(
+                    WireMock
+                        .aResponse()
+                        .withHeader("Content-Type", contentType)
+                        .withStatus(200)
+                        .withBody(body),
+                ),
         )
         val valutakursClientException =
             assertThrows<ValutakursClientException> { valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK"), valutakursDato) }
@@ -202,8 +258,8 @@ class ValutakursRestClientTest {
         frequency: Frequency,
         exchangeRates: List<Pair<String, BigDecimal>>,
         exchangeRateDate: String,
-    ): String {
-        return xmlMapper.writeValueAsString(
+    ): String =
+        xmlMapper.writeValueAsString(
             ECBExchangeRatesData(
                 ECBExchangeRatesDataSet(
                     exchangeRates.map {
@@ -220,13 +276,12 @@ class ValutakursRestClientTest {
                 ),
             ),
         )
-    }
 
     private fun createIncompleteECBResponseBody(
         exchangeRates: List<Pair<String, BigDecimal>>,
         exchangeRateDate: String,
-    ): String {
-        return xmlMapper.writeValueAsString(
+    ): String =
+        xmlMapper.writeValueAsString(
             ECBExchangeRatesData(
                 ECBExchangeRatesDataSet(
                     exchangeRates.map {
@@ -243,5 +298,4 @@ class ValutakursRestClientTest {
                 ),
             ),
         )
-    }
 }

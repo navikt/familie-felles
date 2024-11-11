@@ -5,7 +5,9 @@ import no.nav.familie.foedselsnummer.FoedselsNr.Companion.Tabeller.kontrollsiffe
 import java.time.LocalDate
 
 @Deprecated("Bruk eksisterende Fødselsnummer fra kontrakter.", ReplaceWith("no.nav.familie.kontrakter.felles.Fødselsnummer"))
-data class FoedselsNr(val asString: String) {
+data class FoedselsNr(
+    val asString: String,
+) {
     init {
         require("""\d{11}""".toRegex().matches(asString)) { "Ikke et gyldig fødselsnummer: $asString" }
         require(!fhNummer) { "Impelemntasjonen støtter ikke FH-nummer" }

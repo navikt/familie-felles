@@ -33,7 +33,9 @@ internal class WebClientConfigTest {
     @Autowired
     lateinit var webClientBuilder: WebClient.Builder
 
-    data class TestDto(val dato: LocalDate = LocalDate.of(2020, 1, 1))
+    data class TestDto(
+        val dato: LocalDate = LocalDate.of(2020, 1, 1),
+    )
 
     @Test
     internal fun `skal skrive dato som iso-string`() {
@@ -55,7 +57,10 @@ internal class WebClientConfigTest {
 
     @Test
     internal fun `skal kunne motta en stor fil`() {
-        val fil = this::class.java.classLoader.getResource("dummy/image_large.jpg")!!.readText()
+        val fil =
+            this::class.java.classLoader
+                .getResource("dummy/image_large.jpg")!!
+                .readText()
         wiremockServerItem.stubFor(WireMock.post(WireMock.anyUrl()).willReturn(WireMock.ok().withBody(fil)))
         val build = familieWebClientBuilder.build()
         build

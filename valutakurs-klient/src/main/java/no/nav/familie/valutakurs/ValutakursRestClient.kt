@@ -66,9 +66,8 @@ class ValutakursRestClient(
         }
     }
 
-    private fun toCurrencyParams(currencies: List<String>): String {
-        return currencies.reduceIndexed { index, params, currency -> if (index != 0) "$params+$currency" else currency }
-    }
+    private fun toCurrencyParams(currencies: List<String>): String =
+        currencies.reduceIndexed { index, params, currency -> if (index != 0) "$params+$currency" else currency }
 }
 
 enum class Frequency {

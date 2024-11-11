@@ -20,7 +20,8 @@ class MdcValuesPropagatingFilter : ExchangeFilterFunction {
         val callId = MDC.get(MDCConstants.MDC_CALL_ID) ?: IdUtils.generateId()
         val requestId = MDC.get(MDCConstants.MDC_REQUEST_ID) ?: callId
         val modifiedRequest =
-            ClientRequest.from(request)
+            ClientRequest
+                .from(request)
                 .header(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
                 .header(NavHttpHeaders.NGNINX_REQUEST_ID.asString(), requestId)
                 .build()

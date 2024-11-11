@@ -28,19 +28,18 @@ object EksternBrukerUtils {
 
     fun personIdentErLikInnloggetBruker(personIdent: String): Boolean = personIdent == hentFnrFraToken()
 
-    fun getBearerTokenForLoggedInUser(): String {
-        return getFromContext { validationContext, issuer ->
-            validationContext.getJwtToken(
-                issuer,
-            )?.encodedToken ?: throw JwtTokenValidatorException("Klarte ikke hente token fra issuer $issuer")
+    fun getBearerTokenForLoggedInUser(): String =
+        getFromContext { validationContext, issuer ->
+            validationContext
+                .getJwtToken(
+                    issuer,
+                )?.encodedToken ?: throw JwtTokenValidatorException("Klarte ikke hente token fra issuer $issuer")
         }
-    }
 
-    private fun claims(): JwtTokenClaims {
-        return getFromContext { validationContext, issuer ->
+    private fun claims(): JwtTokenClaims =
+        getFromContext { validationContext, issuer ->
             validationContext.getClaims(issuer)
         }
-    }
 
     private fun <T> getFromContext(fn: (TokenValidationContext, String) -> T): T {
         val validationContext = getTokenValidationContext()
@@ -51,8 +50,8 @@ object EksternBrukerUtils {
         }
     }
 
-    private fun getTokenValidationContext(): TokenValidationContext {
-        return RequestContextHolder.currentRequestAttributes()
+    private fun getTokenValidationContext(): TokenValidationContext =
+        RequestContextHolder
+            .currentRequestAttributes()
             .getAttribute(TOKEN_VALIDATION_CONTEXT_ATTRIBUTE, 0) as TokenValidationContext
-    }
 }

@@ -54,7 +54,5 @@ class RetryOAuth2HttpClient(
         }
     }
 
-    private fun shouldRetry(e: Exception): Boolean {
-        return retryExceptions.contains(e.cause?.let { it::class })
-    }
+    private fun shouldRetry(e: Exception): Boolean = retryExceptions.contains(e.cause?.let { it::class })
 }

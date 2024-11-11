@@ -57,11 +57,13 @@ class StsRestClient(
             }
             log.debug("Henter token fra STS")
             val request =
-                HttpRequestUtil.createRequest(basicAuth(stsUsername, stsPassword))
+                HttpRequestUtil
+                    .createRequest(basicAuth(stsUsername, stsPassword))
                     .uri(stsUrl)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.noBody())
-                    .timeout(Duration.ofSeconds(30)).apply {
+                    .timeout(Duration.ofSeconds(30))
+                    .apply {
                         if (!stsApiKey.isNullOrEmpty()) {
                             header("x-nav-apiKey", stsApiKey)
                         }
@@ -71,12 +73,12 @@ class StsRestClient(
                 try {
                     val startTime = System.nanoTime()
                     val response =
-                        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        client
+                            .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                             .thenApply { obj: HttpResponse<String?> -> obj.body() }
                             .thenApply { it: String? ->
                                 håndterRespons(it)
-                            }
-                            .get()
+                            }.get()
                     responstid.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS)
                     response
                 } catch (e: InterruptedException) {
@@ -87,7 +89,8 @@ class StsRestClient(
             if (accessTokenResponse != null) {
                 cachedToken = accessTokenResponse
                 refreshCachedTokenTidspunkt =
-                    LocalDateTime.now()
+                    LocalDateTime
+                        .now()
                         .plusSeconds(accessTokenResponse.expires_in)
                         .minusSeconds(accessTokenResponse.expires_in / 4) // Trekker av 1/4. Refresher etter 3/4 av levetiden
                 return accessTokenResponse.access_token
@@ -95,13 +98,12 @@ class StsRestClient(
             throw StsAccessTokenFeilException("Manglende token")
         }
 
-    private fun håndterRespons(it: String?): AccessTokenResponse {
-        return try {
+    private fun håndterRespons(it: String?): AccessTokenResponse =
+        try {
             mapper.readValue(it, AccessTokenResponse::class.java)
         } catch (e: IOException) {
             throw StsAccessTokenFeilException("Parsing av respons feilet", e)
         }
-    }
 
     companion object {
         private val log = LoggerFactory.getLogger(StsRestClient::class.java)
@@ -109,8 +111,6 @@ class StsRestClient(
         private fun basicAuth(
             username: String,
             password: String,
-        ): String {
-            return "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
-        }
+        ): String = "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
     }
 }

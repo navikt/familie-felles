@@ -13,14 +13,14 @@ import reactor.core.publisher.Mono
 class ConsumerIdFilter(
     @Value("\${application.name}") private val appName: String,
     @Value("\${credential.username:}") private val serviceUser: String,
-) :
-    ExchangeFilterFunction {
+) : ExchangeFilterFunction {
     override fun filter(
         request: ClientRequest,
         function: ExchangeFunction,
     ): Mono<ClientResponse> {
         val modifiedRequest =
-            ClientRequest.from(request)
+            ClientRequest
+                .from(request)
                 .header(NavHttpHeaders.NAV_CONSUMER_ID.asString(), serviceUser.ifBlank { appName })
                 .build()
         return function.exchange(modifiedRequest)

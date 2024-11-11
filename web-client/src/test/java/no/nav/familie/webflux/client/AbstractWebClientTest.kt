@@ -18,10 +18,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.net.URI
 
 internal class AbstractWebClientTest {
-    class TestClient(val uri: URI) : AbstractWebClient(WebClient.create(), "") {
-        fun test(): Ressurs<String> {
-            return getForEntity(uri)
-        }
+    class TestClient(
+        val uri: URI,
+    ) : AbstractWebClient(WebClient.create(), "") {
+        fun test(): Ressurs<String> = getForEntity(uri)
     }
 
     @AfterEach
@@ -50,7 +50,8 @@ internal class AbstractWebClientTest {
         val ressurs = Ressurs.failure<Any>("FeiletÅæø")
         val body = objectMapper.writeValueAsString(ressurs)
         wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
+            WireMock
+                .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
 
@@ -67,7 +68,8 @@ internal class AbstractWebClientTest {
     internal fun `feil med body som inneholder feltet status men ikke er en ressurs`() {
         val body = objectMapper.writeValueAsString(mapOf("status" to "nei"))
         wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
+            WireMock
+                .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withStatus(500).withBody(body)),
         )
 
@@ -81,7 +83,8 @@ internal class AbstractWebClientTest {
     @Test
     internal fun `feil uten ressurs kaster videre spring exception`() {
         wireMockServer.stubFor(
-            WireMock.get(WireMock.anyUrl())
+            WireMock
+                .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withStatus(500)),
         )
 

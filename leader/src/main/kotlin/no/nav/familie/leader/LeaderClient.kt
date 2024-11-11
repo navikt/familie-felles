@@ -17,7 +17,8 @@ object LeaderClient {
 
         val client = HttpClient.newHttpClient()
         val request =
-            HttpRequest.newBuilder()
+            HttpRequest
+                .newBuilder()
                 .uri(URI.create("http://$electorPath"))
                 .GET()
                 .build()

@@ -27,7 +27,8 @@ internal class RetryOAuth2HttpClientTest {
 
     val requestFactory = ClientHttpRequestFactories.get(clientHttpRequestFactorySettings)
     val restClient =
-        RestClient.builder()
+        RestClient
+            .builder()
             .requestFactory(requestFactory)
             .build()
     val client = RetryOAuth2HttpClient(restClient)
@@ -81,15 +82,17 @@ internal class RetryOAuth2HttpClientTest {
 
     private fun stub(responseDefinitionBuilder: ResponseDefinitionBuilder?) {
         wireMockServer.stubFor(
-            WireMock.post(WireMock.anyUrl())
+            WireMock
+                .post(WireMock.anyUrl())
                 .willReturn(responseDefinitionBuilder),
         )
     }
 
-    private fun post(): Exception? {
-        return try {
+    private fun post(): Exception? =
+        try {
             client.post(
-                OAuth2HttpRequest.builder(URI.create(wireMockServer.baseUrl()))
+                OAuth2HttpRequest
+                    .builder(URI.create(wireMockServer.baseUrl()))
                     .oAuth2HttpHeaders(OAuth2HttpHeaders.builder().build())
                     .build(),
             )
@@ -97,7 +100,6 @@ internal class RetryOAuth2HttpClientTest {
         } catch (e: Exception) {
             e
         }
-    }
 
     companion object {
         private lateinit var wireMockServer: WireMockServer

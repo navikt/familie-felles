@@ -18,9 +18,7 @@ class NaisProxyConfig {
     fun naisProxyCustomizer(
         proxyTimeout: ProxyTimeout,
         jettyResourceFactory: JettyResourceFactory,
-    ): NaisProxyCustomizer {
-        return NaisProxyCustomizer(proxyTimeout, jettyResourceFactory)
-    }
+    ): NaisProxyCustomizer = NaisProxyCustomizer(proxyTimeout, jettyResourceFactory)
 }
 
 /**
@@ -31,7 +29,10 @@ class NaisProxyCustomizer(
     private val jettyResourceFactory: JettyResourceFactory,
 ) {
     fun customize(webClientBuilder: WebClient.Builder) {
-        class DynamicProxy(host: String, port: Int) : HttpProxy(host, port) {
+        class DynamicProxy(
+            host: String,
+            port: Int,
+        ) : HttpProxy(host, port) {
             override fun matches(origin: Origin): Boolean {
                 if (origin.address.host.contains("microsoft")) {
                     return true

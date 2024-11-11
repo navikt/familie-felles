@@ -13,14 +13,13 @@ data class ECBExchangeRatesData(
     val ecbExchangeRatesDataSet: ECBExchangeRatesDataSet,
 )
 
-fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExchangeRate> {
-    return this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies.filter {
-        it.ecbExchangeRateKeys.any {
-                ecbKeyValue ->
-            ecbKeyValue.id == "CURRENCY" && ecbKeyValue.value == currency
-        }
-    }.flatMap { it.ecbExchangeRates }
-}
+fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExchangeRate> =
+    this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies
+        .filter {
+            it.ecbExchangeRateKeys.any { ecbKeyValue ->
+                ecbKeyValue.id == "CURRENCY" && ecbKeyValue.value == currency
+            }
+        }.flatMap { it.ecbExchangeRates }
 
 @Throws(ValutakursTransformationException::class)
 fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
@@ -35,7 +34,8 @@ fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
                             if (frequency == "D") {
                                 LocalDate.parse(ecbExchangeRate.date.value)
                             } else {
-                                YearMonth.parse(ecbExchangeRate.date.value)
+                                YearMonth
+                                    .parse(ecbExchangeRate.date.value)
                                     .atEndOfMonth()
                             }
                         ExchangeRate(currency, ecbExchangeRate.ecbExchangeRateValue.value, date)

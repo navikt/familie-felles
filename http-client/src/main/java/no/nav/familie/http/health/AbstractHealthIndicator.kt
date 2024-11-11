@@ -20,16 +20,16 @@ abstract class AbstractHealthIndicator(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
     private val failureCounter: Counter = Metrics.counter(metricsNavn, "status", "nede")
 
-    override fun health(): Health {
-        return try {
+    override fun health(): Health =
+        try {
             pingable.ping()
             Health.up().build()
         } catch (e: Exception) {
             failureCounter.increment()
             log.info("Feil ved helsesjekk ${this::class.simpleName}", e)
-            Health.status(statusCode)
+            Health
+                .status(statusCode)
                 .withDetail("Feilmelding", NestedExceptionUtils.getMostSpecificCause(e).javaClass.name + ": " + e.message)
                 .build()
         }
-    }
 }

@@ -18,11 +18,11 @@ class RestTemplateSts {
         restTemplateBuilder: RestTemplateBuilder,
         stsBearerTokenClientInterceptor: StsBearerTokenClientInterceptor,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-    ): RestOperations {
-        return restTemplateBuilder.additionalInterceptors(
-            consumerIdClientInterceptor,
-            stsBearerTokenClientInterceptor,
-            MdcValuesPropagatingClientInterceptor(),
-        ).build()
-    }
+    ): RestOperations =
+        restTemplateBuilder
+            .additionalInterceptors(
+                consumerIdClientInterceptor,
+                stsBearerTokenClientInterceptor,
+                MdcValuesPropagatingClientInterceptor(),
+            ).build()
 }

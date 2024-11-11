@@ -19,9 +19,8 @@ class StsWebClientConfig {
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
         stsBearerTokenFilter: StsBearerTokenFilter,
-    ): WebClient {
-        return webClientBuilder
+    ): WebClient =
+        webClientBuilder
             .filter(stsBearerTokenFilter)
             .build()
-    }
 }

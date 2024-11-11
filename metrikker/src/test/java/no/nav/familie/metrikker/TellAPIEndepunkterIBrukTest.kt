@@ -35,7 +35,10 @@ class TellAPIEndepunkterIBrukTest {
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter).hasSize(1)
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.containsKey("[GET]/api/foo")).isTrue()
         assertThat(
-            TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.get("[GET]/api/foo")?.id?.name,
+            TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter
+                .get("[GET]/api/foo")
+                ?.id
+                ?.name,
         ).isEqualTo("test.GET.api.foo")
     }
 
@@ -52,7 +55,10 @@ class TellAPIEndepunkterIBrukTest {
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter).hasSize(1)
         assertThat(TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.containsKey("[POST]/api/foo/{fooId}")).isTrue()
         assertThat(
-            TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter.get("[POST]/api/foo/{fooId}")?.id?.name,
+            TellAPIEndepunkterIBrukInitialiserer.metrikkerForEndepunkter
+                .get("[POST]/api/foo/{fooId}")
+                ?.id
+                ?.name,
         ).isEqualTo("test.POST.api.foo.fooId")
     }
 

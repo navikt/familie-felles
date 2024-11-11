@@ -53,9 +53,7 @@ class LogFilterTest {
     }
 
     companion object {
-        private fun fail() {
-            throw IllegalStateException("")
-        }
+        private fun fail(): Unit = throw IllegalStateException("")
 
         private val mockHttpServletRequest: HttpServletRequest
             get() {

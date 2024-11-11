@@ -26,34 +26,34 @@ class NaisProxyCustomizer(
     override fun customize(restTemplate: RestTemplate) {
         val proxy = HttpHost("webproxy-nais.nav.no", 8088)
         val client: HttpClient =
-            HttpClientBuilder.create()
+            HttpClientBuilder
+                .create()
                 .setDefaultRequestConfig(
-                    RequestConfig.custom()
+                    RequestConfig
+                        .custom()
                         .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
                         .setConnectionRequestTimeout(Timeout.ofSeconds(requestTimeout))
                         .build(),
-                )
-                .setConnectionManager(
-                    PoolingHttpClientConnectionManagerBuilder.create()
+                ).setConnectionManager(
+                    PoolingHttpClientConnectionManagerBuilder
+                        .create()
                         .setDefaultSocketConfig(
-                            SocketConfig.custom()
+                            SocketConfig
+                                .custom()
                                 .setSoTimeout(Timeout.ofMilliseconds(socketTimeout))
                                 .build(),
-                        )
-                        .build(),
-                )
-                .setRoutePlanner(
+                        ).build(),
+                ).setRoutePlanner(
                     object : DefaultProxyRoutePlanner(proxy) {
                         public override fun determineProxy(
                             target: HttpHost,
                             context: HttpContext,
-                        ): HttpHost? {
-                            return if (target.hostName.contains("microsoft")) {
+                        ): HttpHost? =
+                            if (target.hostName.contains("microsoft")) {
                                 super.determineProxy(target, context)
                             } else {
                                 null
                             }
-                        }
                     },
                 ).build()
 

@@ -29,27 +29,21 @@ class AzureWebClientConfig(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
         bearerTokenFilter: BearerTokenFilter,
-    ): WebClient {
-        return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
-    }
+    ): WebClient = buildAzureWebClient(webClientBuilder, bearerTokenFilter)
 
     @Bean("azureClientCredentialWebClient")
     fun azureClientCredentialWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
         bearerTokenFilter: BearerTokenClientCredentialFilter,
-    ): WebClient {
-        return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
-    }
+    ): WebClient = buildAzureWebClient(webClientBuilder, bearerTokenFilter)
 
     @Bean("azureOnBehalfOfWebClient")
     fun azureOnBehalfOfWebClient(
         @Qualifier(FAMILIE_WEB_CLIENT_BUILDER)
         webClientBuilder: WebClient.Builder,
         bearerTokenFilter: BearerTokenOnBehalfOfFilter,
-    ): WebClient {
-        return buildAzureWebClient(webClientBuilder, bearerTokenFilter)
-    }
+    ): WebClient = buildAzureWebClient(webClientBuilder, bearerTokenFilter)
 
     private fun buildAzureWebClient(
         webClientBuilder: WebClient.Builder,

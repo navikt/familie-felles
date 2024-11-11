@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component
 import java.net.URI
 
 @Component
-class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String, String>>) : ClientHttpRequestInterceptor {
+class ApiKeyInjectingClientInterceptor(
+    private val apiKeys: Map<URI, Pair<String, String>>,
+) : ClientHttpRequestInterceptor {
     private val logger = LoggerFactory.getLogger(ApiKeyInjectingClientInterceptor::class.java)
 
     override fun intercept(
@@ -31,10 +33,9 @@ class ApiKeyInjectingClientInterceptor(private val apiKeys: Map<URI, Pair<String
         return execution.execute(request, body)
     }
 
-    private fun apiKeyFor(uri: URI): Pair<String, String>? {
-        return apiKeys.entries
+    private fun apiKeyFor(uri: URI): Pair<String, String>? =
+        apiKeys.entries
             .filter { s -> uri.toString().startsWith(s.key.toString()) }
             .map { it.value }
             .firstOrNull()
-    }
 }

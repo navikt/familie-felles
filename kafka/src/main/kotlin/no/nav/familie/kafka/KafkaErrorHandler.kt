@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 @Component
-class KafkaErrorHandler(private val taskScheduler: TaskScheduler) : CommonContainerStoppingErrorHandler() {
+class KafkaErrorHandler(
+    private val taskScheduler: TaskScheduler,
+) : CommonContainerStoppingErrorHandler() {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
 

@@ -45,9 +45,7 @@ open class RequestTimeFilter : Filter {
         }
     }
 
-    open fun shouldNotFilter(uri: String): Boolean {
-        return uri.contains("/internal") || uri == "/api/ping"
-    }
+    open fun shouldNotFilter(uri: String): Boolean = uri.contains("/internal") || uri == "/api/ping"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(RequestTimeFilter::class.java)
