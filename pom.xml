@@ -42,6 +42,7 @@
         <module>valutakurs-klient</module>
         <module>unleash</module>
         <module>metrikker</module>
+        <module>tidslinje</module>
     </modules>
 
     <dependencyManagement>
