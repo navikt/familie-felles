@@ -55,12 +55,12 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.fyllInnTommePerioder(): List<Ti
             periodeListeMedTommePerioder + periode
         } else {
             periodeListeMedTommePerioder +
-                    TidslinjePeriodeMedDato(
-                        Udefinert(),
-                        TidslinjePeriodeMedDato.Dato(sisteElement.tom.tilDatoEllerPraktiskSenesteDag().plusDays(1)),
-                        TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1)),
-                    ) +
-                    periode
+                TidslinjePeriodeMedDato(
+                    Udefinert(),
+                    TidslinjePeriodeMedDato.Dato(sisteElement.tom.tilDatoEllerPraktiskSenesteDag().plusDays(1)),
+                    TidslinjePeriodeMedDato.Dato(periode.fom.tilDatoEllerPraktiskTidligsteDag().minusDays(1)),
+                ) +
+                periode
         }
     }
 
@@ -106,5 +106,4 @@ private fun <T> List<TidslinjePeriodeMedDato<T>>.validerKunFørsteEllerSistePeri
 private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskTidligsteDag(): LocalDate =
     this.tilLocalDateEllerNull() ?: PRAKTISK_TIDLIGSTE_DAG
 
-private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskSenesteDag(): LocalDate =
-    this.tilLocalDateEllerNull() ?: PRAKTISK_SENESTE_DAG
+private fun TidslinjePeriodeMedDato.Dato.tilDatoEllerPraktiskSenesteDag(): LocalDate = this.tilLocalDateEllerNull() ?: PRAKTISK_SENESTE_DAG

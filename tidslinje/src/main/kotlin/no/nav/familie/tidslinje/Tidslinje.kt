@@ -81,7 +81,11 @@ open class Tidslinje<T>(
             " Perioder: " +
             innhold.mapIndexed { indeks, it ->
                 "(Verdi: " + it.periodeVerdi.verdi.toString() +
-                    ", fom: " + startsTidspunkt.plus(innhold.take(indeks).sumOf { it.lengde }.toLong(), mapper[this.tidsEnhet]) +
+                    ", fom: " +
+                    startsTidspunkt.plus(
+                        innhold.take(indeks).sumOf { it.lengde }.toLong(),
+                        mapper[this.tidsEnhet],
+                    ) +
                     ", tom:" +
                     kalkulerSluttTidspunkt(
                         startsTidspunkt.plus(
@@ -128,7 +132,8 @@ open class Tidslinje<T>(
             other.tittel == this.tittel
     }
 
-    override fun hashCode(): Int = this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
+    override fun hashCode(): Int =
+        this.startsTidspunkt.hashCode() + this.innhold.hashCode() + this.tidsEnhet.hashCode() + this.tittel.hashCode()
 
     companion object
 }

@@ -29,8 +29,7 @@ val mapper =
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: Tidslinje<R>,
     operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>,
-): List<Tidslinje<RESULTAT>> =
-    this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
+): List<Tidslinje<RESULTAT>> = this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
 
 fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     operand: List<Tidslinje<R>>,
@@ -40,7 +39,7 @@ fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
     return this.mapIndexed { index, tidslinjeBarn ->
         tidslinjeBarn.biFunksjon(
             operand[index],
-            kombineringsfunksjon = operator
+            kombineringsfunksjon = operator,
         )
     }
 }
@@ -88,13 +87,13 @@ private fun <T, R> konverterTilSammeLengde(
     if (kopi1.kalkulerSluttTidspunkt() != kopi2.kalkulerSluttTidspunkt()) {
         if (kopi1.innhold.isNotEmpty() && kopi1.innhold.last().erUendelig) {
             kopi2.innhold = kopi2.innhold +
-                    listOf(
-                        TidslinjePeriode(
-                            periodeVerdi = udefinert2,
-                            lengde = INF,
-                            erUendelig = true,
-                        ),
-                    )
+                listOf(
+                    TidslinjePeriode(
+                        periodeVerdi = udefinert2,
+                        lengde = INF,
+                        erUendelig = true,
+                    ),
+                )
             return Pair(kopi1, kopi2)
         } else if (kopi2.innhold.isNotEmpty() && kopi2.innhold.last().erUendelig) {
             kopi1.innhold =
@@ -269,7 +268,8 @@ fun <T> Tidslinje<T>.konverterTilMåned(
     listeAvMåneder.windowed(size = antallMndBakoverITid + antallMndFremoverITid + 1, partialWindows = false) { vindu ->
         perioder.add(TidslinjePeriode(operator(dato, vindu), 1, false))
         dato = dato.plusMonths(1)
-        if (vindu[antallMndBakoverITid].last().erUendelig) { // dersom inneværende måned er uendelig, må man beregne verdien dersom vinduet kun dekker den uendelige periodeVerdien.
+        // dersom inneværende måned er uendelig, må man beregne verdien dersom vinduet kun dekker den uendelige periodeVerdien.
+        if (vindu[antallMndBakoverITid].last().erUendelig) {
             val listeMedUendeligPeriodeVerdier =
                 (0..antallMndBakoverITid + antallMndFremoverITid).map { listOf(vindu[antallMndBakoverITid].last()) }
             perioder.add(TidslinjePeriode(operator(dato, listeMedUendeligPeriodeVerdier), INF, true))
@@ -303,7 +303,8 @@ fun <T> Tidslinje<T>.splittPåMåned(): MutableList<List<TidslinjePeriode<T>>> {
     this.innhold.forEachIndexed { index, periode ->
 
         if (periode.erUendelig) { // Her håndteres uendelige perioder
-            if (nåværendeMåned.lengthOfMonth() > antallDagerIgjenIMåned) { // om vi er midt i en måned må vi først legge til en ikke-uendelig periode som fyller opp denne
+            // om vi er midt i en måned må vi først legge til en ikke-uendelig periode som fyller opp denne
+            if (nåværendeMåned.lengthOfMonth() > antallDagerIgjenIMåned) {
                 månedListe.add(TidslinjePeriode(periode.periodeVerdi, antallDagerIgjenIMåned, false))
                 listeAvMåneder.add(månedListe)
                 månedListe = mutableListOf()
@@ -382,11 +383,11 @@ fun <T> Tidslinje<T>.klipp(
                         TidslinjePeriode(
                             true,
                             lengde =
-                            startsTidspunkt
-                                .until(
-                                    justertSluttTidspunkt,
-                                    mapper[this.tidsEnhet],
-                                ).toInt(),
+                                startsTidspunkt
+                                    .until(
+                                        justertSluttTidspunkt,
+                                        mapper[this.tidsEnhet],
+                                    ).toInt(),
                         ),
                     ),
                     this.tidsEnhet,
@@ -661,24 +662,26 @@ fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato
 
             Pair(
                 tidslinjePeriodeMedLocalDateListe +
-                        TidslinjePeriodeMedDato(
-                            periodeVerdi = tidslinjePeriode.periodeVerdi,
-                            fom = TidslinjePeriodeMedDato.Dato(
+                    TidslinjePeriodeMedDato(
+                        periodeVerdi = tidslinjePeriode.periodeVerdi,
+                        fom =
+                            TidslinjePeriodeMedDato.Dato(
                                 this.startsTidspunkt.leggTil(
                                     tidsEnhet,
-                                    tidFraStarttidspunktFom
-                                )
+                                    tidFraStarttidspunktFom,
+                                ),
                             ),
-                            tom =
+                        tom =
                             if (tidslinjePeriode.erUendelig) {
                                 TidslinjePeriodeMedDato.Dato(PRAKTISK_SENESTE_DAG)
                             } else {
                                 TidslinjePeriodeMedDato.Dato(
-                                    this.startsTidspunkt.leggTil(tidsEnhet, tidFraStarttidspunktTilNesteFom)
+                                    this.startsTidspunkt
+                                        .leggTil(tidsEnhet, tidFraStarttidspunktTilNesteFom)
                                         .minusDays(1),
                                 )
                             },
-                        ),
+                    ),
                 tidFraStarttidspunktTilNesteFom,
             )
         }

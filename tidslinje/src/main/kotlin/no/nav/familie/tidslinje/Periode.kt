@@ -22,8 +22,7 @@ fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> =
 fun <T> List<Periode<T>>.filtrerIkkeNull(): List<Periode<T & Any>> =
     this.mapNotNull { periode -> periode.verdi?.let { periode as Periode<T & Any> } }
 
-fun <T> List<Periode<T>>.verdier(): List<T> =
-    this.map { it.verdi }
+fun <T> List<Periode<T>>.verdier(): List<T> = this.map { it.verdi }
 
 data class IkkeNullbarPeriode<T>(
     val verdi: T,
