@@ -328,7 +328,10 @@ class KonverterTidTest {
 
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
 
-        Assertions.assertEquals(LocalDate.of(2022, 1, 1).plusMonths(1).withDayOfMonth(1), tidslinjeMåned.startsTidspunkt)
+        Assertions.assertEquals(
+            LocalDate.of(2022, 1, 1).plusMonths(1).withDayOfMonth(1),
+            tidslinjeMåned.startsTidspunkt,
+        )
     }
 
     @Test
@@ -380,7 +383,10 @@ class KonverterTidTest {
 
         // Assertions.assertEquals(tidslinjeMåned.innhold[2].lengde, (dato3Start.until(LocalDate.of(2022, 9, 30), ChronoUnit.DAYS).toInt() + 1))
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
-        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi })
+        Assertions.assertEquals(
+            correctBeforeTidslinje,
+            splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi },
+        )
     }
 
     @Test
@@ -414,7 +420,12 @@ class KonverterTidTest {
         val tidslinjeMåned = tidslinje.konverterTilMåned { _, it -> it.last().last().periodeVerdi }
 
         val correct: List<Boolean> =
-            listOf(true, false, true, false) // Dette er sånn lista skulle vært, men siden Tidslinje slår sammen like blir det
+            listOf(
+                true,
+                false,
+                true,
+                false,
+            ) // Dette er sånn lista skulle vært, men siden Tidslinje slår sammen like blir det
 
         Assertions.assertEquals(tidslinjeMåned.innhold[2].lengde, 4)
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
@@ -471,7 +482,10 @@ class KonverterTidTest {
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi }.toList())
         Assertions.assertEquals(1, tidslinjeMåned.innhold[3].lengde)
         assertTrue { INF <= tidslinjeMåned.innhold[4].lengde }
-        Assertions.assertEquals(correctBeforeTidslinje, splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi })
+        Assertions.assertEquals(
+            correctBeforeTidslinje,
+            splittPåMåned.map { it.maxBy { periode -> periode.lengde }.periodeVerdi.verdi },
+        )
         assertTrue(tidslinjeMåned.innhold.last().erUendelig)
     }
 
@@ -531,14 +545,30 @@ class KonverterTidTest {
         val tidslinje = Tidslinje(dato1Start, tmp)
 
         var tidslinjeMåned =
-            tidslinje.konverterTilMåned(2) { dato, _ -> if (dato.month == java.time.Month.JULY) Verdi(1.0) else Verdi(0.0) }
+            tidslinje.konverterTilMåned(2) { dato, _ ->
+                if (dato.month == java.time.Month.JULY) {
+                    Verdi(1.0)
+                } else {
+                    Verdi(
+                        0.0,
+                    )
+                }
+            }
 
         var correct = listOf(0.0, 1.0, 0.0)
 
         Assertions.assertEquals(correct, tidslinjeMåned.innhold.map { it.periodeVerdi.verdi!! }.toList())
 
         tidslinjeMåned =
-            tidslinje.konverterTilMåned(2) { dato, _ -> if (dato.month == java.time.Month.OCTOBER) Verdi(1.0) else Verdi(0.0) }
+            tidslinje.konverterTilMåned(2) { dato, _ ->
+                if (dato.month == java.time.Month.OCTOBER) {
+                    Verdi(1.0)
+                } else {
+                    Verdi(
+                        0.0,
+                    )
+                }
+            }
 
         correct = listOf(0.0, 1.0)
 
@@ -573,7 +603,11 @@ class KonverterTidTest {
                     Verdi((vindu[0].last().periodeVerdi.verdi!! + vindu[1].last().periodeVerdi.verdi!!) / 2)
                 } else {
                     val avg =
-                        (vindu[0].last().periodeVerdi.verdi!! + vindu[1].last().periodeVerdi.verdi!! + vindu[2].last().periodeVerdi.verdi!!) / 3
+                        (
+                            vindu[0].last().periodeVerdi.verdi!! +
+                                vindu[1].last().periodeVerdi.verdi!! +
+                                vindu[2].last().periodeVerdi.verdi!!
+                        ) / 3
                     Verdi(avg)
                 }
             }
