@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
 import org.springframework.web.client.exchange
@@ -93,6 +94,10 @@ abstract class AbstractRestClient(
             responsFailure.increment()
             secureLogger.warn("HttpClientErrorException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
+        } catch (e: ResourceAccessException) {
+            responsFailure.increment()
+            secureLogger.warn("ResourceAccessException ved kall mot uri=$uri", e)
+            throw e
         } catch (e: Exception) {
             responsFailure.increment()
             secureLogger.warn("Feil ved kall mot uri=$uri", e)
