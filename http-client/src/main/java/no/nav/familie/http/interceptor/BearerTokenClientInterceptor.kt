@@ -143,7 +143,7 @@ private fun genererAccessToken(
     return oAuth2AccessTokenService
         .getAccessToken(
             clientProperties,
-        ).accessToken ?: throw JwtTokenValidatorException("Kunne ikke hente accesstoken")
+        ).access_token ?: throw JwtTokenValidatorException("Kunne ikke hente accesstoken")
 }
 
 /**

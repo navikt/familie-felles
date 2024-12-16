@@ -158,7 +158,7 @@ private fun genererAccessToken(
             clientConfigurationProperties,
             grantType,
         )
-    return oAuth2AccessTokenService.getAccessToken(clientProperties).accessToken ?: throw JwtTokenMissingException()
+    return oAuth2AccessTokenService.getAccessToken(clientProperties).access_token ?: throw JwtTokenMissingException()
 }
 
 /**
