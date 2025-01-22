@@ -26,9 +26,9 @@ class LogFilter(
      * that will return whether stacktraces should be exposed or not
      * Defaults to always false
      */
+    private val systemtype: NavSystemtype,
     private val exposeErrorDetails: Supplier<Boolean> = Supplier { false },
     private val serverName: String? = null,
-    private val systemtype: NavSystemtype
 ) : HttpFilter() {
     @Throws(ServletException::class, IOException::class)
     override fun doFilter(
@@ -47,7 +47,7 @@ class LogFilter(
         val consumerId = httpServletRequest.getHeader(NavHttpHeaders.NAV_CONSUMER_ID.asString())
         val callId = resolveCallId(httpServletRequest)
 
-        if(systemtype == NavSystemtype.NAV_SAKSBEHANDLINGSSYSTEM || systemtype == NavSystemtype.NAV_INTEGRASJON) {
+        if (systemtype in listOf(NavSystemtype.NAV_SAKSBEHANDLINGSSYSTEM, NavSystemtype.NAV_INTEGRASJON)) {
             MDC.put(MDC_USER_ID, userId)
         }
 
