@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import no.nav.familie.log.IdUtils
 import no.nav.familie.log.NavHttpHeaders
+import no.nav.familie.log.NavSystemtype
 import no.nav.familie.log.mdc.MDCConstants.MDC_CALL_ID
 import no.nav.familie.log.mdc.MDCConstants.MDC_CONSUMER_ID
 import no.nav.familie.log.mdc.MDCConstants.MDC_REQUEST_ID
@@ -25,6 +26,7 @@ class LogFilter(
      * that will return whether stacktraces should be exposed or not
      * Defaults to always false
      */
+    private val systemtype: NavSystemtype,
     private val exposeErrorDetails: Supplier<Boolean> = Supplier { false },
     private val serverName: String? = null,
 ) : HttpFilter() {
@@ -35,7 +37,8 @@ class LogFilter(
         filterChain: FilterChain,
     ) {
         val userId = resolveUserId(httpServletRequest)
-        if (userId == null || userId.isEmpty()) {
+        val skalGenerereBrukerIdCookie = systemtype == NavSystemtype.NAV_SAKSBEHANDLINGSSYSTEM && userId.isNullOrEmpty()
+        if (skalGenerereBrukerIdCookie) {
             // user-id tracking only works if the client is stateful and supports cookies.
             // if no user-id is found, generate one for any following requests but do not use it on the
             // current request to avoid generating large numbers of useless user-ids.
@@ -43,8 +46,12 @@ class LogFilter(
         }
         val consumerId = httpServletRequest.getHeader(NavHttpHeaders.NAV_CONSUMER_ID.asString())
         val callId = resolveCallId(httpServletRequest)
+
+        if (systemtype in listOf(NavSystemtype.NAV_SAKSBEHANDLINGSSYSTEM, NavSystemtype.NAV_INTEGRASJON)) {
+            MDC.put(MDC_USER_ID, userId)
+        }
+
         MDC.put(MDC_CALL_ID, callId)
-        MDC.put(MDC_USER_ID, userId)
         MDC.put(MDC_CONSUMER_ID, consumerId)
         MDC.put(MDC_REQUEST_ID, resolveRequestId(httpServletRequest))
         httpServletResponse.setHeader(NavHttpHeaders.NAV_CALL_ID.asString(), callId)
