@@ -22,12 +22,12 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20241220141021_9e86ad8</kontrakter.version>
+        <kontrakter.version>3.0_20250113155636_bb71360</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
-        <kotlin.version>2.1.0</kotlin.version>
-        <mockk.version>1.13.14</mockk.version>
-        <nav.security.token.version>5.0.13</nav.security.token.version>
-        <wiremock.version>3.10.0</wiremock.version>        
+        <kotlin.version>2.1.10</kotlin.version>
+        <mockk.version>1.13.16</mockk.version>
+        <nav.security.token.version>5.0.16</nav.security.token.version>
+        <wiremock.version>3.11.0</wiremock.version>        
     </properties>
 
     <modules>
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.4.1</version>
+                <version>3.4.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.20.1</version>
+                <version>11.21.3</version>
             </dependency>
 
             <dependency>
