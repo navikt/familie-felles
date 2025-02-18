@@ -26,24 +26,6 @@ val mapper =
         TidsEnhet.DAG to ChronoUnit.DAYS,
     )
 
-fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
-    operand: Tidslinje<R>,
-    operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>,
-): List<Tidslinje<RESULTAT>> = this.mapIndexed { _, tidslinjeBarn -> tidslinjeBarn.biFunksjon(operand, kombineringsfunksjon = operator) }
-
-fun <T, R, RESULTAT> List<Tidslinje<T>>.join(
-    operand: List<Tidslinje<R>>,
-    operator: (elem1: PeriodeVerdi<T>, elem2: PeriodeVerdi<R>) -> PeriodeVerdi<RESULTAT>,
-): List<Tidslinje<RESULTAT>> {
-    if (this.size != operand.size) throw IllegalArgumentException("Listene må ha lik lengde")
-    return this.mapIndexed { index, tidslinjeBarn ->
-        tidslinjeBarn.biFunksjon(
-            operand[index],
-            kombineringsfunksjon = operator,
-        )
-    }
-}
-
 fun <T> Tidslinje<T>.medTittel(tittel: String): Tidslinje<T> {
     this.tittel = tittel
     return this
