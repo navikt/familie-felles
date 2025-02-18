@@ -157,7 +157,7 @@ fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
 
 fun <T> Tidslinje<T>.inneholder(verdi: T): Boolean = this.tilPerioder().any { it.verdi == verdi }
 
-fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R): Tidslinje<R> =
+fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R?): Tidslinje<R> =
     this.map { periodeVerdi ->
         when (periodeVerdi) {
             is Verdi,

@@ -12,3 +12,7 @@ fun LocalDate.diffIDager(annen: LocalDate): Int =
         .between(this.atStartOfDay(), annen.plusDays(1).atStartOfDay())
         .toDaysPart()
         .toInt()
+
+fun LocalDate.isSameOrBefore(toCompare: LocalDate): Boolean = this.isBefore(toCompare) || this == toCompare
+
+fun LocalDate.isSameOrAfter(toCompare: LocalDate): Boolean = this.isAfter(toCompare) || this == toCompare

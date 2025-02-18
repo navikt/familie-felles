@@ -11,7 +11,7 @@ import no.nav.familie.tidslinje.TidslinjePeriode
 import no.nav.familie.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.filtrerIkkeNull
-import no.nav.familie.tidslinje.tilPeriodeVerdi
+import no.nav.familie.tidslinje.omfatter
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -268,8 +268,8 @@ private fun <R> klippeOperator(
     }
 
 fun <T> Tidslinje<T>.klipp(
-    startsTidspunkt: LocalDate,
-    sluttTidspunkt: LocalDate,
+    startsTidspunkt: LocalDate = this.startsTidspunkt,
+    sluttTidspunkt: LocalDate = kalkulerSluttTidspunkt(),
 ): Tidslinje<T> {
     val foreldre = this.foreldre
 
@@ -408,6 +408,10 @@ fun <T> Tidslinje<T>.fjernForeldre(): Tidslinje<T> {
 }
 
 fun <T> Tidslinje<T>.hentVerdier(): List<T?> = this.innhold.slåSammenLike().map { it.periodeVerdi.verdi }
+
+fun <V> Tidslinje<V>.verdiPåTidspunkt(tidspunkt: LocalDate): V? = this.tilPerioder().verdiPåTidspunkt(tidspunkt)
+
+fun <V> Collection<Periode<V>>.verdiPåTidspunkt(tidspunkt: LocalDate): V? = this.firstOrNull { it.omfatter(tidspunkt) }?.verdi
 
 /**
  * Summerer opp tiden for hver periode og legger inn i en TidslinjePeriodeMedDato
