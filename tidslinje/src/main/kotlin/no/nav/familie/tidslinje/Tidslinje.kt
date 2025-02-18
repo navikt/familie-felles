@@ -66,6 +66,16 @@ open class Tidslinje<T>(
         }
     }
 
+    fun kopier(): Tidslinje<T> =
+        Tidslinje(
+            startsTidspunkt = startsTidspunkt,
+            perioder = innhold,
+            tidsEnhet = tidsEnhet,
+        ).also {
+            it.tittel = tittel
+            it.foreldre.addAll(foreldre)
+        }
+
     private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate =
         when (this.tidsEnhet) {
             TidsEnhet.ÅR -> sluttDato.with(TemporalAdjusters.lastDayOfYear())
