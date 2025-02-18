@@ -123,7 +123,7 @@ class LogFilterTest {
                 val request: HttpServletRequest = mockk(relaxed = true)
                 every { request.method } returns method
                 every { request.requestURI } returns requestUri
-                every {request.cookies} returns arrayOf(Cookie("RUIDC","1234"))
+                every { request.cookies } returns arrayOf(Cookie("RUIDC", "1234"))
                 return request
             }
 

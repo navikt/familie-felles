@@ -4,5 +4,4 @@ enum class NavSystemtype {
     NAV_EKSTERN_BRUKERFLATE,
     NAV_SAKSBEHANDLINGSSYSTEM,
     NAV_INTEGRASJON,
-    ;
 }
