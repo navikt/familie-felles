@@ -1,5 +1,6 @@
 package no.nav.familie.leader
 
+import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.URI
 import java.net.http.HttpClient
@@ -8,25 +9,54 @@ import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 
 object LeaderClient {
+    private val logger = LoggerFactory.getLogger(LeaderClient::class.java)
+
     /**
      * @return Om pod er leader eller ikke. null hvis leadersjekk ikke er implementert på pod
      */
     @JvmStatic
-    fun isLeader(): Boolean? {
-        val electorPath = Environment.hentLeaderSystemEnv() ?: return null
+    fun isLeader(
+        antallGanger: Int = 3,
+        forsinkelseIms: Long = 1000,
+    ): Boolean? {
+        val electorGetUrl = Environment.hentLeaderSystemEnv() ?: return null
 
         val client = HttpClient.newHttpClient()
         val request =
             HttpRequest
                 .newBuilder()
-                .uri(URI.create("http://$electorPath"))
+                .uri(URI.create(electorGetUrl))
                 .GET()
                 .build()
 
-        val response: HttpResponse<String> = client.send(request, BodyHandlers.ofString())
-        if (response.body().isNullOrBlank()) return null
+        val response: HttpResponse<String>? =
+            retryFunksjon(
+                antallGanger = antallGanger,
+                forsinkelseIms = forsinkelseIms,
+            ) { client.send(request, BodyHandlers.ofString()) }
+
+        if (response?.body().isNullOrBlank()) return null
 
         val hostname: String = InetAddress.getLocalHost().hostName
-        return response.body().contains(hostname)
+        return response?.body()?.contains(hostname)
+    }
+
+    private fun <T> retryFunksjon(
+        antallGanger: Int = 3,
+        forsinkelseIms: Long = 1000,
+        funksjon: () -> T,
+    ): T? {
+        var throwable: Exception? = null
+        repeat(antallGanger) {
+            try {
+                return funksjon()
+            } catch (e: Exception) {
+                logger.warn("Kunne ikke hente leader status")
+                throwable = e
+            }
+            Thread.sleep(forsinkelseIms)
+        }
+        logger.error("Kunne ikke hente leader status", throwable)
+        return null
     }
 }

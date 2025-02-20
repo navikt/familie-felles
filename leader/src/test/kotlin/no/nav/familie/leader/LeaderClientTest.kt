@@ -49,7 +49,7 @@ class LeaderClientTest {
     @Test
     fun `Skal returnere true hvis pod er leader`() {
         mockkStatic(Environment::class)
-        every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
+        every { Environment.hentLeaderSystemEnv() } returns "http://localhost:${wireMockServer.port()}"
         wireMockServer.stubFor(
             get(anyUrl())
                 .willReturn(
@@ -64,7 +64,7 @@ class LeaderClientTest {
     @Test
     fun `Skal returnere false hvis pod ikke er leader`() {
         mockkStatic(Environment::class)
-        every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
+        every { Environment.hentLeaderSystemEnv() } returns "http://localhost:${wireMockServer.port()}"
         wireMockServer.stubFor(
             get(anyUrl())
                 .willReturn(
@@ -79,7 +79,7 @@ class LeaderClientTest {
     @Test
     fun `Skal returnere null hvis response er tom`() {
         mockkStatic(Environment::class)
-        every { Environment.hentLeaderSystemEnv() } returns "localhost:${wireMockServer.port()}"
+        every { Environment.hentLeaderSystemEnv() } returns "http://localhost:${wireMockServer.port()}"
         wireMockServer.stubFor(
             get(anyUrl())
                 .willReturn(
@@ -89,5 +89,13 @@ class LeaderClientTest {
         )
 
         assertNull(LeaderClient.isLeader())
+    }
+
+    @Test
+    fun `Skal returnere null hvis leader ikke svarer`() {
+        mockkStatic(Environment::class)
+        every { Environment.hentLeaderSystemEnv() } returns "http://leaderErNede:9999"
+
+        assertNull(LeaderClient.isLeader(antallGanger = 3, forsinkelseIms = 1))
     }
 }
