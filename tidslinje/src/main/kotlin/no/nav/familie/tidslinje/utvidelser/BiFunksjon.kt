@@ -41,8 +41,8 @@ fun <T, R, RESULTAT> Tidslinje<T>.biFunksjon(
     var tidslinjePeriode1: TidslinjePeriode<T>? = null
     var tidslinjePeriode2: TidslinjePeriode<R>? = null
 
-    var lengde1 = 0
-    var lengde2 = 0
+    var lengde1 = 0L
+    var lengde2 = 0L
 
     while (it1.hasNext() || it2.hasNext()) {
         tidslinjePeriode1 = tidslinjePeriode1.takeIf { lengde1 > 0 } ?: it1.next()
@@ -115,9 +115,9 @@ fun <A, B, C, RESULTAT> Tidslinje<A>.biFunksjon(
     var tidslinjePeriode2: TidslinjePeriode<B>? = null
     var tidslinjePeriode3: TidslinjePeriode<C>? = null
 
-    var lengde1 = 0
-    var lengde2 = 0
-    var lengde3 = 0
+    var lengde1 = 0L
+    var lengde2 = 0L
+    var lengde3 = 0L
 
     while (it1.hasNext() || it2.hasNext() || it3.hasNext()) {
         tidslinjePeriode1 = tidslinjePeriode1.takeIf { lengde1 > 0 } ?: it1.next()
@@ -248,7 +248,6 @@ private fun <T> settSlutttidspunkt(
             } else {
                 sluttTidspunkt
                     .until(senesteSluttTidspunkt.plusDays(1), mapper[tidslinje.tidsEnhet])
-                    .toInt()
             }
         tidslinje.innhold += listOf(TidslinjePeriode(Udefinert(), lengde, erUendelig))
     }
@@ -260,7 +259,7 @@ private fun <T> settStarttidspunkt(
 ) {
     if (tidslinje.startsTidspunkt > tidligsteStartTidspunkt) {
         val diffFraTidligsteStartTidspunkt =
-            tidligsteStartTidspunkt.until(tidslinje.startsTidspunkt, mapper[tidslinje.tidsEnhet]).toInt()
+            tidligsteStartTidspunkt.until(tidslinje.startsTidspunkt, mapper[tidslinje.tidsEnhet])
         tidslinje.innhold =
             listOf(TidslinjePeriode(Udefinert<T>(), diffFraTidligsteStartTidspunkt, false)) + tidslinje.innhold
         tidslinje.startsTidspunkt = tidligsteStartTidspunkt

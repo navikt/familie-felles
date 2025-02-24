@@ -47,7 +47,7 @@ open class Tidslinje<T>(
             }
     }
 
-    fun erTom() = innhold.sumOf { it.lengde } == 0
+    fun erTom() = innhold.sumOf { it.lengde } == 0L
 
     /**
      * Kalkulerer slutttidspunkt som en LocalDate.
@@ -55,8 +55,8 @@ open class Tidslinje<T>(
      * Om tidslinja er uendelig, kastes det et unntak
      */
     fun kalkulerSluttTidspunkt(): LocalDate {
-        val antallTidsEnheter: Int = this.innhold.sumOf { it.lengde }
-        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter.toLong() - 1, mapper[this.tidsEnhet])
+        val antallTidsEnheter = this.innhold.sumOf { it.lengde }
+        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter - 1, mapper[this.tidsEnhet])
 
         return when (this.tidsEnhet) {
             TidsEnhet.ÅR -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfYear())

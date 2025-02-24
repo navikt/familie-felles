@@ -1,6 +1,6 @@
 package no.nav.familie.tidslinje
 
-const val INF = 1_000_000_000
+const val INF = 1_000_000_000L
 
 sealed class PeriodeVerdi<T>(
     protected val _verdi: T?,
@@ -45,7 +45,7 @@ class Null<T> : PeriodeVerdi<T>(null) {
  */
 data class TidslinjePeriode<T>(
     val periodeVerdi: PeriodeVerdi<T>,
-    var lengde: Int,
+    var lengde: Long,
     var erUendelig: Boolean = false,
 ) {
     init {
@@ -60,7 +60,7 @@ data class TidslinjePeriode<T>(
         }
     }
 
-    constructor(periodeVerdi: T?, lengde: Int, erUendelig: Boolean = false) : this(
+    constructor(periodeVerdi: T?, lengde: Long, erUendelig: Boolean = false) : this(
         if (periodeVerdi == null) {
             Null()
         } else {

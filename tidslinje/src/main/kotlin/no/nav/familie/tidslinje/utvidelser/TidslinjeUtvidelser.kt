@@ -36,37 +36,24 @@ fun <T> Tidslinje<T>.medTittel(tittel: String): Tidslinje<T> {
 fun <T> Tidslinje<T>.konverterTilDag(): Tidslinje<T> {
     if (this.tidsEnhet == TidsEnhet.DAG) return this
 
-    var tidspunkt = this.startsTidspunkt
+    val kopi = this.kopier()
+    var tidspunkt = kopi.startsTidspunkt
 
-    when (this.tidsEnhet) {
-        TidsEnhet.UKE -> {
-            for (periode in this.innhold) {
-                val nyttTidspunkt = tidspunkt.plusWeeks(periode.lengde.toLong())
-                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-                tidspunkt = nyttTidspunkt
+    for (periode in kopi.innhold) {
+        val nyttTidspunkt =
+            when (kopi.tidsEnhet) {
+                TidsEnhet.UKE -> tidspunkt.plusWeeks(periode.lengde)
+                TidsEnhet.MÅNED -> tidspunkt.plusMonths(periode.lengde)
+                TidsEnhet.ÅR -> tidspunkt.plusYears(periode.lengde)
+                else -> tidspunkt
             }
-        }
-
-        TidsEnhet.MÅNED -> {
-            for (periode in this.innhold) {
-                val nyttTidspunkt = tidspunkt.plusMonths(periode.lengde.toLong())
-                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-                tidspunkt = nyttTidspunkt
-            }
-        }
-
-        else -> {
-            for (periode in this.innhold) {
-                val nyttTidspunkt = tidspunkt.plusYears(periode.lengde.toLong())
-                periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS).toInt()
-                tidspunkt = nyttTidspunkt
-            }
-        }
+        periode.lengde = tidspunkt.until(nyttTidspunkt, ChronoUnit.DAYS)
+        tidspunkt = nyttTidspunkt
     }
 
-    this.tidsEnhet = TidsEnhet.DAG
+    kopi.tidsEnhet = TidsEnhet.DAG
 
-    return this
+    return kopi
 }
 
 /**
@@ -195,7 +182,7 @@ fun <T> Tidslinje<T>.høyreShift(antall: Int = 1): Tidslinje<T> =
  */
 fun <T> Tidslinje<T>.splittPåMåned(): MutableList<List<TidslinjePeriode<T>>> {
     var nåværendeMåned = this.startsTidspunkt
-    var antallDagerIgjenIMåned = this.startsTidspunkt.lengthOfMonth() - this.startsTidspunkt.dayOfMonth + 1
+    var antallDagerIgjenIMåned = this.startsTidspunkt.lengthOfMonth() - this.startsTidspunkt.dayOfMonth + 1L
 
     var månedListe: MutableList<TidslinjePeriode<T>> = mutableListOf() // representerer periodene innad i en måned
 
@@ -230,18 +217,18 @@ fun <T> Tidslinje<T>.splittPåMåned(): MutableList<List<TidslinjePeriode<T>>> {
                 månedListe = mutableListOf()
                 lengde -= antallDagerIgjenIMåned
                 nåværendeMåned = nåværendeMåned.plusMonths(1)
-                antallDagerIgjenIMåned = nåværendeMåned.lengthOfMonth()
+                antallDagerIgjenIMåned = nåværendeMåned.lengthOfMonth().toLong()
             }
             // kommer koden hit betyr det at gjenstående lengde til perioden er mindre enn antallDagerIgjenIMåned
             if (lengde > 0) {
                 månedListe.add(TidslinjePeriode(periode.periodeVerdi, lengde))
                 antallDagerIgjenIMåned -= lengde
 
-                if (antallDagerIgjenIMåned == 0) {
+                if (antallDagerIgjenIMåned == 0L) {
                     listeAvMåneder.add(månedListe)
                     månedListe = mutableListOf()
                     nåværendeMåned = nåværendeMåned.plusMonths(1)
-                    antallDagerIgjenIMåned = nåværendeMåned.lengthOfMonth()
+                    antallDagerIgjenIMåned = nåværendeMåned.lengthOfMonth().toLong()
                 } else if (index + 1 == this.innhold.size) { // om vi er på siste periode er vi ferdige og månedListe kan addes.
                     listeAvMåneder.add(månedListe)
                 }
@@ -289,7 +276,7 @@ fun <T> Tidslinje<T>.klipp(
                                     .until(
                                         justertSluttTidspunkt,
                                         mapper[this.tidsEnhet],
-                                    ).toInt(),
+                                    ),
                         ),
                     ),
                     this.tidsEnhet,
