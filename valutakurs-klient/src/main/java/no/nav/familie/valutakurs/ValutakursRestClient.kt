@@ -41,7 +41,7 @@ class ValutakursRestClient(
             URI.create(
                 "${ecbApiUrl}${frequency.toFrequencyParam()}.${toCurrencyParams(
                     currencies,
-                )}.EUR.SP00.A/${frequency.toQueryParams(exchangeRateDate)}",
+                )}.EUR.SP00.A${frequency.toQueryParams(exchangeRateDate)}",
             )
         try {
             HttpHeaders().apply {
