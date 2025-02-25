@@ -72,7 +72,7 @@ class ValutakursRestClientTest {
             )
         wireMockServer.stubFor(
             WireMock
-                .get("/D.SEK+NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.SEK+NOK.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -98,7 +98,7 @@ class ValutakursRestClientTest {
         val body = createECBResponseBody(Frequency.Daily, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), valutakursDato.toString())
         wireMockServer.stubFor(
             WireMock
-                .get("/D.NOK+EUR.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.NOK+EUR.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -124,7 +124,7 @@ class ValutakursRestClientTest {
             createECBResponseBody(Frequency.Monthly, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 6).toString())
         wireMockServer.stubFor(
             WireMock
-                .get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
+                .get("/M.NOK.EUR.SP00.A?endPeriod=$valutakursDato&lastNObservations=1")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -145,7 +145,7 @@ class ValutakursRestClientTest {
             createECBResponseBody(Frequency.Monthly, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
             WireMock
-                .get("/M.NOK.EUR.SP00.A/?endPeriod=$valutakursDato&lastNObservations=1")
+                .get("/M.NOK.EUR.SP00.A?endPeriod=$valutakursDato&lastNObservations=1")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -165,7 +165,7 @@ class ValutakursRestClientTest {
         val body = ""
         wireMockServer.stubFor(
             WireMock
-                .get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.NOK+SEK.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -191,7 +191,7 @@ class ValutakursRestClientTest {
         val body = ""
         wireMockServer.stubFor(
             WireMock
-                .get("/D.NOK+SEK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.NOK+SEK.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -218,7 +218,7 @@ class ValutakursRestClientTest {
         val body = createIncompleteECBResponseBody(listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
             WireMock
-                .get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.NOK.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
@@ -239,7 +239,7 @@ class ValutakursRestClientTest {
         val body = createECBResponseBody(Frequency.Daily, listOf(Pair("NOK", BigDecimal.valueOf(10.337))), YearMonth.of(2022, 7).toString())
         wireMockServer.stubFor(
             WireMock
-                .get("/D.NOK.EUR.SP00.A/?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
+                .get("/D.NOK.EUR.SP00.A?startPeriod=$valutakursDato&endPeriod=$valutakursDato")
                 .willReturn(
                     WireMock
                         .aResponse()
