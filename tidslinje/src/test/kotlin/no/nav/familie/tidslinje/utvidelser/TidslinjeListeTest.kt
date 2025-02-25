@@ -122,8 +122,8 @@ class TidslinjeListeTest {
             Tidslinje(
                 start1,
                 listOf(
-                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS) + 1),
+                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS) + 1),
                 ),
             )
 
@@ -137,8 +137,8 @@ class TidslinjeListeTest {
             Tidslinje(
                 start1,
                 listOf(
-                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS).toInt() + 1),
-                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS).toInt() + 1),
+                    TidslinjePeriode(true, start1.until(stopp1, ChronoUnit.DAYS) + 1),
+                    TidslinjePeriode(false, start2.until(stopp2, ChronoUnit.DAYS) + 1),
                 ),
             )
 

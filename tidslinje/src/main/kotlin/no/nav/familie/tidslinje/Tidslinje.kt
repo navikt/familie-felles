@@ -1,7 +1,6 @@
 package no.nav.familie.tidslinje
 
 import no.nav.familie.tidslinje.utvidelser.klipp
-import no.nav.familie.tidslinje.utvidelser.kombinerMed
 import no.nav.familie.tidslinje.utvidelser.map
 import no.nav.familie.tidslinje.utvidelser.mapper
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
@@ -48,7 +47,7 @@ open class Tidslinje<T>(
             }
     }
 
-    fun erTom() = innhold.sumOf { it.lengde } == 0
+    fun erTom() = innhold.sumOf { it.lengde } == 0L
 
     /**
      * Kalkulerer slutttidspunkt som en LocalDate.
@@ -56,8 +55,8 @@ open class Tidslinje<T>(
      * Om tidslinja er uendelig, kastes det et unntak
      */
     fun kalkulerSluttTidspunkt(): LocalDate {
-        val antallTidsEnheter: Int = this.innhold.sumOf { it.lengde }
-        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter.toLong() - 1, mapper[this.tidsEnhet])
+        val antallTidsEnheter = this.innhold.sumOf { it.lengde }
+        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter - 1, mapper[this.tidsEnhet])
 
         return when (this.tidsEnhet) {
             TidsEnhet.ÅR -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfYear())
@@ -66,6 +65,16 @@ open class Tidslinje<T>(
             TidsEnhet.DAG -> sluttTidspunkt
         }
     }
+
+    fun kopier(): Tidslinje<T> =
+        Tidslinje(
+            startsTidspunkt = startsTidspunkt,
+            perioder = innhold,
+            tidsEnhet = tidsEnhet,
+        ).also {
+            it.tittel = tittel
+            it.foreldre.addAll(foreldre)
+        }
 
     private fun kalkulerSluttTidspunkt(sluttDato: LocalDate): LocalDate =
         when (this.tidsEnhet) {
@@ -143,59 +152,12 @@ fun <T> tomTidslinje(
     tidsEnhet: TidsEnhet = TidsEnhet.DAG,
 ): Tidslinje<T> = Tidslinje(startsTidspunkt = startsTidspunkt ?: PRAKTISK_TIDLIGSTE_DAG, emptyList(), tidsEnhet)
 
-fun <K, V, H, R> Map<K, Tidslinje<V>>.leftJoin(
-    høyreTidslinjer: Map<K, Tidslinje<H>>,
-    kombinator: (V?, H?) -> R?,
-): Map<K, Tidslinje<R>> {
-    val venstreTidslinjer = this
-    val venstreNøkler = venstreTidslinjer.keys
-
-    return venstreNøkler.associateWith { nøkkel ->
-        val venstreTidslinje = venstreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
-        val høyreTidslinje = høyreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
-
-        venstreTidslinje.kombinerMed(høyreTidslinje, kombinator)
-    }
-}
-
-fun <K, V, H, R> Map<K, Tidslinje<V>>.outerJoin(
-    høyreTidslinjer: Map<K, Tidslinje<H>>,
-    kombinator: (V?, H?) -> R?,
-): Map<K, Tidslinje<R>> {
-    val venstreTidslinjer = this
-    val alleNøkler = venstreTidslinjer.keys + høyreTidslinjer.keys
-
-    return alleNøkler.associateWith { nøkkel ->
-        val venstreTidslinje = venstreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
-        val høyreTidslinje = høyreTidslinjer.getOrDefault(nøkkel, tomTidslinje())
-
-        venstreTidslinje.kombinerMed(høyreTidslinje, kombinator)
-    }
-}
-
-fun <K, A, B, C, R> Map<K, Tidslinje<A>>.outerJoin(
-    tidslinjer2: Map<K, Tidslinje<B>>,
-    tidslinjer3: Map<K, Tidslinje<C>>,
-    kombinator: (A?, B?, C?) -> R?,
-): Map<K, Tidslinje<R>> {
-    val tidslinjer1 = this
-    val alleNøkler = tidslinjer1.keys + tidslinjer2.keys + tidslinjer3.keys
-
-    return alleNøkler.associateWith { nøkkel ->
-        val tidslinje1 = tidslinjer1.getOrDefault(nøkkel, tomTidslinje())
-        val tidslinje2 = tidslinjer2.getOrDefault(nøkkel, tomTidslinje())
-        val tidslinje3 = tidslinjer3.getOrDefault(nøkkel, tomTidslinje())
-
-        tidslinje1.kombinerMed(tidslinje2, tidslinje3, kombinator)
-    }
-}
-
 fun <T> Tidslinje<T>.beskjærEtter(tidslinje: Tidslinje<*>): Tidslinje<T> =
     this.klipp(tidslinje.startsTidspunkt, tidslinje.kalkulerSluttTidspunkt())
 
 fun <T> Tidslinje<T>.inneholder(verdi: T): Boolean = this.tilPerioder().any { it.verdi == verdi }
 
-fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R): Tidslinje<R> =
+fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R?): Tidslinje<R> =
     this.map { periodeVerdi ->
         when (periodeVerdi) {
             is Verdi,

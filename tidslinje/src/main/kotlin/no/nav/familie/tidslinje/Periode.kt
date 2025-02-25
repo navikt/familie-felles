@@ -13,6 +13,8 @@ data class Periode<T>(
     fun tilTidslinjePeriodeMedDato() = TidslinjePeriodeMedDato(verdi, fom, tom)
 }
 
+fun <T> Periode<T>.tilTidslinje(): Tidslinje<T> = listOf(this).tilTidslinje()
+
 fun <T> List<Periode<T>>.tilTidslinje(): Tidslinje<T> =
     this
         .map { it.tilTidslinjePeriodeMedDato() }
@@ -23,6 +25,14 @@ fun <T> List<Periode<T>>.filtrerIkkeNull(): List<Periode<T & Any>> =
     this.mapNotNull { periode -> periode.verdi?.let { periode as Periode<T & Any> } }
 
 fun <T> List<Periode<T>>.verdier(): List<T> = this.map { it.verdi }
+
+fun <V> Periode<V>.omfatter(tidspunkt: LocalDate) =
+    when {
+        fom == null && tom == null -> true
+        fom == null -> tom!!.isSameOrAfter(tidspunkt)
+        tom == null -> fom.isSameOrBefore(tidspunkt)
+        else -> fom.isSameOrBefore(tidspunkt) && tom.isSameOrAfter(tidspunkt)
+    }
 
 data class IkkeNullbarPeriode<T>(
     val verdi: T,
