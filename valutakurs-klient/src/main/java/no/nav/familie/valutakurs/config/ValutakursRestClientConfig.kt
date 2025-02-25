@@ -26,7 +26,11 @@ class ValutakursRestClientConfig {
     fun xmlRestTemplate(): RestOperations {
         val converter =
             MappingJackson2HttpMessageConverter(xmlMapper()).apply {
-                supportedMediaTypes = listOf(MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"))
+                supportedMediaTypes =
+                    listOf(
+                        MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"),
+                        MediaType.parseMediaType("application/octet-stream"),
+                    )
             }
         return RestTemplateBuilder()
             .additionalMessageConverters(converter)
