@@ -15,8 +15,6 @@ import no.nav.familie.tidslinje.omfatter
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-val TIDENES_ENDE = LocalDate.MAX
-
 val mapper =
     mapOf(
         TidsEnhet.ÅR to ChronoUnit.YEARS,
@@ -255,28 +253,23 @@ private fun <R> klippeOperator(
     }
 
 fun <T> Tidslinje<T>.klipp(
-    startsTidspunkt: LocalDate = this.startsTidspunkt,
+    startTidspunkt: LocalDate = this.startsTidspunkt,
     sluttTidspunkt: LocalDate = kalkulerSluttTidspunkt(),
 ): Tidslinje<T> {
     val foreldre = this.foreldre
 
-    var resultat =
-        if (sluttTidspunkt.isAfter(startsTidspunkt)) {
-            val justertSluttTidspunkt =
-                if (sluttTidspunkt == TIDENES_ENDE) sluttTidspunkt else sluttTidspunkt.plusDays(1)
+    val justertStartTidspunkt = maxOf(this.startsTidspunkt, startTidspunkt)
+    val justertSluttTidspunkt = minOf(this.kalkulerSluttTidspunkt(), sluttTidspunkt).plusDays(1)
 
+    var resultat =
+        if (justertSluttTidspunkt.isAfter(justertStartTidspunkt)) {
             val tidslinjeKlipp =
                 Tidslinje(
-                    startsTidspunkt,
+                    justertStartTidspunkt,
                     listOf(
                         TidslinjePeriode(
-                            true,
-                            lengde =
-                                startsTidspunkt
-                                    .until(
-                                        justertSluttTidspunkt,
-                                        mapper[this.tidsEnhet],
-                                    ),
+                            periodeVerdi = true,
+                            lengde = justertStartTidspunkt.until(justertSluttTidspunkt, mapper[this.tidsEnhet]),
                         ),
                     ),
                     this.tidsEnhet,
@@ -289,13 +282,13 @@ fun <T> Tidslinje<T>.klipp(
                     )
                 }.fjernForeldre()
         } else {
-            Tidslinje(startsTidspunkt, emptyList(), this.tidsEnhet)
+            Tidslinje(justertStartTidspunkt, emptyList(), this.tidsEnhet)
         }
 
     resultat = resultat.trim(Udefinert())
 
     if (resultat.startsTidspunkt > sluttTidspunkt) {
-        resultat.startsTidspunkt = startsTidspunkt
+        resultat.startsTidspunkt = justertStartTidspunkt
     }
 
     resultat.foreldre.addAll(foreldre)
