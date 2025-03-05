@@ -51,12 +51,12 @@ object LeaderClient {
             try {
                 return funksjon()
             } catch (e: Exception) {
-                logger.warn("Kunne ikke hente leader status")
+                logger.info("Kunne ikke hente leader status")
                 throwable = e
             }
             Thread.sleep(forsinkelseIms)
         }
-        logger.error("Kunne ikke hente leader status", throwable)
+        logger.warn("Kunne ikke hente leader status", throwable)
         return null
     }
 }
