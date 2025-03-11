@@ -22,12 +22,12 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250113155636_bb71360</kontrakter.version>
+        <kontrakter.version>3.0_20250311122636_1d65715</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.1.10</kotlin.version>
-        <mockk.version>1.13.16</mockk.version>
-        <nav.security.token.version>5.0.16</nav.security.token.version>
-        <wiremock.version>3.12.0</wiremock.version>        
+        <mockk.version>1.13.17</mockk.version>
+        <nav.security.token.version>5.0.19</nav.security.token.version>
+        <wiremock.version>3.12.1</wiremock.version>        
     </properties>
 
     <modules>
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.22.2</version>
+                <version>11.23.1</version>
             </dependency>
 
             <dependency>
@@ -252,7 +252,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>1.7.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
