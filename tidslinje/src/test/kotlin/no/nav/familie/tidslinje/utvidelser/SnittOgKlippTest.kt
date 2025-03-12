@@ -6,6 +6,7 @@ import no.nav.familie.tidslinje.TidslinjePeriode
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.Verdi
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -122,5 +123,27 @@ class SnittOgKlippTest {
         val klippetTidslinje = tidslinje.klipp(startDato, sluttDato)
 
         assertEquals(tidslinje, klippetTidslinje)
+    }
+
+    @Test
+    fun `klipping av fom skal ikke gjøre en uendelig tidslinje endelig`() {
+        val tidslinje =
+            Tidslinje(
+                startsTidspunkt = LocalDate.of(0, 1, 1),
+                perioder =
+                    listOf(
+                        TidslinjePeriode(periodeVerdi = 970, lengde = 737484, erUendelig = false),
+                        TidslinjePeriode(periodeVerdi = 1054, lengde = 1461, erUendelig = false),
+                        TidslinjePeriode(periodeVerdi = 1083, lengde = 122, erUendelig = false),
+                        TidslinjePeriode(periodeVerdi = 1310, lengde = 184, erUendelig = false),
+                        TidslinjePeriode(periodeVerdi = 1510, lengde = 244, erUendelig = false),
+                        TidslinjePeriode(periodeVerdi = 1766, lengde = 1000000000, erUendelig = true),
+                    ),
+            )
+        val fom = LocalDate.of(2025, 1, 6)
+
+        val klippet = tidslinje.klipp(startTidspunkt = fom)
+
+        assertTrue(klippet.innhold.last().erUendelig)
     }
 }
