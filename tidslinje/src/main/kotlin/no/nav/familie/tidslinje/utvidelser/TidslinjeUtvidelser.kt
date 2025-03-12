@@ -258,6 +258,7 @@ fun <T> Tidslinje<T>.klipp(
 ): Tidslinje<T> {
     val foreldre = this.foreldre
 
+    val erUendelig = sluttTidspunkt >= kalkulerSluttTidspunkt() && innhold.any { it.erUendelig }
     val justertStartTidspunkt = maxOf(this.startsTidspunkt, startTidspunkt)
     val justertSluttTidspunkt = minOf(this.kalkulerSluttTidspunkt(), sluttTidspunkt).plusDays(1)
 
@@ -265,14 +266,16 @@ fun <T> Tidslinje<T>.klipp(
         if (justertSluttTidspunkt.isAfter(justertStartTidspunkt)) {
             val tidslinjeKlipp =
                 Tidslinje(
-                    justertStartTidspunkt,
-                    listOf(
-                        TidslinjePeriode(
-                            periodeVerdi = true,
-                            lengde = justertStartTidspunkt.until(justertSluttTidspunkt, mapper[this.tidsEnhet]),
+                    startsTidspunkt = justertStartTidspunkt,
+                    perioder =
+                        listOf(
+                            TidslinjePeriode(
+                                periodeVerdi = true,
+                                lengde = justertStartTidspunkt.until(justertSluttTidspunkt, mapper[this.tidsEnhet]),
+                                erUendelig = erUendelig,
+                            ),
                         ),
-                    ),
-                    this.tidsEnhet,
+                    tidsEnhet = this.tidsEnhet,
                 )
             this
                 .biFunksjon(tidslinjeKlipp) { status1, status2 ->
