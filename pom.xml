@@ -22,7 +22,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250311122636_1d65715</kontrakter.version>
+        <kontrakter.version>3.0_20250312084645_ae52997</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.1.10</kotlin.version>
         <mockk.version>1.13.17</mockk.version>
