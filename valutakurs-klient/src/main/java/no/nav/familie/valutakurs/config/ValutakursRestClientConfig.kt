@@ -3,6 +3,7 @@ package no.nav.familie.valutakurs.config
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import no.nav.familie.valutakurs.ValutakursRestClient.Companion.APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,7 +29,7 @@ class ValutakursRestClientConfig {
             MappingJackson2HttpMessageConverter(xmlMapper()).apply {
                 supportedMediaTypes =
                     listOf(
-                        MediaType.parseMediaType("application/vnd.sdmx.genericdata+xml;version=2.1"),
+                        MediaType.parseMediaType(APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA),
                         MediaType.parseMediaType("application/octet-stream"),
                     )
             }
