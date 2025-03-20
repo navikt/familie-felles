@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestOperations
@@ -44,14 +43,14 @@ class ValutakursRestClient(
                 )}.EUR.SP00.A${frequency.toQueryParams(exchangeRateDate)}",
             )
         try {
-            HttpHeaders().apply {
-                add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-                add(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
-            }
-            return getForEntity<ECBExchangeRatesData>(uri).toExchangeRates()
+            val headers =
+                HttpHeaders().apply {
+                    add(HttpHeaders.ACCEPT, APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA)
+                }
+            return getForEntity<ECBExchangeRatesData>(uri, headers).toExchangeRates()
         } catch (e: RestClientResponseException) {
             throw ValutakursException(
-                "Kall mot European Central Bank feiler med statuskode ${e.rawStatusCode} for $currencies på dato: $exchangeRateDate",
+                "Kall mot European Central Bank feiler med statuskode ${e.statusCode.value()} for $currencies på dato: $exchangeRateDate",
                 e,
             )
         } catch (e: ValutakursTransformationException) {
@@ -68,6 +67,10 @@ class ValutakursRestClient(
 
     private fun toCurrencyParams(currencies: List<String>): String =
         currencies.reduceIndexed { index, params, currency -> if (index != 0) "$params+$currency" else currency }
+
+    companion object {
+        const val APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA = "application/vnd.sdmx.genericdata+xml;version=2.1"
+    }
 }
 
 enum class Frequency {
