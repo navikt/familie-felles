@@ -83,11 +83,13 @@ fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> 
         .medTittel(this.tittel)
 
 fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
-    val dagerÅForskyveStartsTidspunkt = this.innhold.takeWhile { it.periodeVerdi in periodeVerdier }.sumOf { it.lengde }
+    val antallTidsenheterÅForskyve = this.innhold.takeWhile { it.periodeVerdi in periodeVerdier }.sumOf { it.lengde }
+    val nyttStarsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, mapper[this.tidsEnhet])
 
     val perioder = this.innhold.dropWhile { it.periodeVerdi in periodeVerdier }
 
-    val resultat = Tidslinje(this.startsTidspunkt.plus(dagerÅForskyveStartsTidspunkt, mapper[this.tidsEnhet]), perioder, this.tidsEnhet)
+    val resultat =
+        Tidslinje(nyttStarsTidspunkt, perioder, this.tidsEnhet)
 
     this.foreldre.forEach {
         if (!resultat.foreldre.contains(it)) {
@@ -407,11 +409,11 @@ fun <V> Collection<Periode<V>>.verdiPåTidspunkt(tidspunkt: LocalDate): V? = thi
 fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
     val (tidslinjePeriodeMedLocalDateListe, _) =
         this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) {
-            (
-                tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
-                tidFraStarttidspunktFom: Long,
-            ),
-            tidslinjePeriode,
+                (
+                    tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+                    tidFraStarttidspunktFom: Long,
+                ),
+                tidslinjePeriode,
             ->
             val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
