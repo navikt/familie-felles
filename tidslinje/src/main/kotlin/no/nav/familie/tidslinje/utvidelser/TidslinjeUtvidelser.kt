@@ -84,12 +84,12 @@ fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> 
 
 fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
     val antallTidsenheterÅForskyve = this.innhold.takeWhile { it.periodeVerdi in periodeVerdier }.sumOf { it.lengde }
-    val nyttStarsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, mapper[this.tidsEnhet])
+    val nyttStartsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, mapper[this.tidsEnhet])
 
     val perioder = this.innhold.dropWhile { it.periodeVerdi in periodeVerdier }
 
     val resultat =
-        Tidslinje(nyttStarsTidspunkt, perioder, this.tidsEnhet)
+        Tidslinje(nyttStartsTidspunkt, perioder, this.tidsEnhet)
 
     this.foreldre.forEach {
         if (!resultat.foreldre.contains(it)) {
