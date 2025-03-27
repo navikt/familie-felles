@@ -83,18 +83,13 @@ fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> 
         .medTittel(this.tittel)
 
 fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
-    val perioder = ArrayList(this.innhold)
-    var startsTidspunkt = this.startsTidspunkt
+    val antallTidsenheterÅForskyve = this.innhold.takeWhile { it.periodeVerdi in periodeVerdier }.sumOf { it.lengde }
+    val nyttStartsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, mapper[this.tidsEnhet])
 
-    for (periode in this.innhold) {
-        if (periodeVerdier.contains(periode.periodeVerdi)) {
-            startsTidspunkt = startsTidspunkt.plus(periode.lengde.toLong(), mapper[this.tidsEnhet])
-            perioder.remove(periode)
-        } else {
-            break
-        }
-    }
-    val resultat = Tidslinje(startsTidspunkt, perioder, this.tidsEnhet)
+    val perioder = this.innhold.dropWhile { it.periodeVerdi in periodeVerdier }
+
+    val resultat =
+        Tidslinje(nyttStartsTidspunkt, perioder, this.tidsEnhet)
 
     this.foreldre.forEach {
         if (!resultat.foreldre.contains(it)) {
@@ -106,15 +101,7 @@ fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidsli
 }
 
 fun <T> Tidslinje<T>.trimHøyre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
-    val perioder = ArrayList(this.innhold)
-
-    for (periode in this.innhold.reversed()) {
-        if (periodeVerdier.contains(periode.periodeVerdi)) {
-            perioder.remove(periode)
-        } else {
-            break
-        }
-    }
+    val perioder = this.innhold.dropLastWhile { it.periodeVerdi in periodeVerdier }
 
     val resultat = Tidslinje(this.startsTidspunkt, perioder, this.tidsEnhet)
 
@@ -422,11 +409,11 @@ fun <V> Collection<Periode<V>>.verdiPåTidspunkt(tidspunkt: LocalDate): V? = thi
 fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
     val (tidslinjePeriodeMedLocalDateListe, _) =
         this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) {
-            (
-                tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
-                tidFraStarttidspunktFom: Long,
-            ),
-            tidslinjePeriode,
+                (
+                    tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+                    tidFraStarttidspunktFom: Long,
+                ),
+                tidslinjePeriode,
             ->
             val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
