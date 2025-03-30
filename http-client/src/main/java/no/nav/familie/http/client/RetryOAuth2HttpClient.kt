@@ -30,14 +30,14 @@ class RetryOAuth2HttpClient(
             HttpServerErrorException.BadGateway::class,
         )
 
-    override fun post(oAuth2HttpRequest: OAuth2HttpRequest): OAuth2AccessTokenResponse {
+    override fun post(req: OAuth2HttpRequest): OAuth2AccessTokenResponse {
         var retries = 0
 
         while (true) {
             try {
-                return postRequest(oAuth2HttpRequest)
+                return postRequest(req)
             } catch (e: Exception) {
-                handleException(e, retries++, oAuth2HttpRequest)
+                handleException(e, retries++, req)
             }
         }
     }
