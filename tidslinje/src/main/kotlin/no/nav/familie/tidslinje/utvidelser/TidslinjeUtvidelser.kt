@@ -409,11 +409,11 @@ fun <V> Collection<Periode<V>>.verdiPåTidspunkt(tidspunkt: LocalDate): V? = thi
 fun <T> Tidslinje<T>.tilTidslinjePerioderMedDato(): List<TidslinjePeriodeMedDato<T>> {
     val (tidslinjePeriodeMedLocalDateListe, _) =
         this.innhold.fold(Pair(emptyList<TidslinjePeriodeMedDato<T>>(), 0L)) {
-                (
-                    tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
-                    tidFraStarttidspunktFom: Long,
-                ),
-                tidslinjePeriode,
+            (
+                tidslinjePeriodeMedLocalDateListe: List<TidslinjePeriodeMedDato<T>>,
+                tidFraStarttidspunktFom: Long,
+            ),
+            tidslinjePeriode,
             ->
             val tidFraStarttidspunktTilNesteFom = tidFraStarttidspunktFom + tidslinjePeriode.lengde
 
