@@ -22,12 +22,12 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250324172417_684edfe</kontrakter.version>
+        <kontrakter.version>3.0_20250424145650_af8cea0</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.1.20</kotlin.version>
         <mockk.version>1.13.17</mockk.version>
-        <nav.security.token.version>5.0.24</nav.security.token.version>
-        <wiremock.version>3.12.1</wiremock.version>        
+        <nav.security.token.version>5.0.25</nav.security.token.version>
+        <wiremock.version>3.13.0</wiremock.version>        
     </properties>
 
     <modules>
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.4.4</version>
+                <version>3.4.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
