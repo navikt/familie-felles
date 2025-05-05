@@ -25,7 +25,7 @@
         <kontrakter.version>3.0_20250424145650_af8cea0</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.1.20</kotlin.version>
-        <mockk.version>1.14.0</mockk.version>
+        <mockk.version>1.13.17</mockk.version>
         <nav.security.token.version>5.0.25</nav.security.token.version>
         <wiremock.version>3.13.0</wiremock.version>        
     </properties>
