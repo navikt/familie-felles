@@ -13,14 +13,23 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder
+import org.springframework.boot.http.client.ClientHttpRequestFactorySettings
 import org.springframework.web.client.RestClient
 import java.net.URI
+import java.time.Duration
 
 internal class RetryOAuth2HttpClientTest {
+
+    val settings = ClientHttpRequestFactorySettings(
+        ClientHttpRequestFactorySettings.Redirects.DONT_FOLLOW,
+        Duration.ofSeconds(1),
+        Duration.ofSeconds(1),
+       null
+    )
     val requestFactory =
         ClientHttpRequestFactoryBuilder
             .detect()
-            .build()
+            .build(settings)
 
     val restClient =
         RestClient
