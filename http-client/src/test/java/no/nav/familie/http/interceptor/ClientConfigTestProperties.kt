@@ -1,9 +1,9 @@
 package no.nav.familie.http.interceptor
 
+import com.nimbusds.oauth2.sdk.GrantType
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod
 import no.nav.security.token.support.client.core.ClientAuthenticationProperties
 import no.nav.security.token.support.client.core.ClientProperties
-import no.nav.security.token.support.client.core.OAuth2GrantType
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import java.net.URI
 
@@ -22,7 +22,7 @@ val clientConfigurationProperties =
                 ClientProperties(
                     URI(tokenEndpoint),
                     URI(tokenEndpoint),
-                    OAuth2GrantType.CLIENT_CREDENTIALS,
+                    GrantType.CLIENT_CREDENTIALS,
                     listOf("z", "y", "x"),
                     authentication,
                     URI("http://firstResource.no"),
@@ -32,7 +32,7 @@ val clientConfigurationProperties =
                 ClientProperties(
                     URI(tokenEndpoint),
                     URI(tokenEndpoint),
-                    OAuth2GrantType.JWT_BEARER,
+                    GrantType.JWT_BEARER,
                     listOf("c", "b", "a"),
                     authentication,
                     URI("http://firstResource.no"),
@@ -42,7 +42,7 @@ val clientConfigurationProperties =
                 ClientProperties(
                     URI(tokenEndpoint),
                     URI(tokenEndpoint),
-                    OAuth2GrantType.JWT_BEARER,
+                    GrantType.JWT_BEARER,
                     listOf("z", "y", "x"),
                     authentication,
                     URI("http://jwtResource.no"),
@@ -52,7 +52,7 @@ val clientConfigurationProperties =
                 ClientProperties(
                     URI(tokenEndpoint),
                     URI(tokenEndpoint),
-                    OAuth2GrantType.CLIENT_CREDENTIALS,
+                    GrantType.CLIENT_CREDENTIALS,
                     listOf("z", "y", "x"),
                     authentication,
                     URI("http://clientResource.no"),

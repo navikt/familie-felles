@@ -31,6 +31,7 @@ class NaisProxyCustomizer(
                 .setDefaultRequestConfig(
                     RequestConfig
                         .custom()
+                        // ConnectionConfig.Builder.setConnectTimeout(Timeout
                         .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
                         .setConnectionRequestTimeout(Timeout.ofSeconds(requestTimeout))
                         .build(),
