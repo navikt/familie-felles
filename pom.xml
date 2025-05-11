@@ -22,10 +22,10 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250424145650_af8cea0</kontrakter.version>
+        <kontrakter.version>3.0_20250508163827_676473b</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>2.1.20</kotlin.version>
-        <mockk.version>1.13.17</mockk.version>
+        <mockk.version>1.14.2</mockk.version>
         <nav.security.token.version>5.0.25</nav.security.token.version>
         <wiremock.version>3.13.0</wiremock.version>        
     </properties>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.23.1</version>
+                <version>11.24</version>
             </dependency>
 
             <dependency>
