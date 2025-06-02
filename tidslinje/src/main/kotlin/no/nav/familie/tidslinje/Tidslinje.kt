@@ -167,3 +167,8 @@ fun <T, R> Tidslinje<T>.mapVerdi(mapper: (T?) -> R?): Tidslinje<R> =
             is Udefinert -> Udefinert()
         }
     }
+
+fun <T, R> Tidslinje<T>.mapVerdiMedUndefined(mapper: (T?) -> R?): Tidslinje<R> =
+    this.map { periodeVerdi ->
+        mapper(periodeVerdi.verdi)?.let { Verdi(it) } ?: Null()
+    }
