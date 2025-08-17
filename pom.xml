@@ -22,11 +22,11 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250703092737_0055ff4</kontrakter.version>
+        <kontrakter.version>3.0_20250805142725_8942276</kontrakter.version>
         <kotest.version>5.9.1</kotest.version>
-        <kotlin.version>2.2.0</kotlin.version>
+        <kotlin.version>2.2.10</kotlin.version>
         <mockk.version>1.14.5</mockk.version>
-        <nav.security.token.version>5.0.30</nav.security.token.version>
+        <nav.security.token.version>5.0.34</nav.security.token.version>
         <wiremock.version>3.13.1</wiremock.version>        
     </properties>
 
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.5.3</version>
+                <version>3.5.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.26</version>
+                <version>11.27.1</version>
             </dependency>
 
             <dependency>
@@ -252,7 +252,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.7.1</version>
+                    <version>1.7.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -324,7 +324,7 @@
                     <dependency>
                         <groupId>com.pinterest.ktlint</groupId>
                         <artifactId>ktlint-cli</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.7.1</version>
                     </dependency>
                     <!-- additional 3rd party ruleset(s) can be specified here -->
                 </dependencies>
