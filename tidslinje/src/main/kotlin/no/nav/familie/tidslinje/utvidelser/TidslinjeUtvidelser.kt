@@ -466,3 +466,5 @@ fun <T> Tidslinje<T>.slåSammenLikePerioder(): Tidslinje<T> =
         perioder = this.innhold.slåSammenLike(),
         tidsEnhet = this.tidsEnhet,
     )
+
+fun <T> Periode<List<T>?>.byttUtNullListeMedTomListe(): Periode<List<T>> = this.copy(verdi = this.verdi.orEmpty()) as Periode<List<T>>
