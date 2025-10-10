@@ -53,25 +53,55 @@ class KafkaErrorHandler(
         consumer: Consumer<*, *>,
         container: MessageListenerContainer,
         topic: String,
+        attempt: Int = 1, // <-- NY
     ) {
         val now = System.currentTimeMillis()
         if (now - lastError.getAndSet(now) > COUNTER_RESET_TIME) {
             counter.set(0)
         }
         val numErrors = counter.incrementAndGet()
+
         val delayTime = if (numErrors > SLOW_ERROR_COUNT) LONG_TIME else SHORT_TIME * numErrors
+
         taskScheduler.schedule(
             {
                 try {
-                    logger.warn("Starter kafka container for {}", topic)
+                    if (container.isRunning) {
+                        logger.info("Container for {} kjører allerede – avbryter restart.", topic)
+                        return@schedule
+                    }
+                    logger.warn("Starter kafka container for {} (forsøk #{})", topic, attempt)
                     container.start()
+                    logger.info("Kafka container for {} startet OK.", topic)
                 } catch (exception: Exception) {
-                    logger.error("Feil oppstod ved venting og oppstart av kafka container", exception)
+                    logger.error(
+                        "Feil oppstod ved venting/oppstart av kafka container for {} (forsøk #{}). Planlegger nytt forsøk.",
+                        topic,
+                        attempt,
+                        exception,
+                    )
+
+                    val nextDelay =
+                        (delayTime * 2).coerceAtMost(Duration.ofMinutes(5).toMillis()) // dobler frem til max 5 min
+
+                    taskScheduler.schedule(
+                        {
+                            scheduleRestart(
+                                exception,
+                                records,
+                                consumer,
+                                container,
+                                topic,
+                                attempt + 1,
+                            )
+                        },
+                        Instant.ofEpochMilli(System.currentTimeMillis() + nextDelay),
+                    )
                 }
             },
             Instant.ofEpochMilli(now + delayTime),
         )
-        logger.warn("Stopper kafka container for {} i {}", topic, Duration.ofMillis(delayTime).toString())
+        logger.warn("Stopper kafka container for {} i {}", topic, Duration.ofMillis(delayTime))
         super.handleRemaining(
             Exception("Sjekk securelogs for mer info - ${e::class.java.simpleName}"),
             records,

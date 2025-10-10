@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class ByttUtNullListeMedTomListeTest {
-
     private val femÅrSiden = LocalDate.now().minusYears(5)
     private val fireÅrOgÉnDagSiden = LocalDate.now().minusYears(4).minusDays(1)
     private val fireÅrSiden = LocalDate.now().minusYears(4)
@@ -18,11 +17,12 @@ class ByttUtNullListeMedTomListeTest {
     @Test
     fun byttUtNullListeMedTomListe() {
         // Arrange
-        val tidslinjeMedNullListe = listOf<Periode<List<String>?>>(
-            Periode(listOf("a"), femÅrSiden, fireÅrOgÉnDagSiden),
-            Periode(null, fireÅrSiden, treÅrOgÉnDagSiden),
-            Periode(listOf("b"), treÅrSiden, nå)
-        ).tilTidslinje()
+        val tidslinjeMedNullListe =
+            listOf<Periode<List<String>?>>(
+                Periode(listOf("a"), femÅrSiden, fireÅrOgÉnDagSiden),
+                Periode(null, fireÅrSiden, treÅrOgÉnDagSiden),
+                Periode(listOf("b"), treÅrSiden, nå),
+            ).tilTidslinje()
 
         // Act
         val tidslinjeMedTomListeIstedetForNull = tidslinjeMedNullListe.tilPerioder().map { it.byttUtNullListeMedTomListe() }
@@ -31,5 +31,4 @@ class ByttUtNullListeMedTomListeTest {
         Assertions.assertNotNull(tidslinjeMedTomListeIstedetForNull.find { it.fom == fireÅrSiden }?.verdi)
         Assertions.assertEquals(emptyList<String>(), tidslinjeMedTomListeIstedetForNull.find { it.fom == fireÅrSiden }?.verdi)
     }
-
 }
