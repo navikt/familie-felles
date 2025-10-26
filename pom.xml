@@ -22,11 +22,11 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>3.0_20250908122449_a228daf</kontrakter.version>
-        <kotest.version>6.0.3</kotest.version>
-        <kotlin.version>2.2.10</kotlin.version>
-        <mockk.version>1.14.5</mockk.version>
-        <nav.security.token.version>5.0.36</nav.security.token.version>
+        <kontrakter.version>3.0_20251020145843_3354592</kontrakter.version>
+        <kotest.version>6.0.4</kotest.version>
+        <kotlin.version>2.2.21</kotlin.version>
+        <mockk.version>1.14.6</mockk.version>
+        <nav.security.token.version>5.0.37</nav.security.token.version>
         <wiremock.version>3.13.1</wiremock.version>        
     </properties>
 
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.5.5</version>
+                <version>3.5.7</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.28</version>
+                <version>11.30</version>
             </dependency>
 
             <dependency>
@@ -239,7 +239,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.3</version>
+                    <version>3.5.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -252,7 +252,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.7.2</version>
+                    <version>1.7.3</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -284,7 +284,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>ktlint</id>
