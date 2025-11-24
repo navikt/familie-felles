@@ -4,20 +4,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-class RestTemplateBuilderBean(
-    private val naisProxyCustomizer: NaisProxyCustomizer,
-) {
+@Import(NaisProxyCustomizer::class)
+class RestTemplateBuilderBean {
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
-    fun restTemplateBuilderWithProxy(): RestTemplateBuilder {
-        val client = naisProxyCustomizer.buildHttpClientWithProxy()
-        return RestTemplateBuilder()
-            .requestFactory { HttpComponentsClientHttpRequestFactory(client) }
-    }
+    fun restTemplateBuilder(naisProxyCustomizer: NaisProxyCustomizer): RestTemplateBuilder =
+        naisProxyCustomizer.customize(RestTemplateBuilder())
 
     /**
      * Denne bønnnen initialiseres hvis proxy-url ikke finnes. Hvis proxy-url finnnes vil bønnen over initialiseres og
