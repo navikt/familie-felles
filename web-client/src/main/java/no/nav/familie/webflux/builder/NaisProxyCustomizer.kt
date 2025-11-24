@@ -4,7 +4,6 @@ import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.client.HttpProxy
 import org.eclipse.jetty.client.Origin
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.web.reactive.function.client.WebClientCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.JettyClientHttpConnector
