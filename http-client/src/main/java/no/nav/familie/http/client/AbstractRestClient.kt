@@ -64,7 +64,7 @@ abstract class AbstractRestClient(
         httpHeaders: HttpHeaders? = null,
     ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
 
-    private fun <T> validerOgPakkUt(
+    private fun <T : Any> validerOgPakkUt(
         respons: ResponseEntity<T>,
         uri: URI,
     ): T {
@@ -73,10 +73,10 @@ abstract class AbstractRestClient(
             log.info("Kall mot $uri feilet: ${respons.statusCode}")
             throw HttpServerErrorException(respons.statusCode, "", respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
         }
-        return respons.body as T
+        return respons.body ?: throw NullPointerException("Response body var null for vellykket kall mot $uri")
     }
 
-    fun <T> executeMedMetrics(
+    fun <T : Any> executeMedMetrics(
         uri: URI,
         function: () -> ResponseEntity<T>,
     ): T {
@@ -97,6 +97,10 @@ abstract class AbstractRestClient(
         } catch (e: ResourceAccessException) {
             responsFailure.increment()
             secureLogger.warn("ResourceAccessException ved kall mot uri=$uri", e)
+            throw e
+        } catch (e: NullPointerException) {
+            responsSuccess.increment()
+            secureLogger.warn("NullPointerException ved kall mot uri=$uri", e)
             throw e
         } catch (e: Exception) {
             responsFailure.increment()

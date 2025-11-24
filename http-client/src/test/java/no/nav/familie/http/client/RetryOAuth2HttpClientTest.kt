@@ -1,125 +1,101 @@
 package no.nav.familie.http.client
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.http.Fault
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
-import no.nav.security.token.support.client.core.http.OAuth2HttpHeaders
 import no.nav.security.token.support.client.core.http.OAuth2HttpRequest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder
-import org.springframework.boot.http.client.ClientHttpRequestFactorySettings
+import org.junit.jupiter.api.TestInstance
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import java.net.URI
-import java.time.Duration
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class RetryOAuth2HttpClientTest {
+    private lateinit var wireMockServer: WireMockServer
+    private lateinit var client: RetryOAuth2HttpClient
 
-    val settings = ClientHttpRequestFactorySettings(
-        ClientHttpRequestFactorySettings.Redirects.DONT_FOLLOW,
-        Duration.ofSeconds(1),
-        Duration.ofSeconds(1),
-       null
-    )
-    val requestFactory =
-        ClientHttpRequestFactoryBuilder
-            .detect()
-            .build(settings)
+    @BeforeAll
+    fun setupServer() {
+        wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
+        wireMockServer.start()
 
-    val restClient =
-        RestClient
-            .builder()
-            .requestFactory(requestFactory)
-            .build()
-    val client = RetryOAuth2HttpClient(restClient)
+        val requestFactory =
+            HttpComponentsClientHttpRequestFactory().apply {
+                setConnectionRequestTimeout(1000)
+                setReadTimeout(1000)
+            }
+
+        val restClient =
+            RestClient
+                .builder()
+                .requestFactory(requestFactory)
+                .build()
+
+        client = RetryOAuth2HttpClient(restClient)
+    }
+
+    @AfterAll
+    fun tearDown() {
+        wireMockServer.stop()
+    }
 
     @BeforeEach
-    internal fun setUp() {
+    fun resetMocks() {
         wireMockServer.resetAll()
     }
 
     @Test
-    internal fun `200 - skal kun kalle en gang`() {
-        stub(WireMock.aResponse().withBody("{}"))
-        post()
-        wireMockServer.verify(1, RequestPatternBuilder.allRequests())
-    }
+    fun `200 - skal kun kalle en gang`() = stubAndPost(WireMock.aResponse().withBody("{}"), expectedCalls = 1)
 
     @Test
-    internal fun `404 - skal kun kalle en gang`() {
-        stub(WireMock.notFound())
-        post()
-        wireMockServer.verify(1, RequestPatternBuilder.allRequests())
-    }
+    fun `404 - skal kun kalle en gang`() = stubAndPost(WireMock.notFound(), expectedCalls = 1)
 
     @Test
-    internal fun `503 - skal prøve på nytt`() {
-        stub(WireMock.serviceUnavailable())
-        post()
-        wireMockServer.verify(2, RequestPatternBuilder.allRequests())
-    }
+    fun `503 - skal prøve på nytt`() = stubAndPost(WireMock.serviceUnavailable(), expectedCalls = 2)
 
     @Test
-    internal fun `502 - skal prøve på nytt`() {
-        stub(WireMock.serverError().withStatus(502).withFault(Fault.CONNECTION_RESET_BY_PEER))
-        post()
-        wireMockServer.verify(3, RequestPatternBuilder.allRequests())
-    }
-
-    @Test
-    internal fun `socketException - skal prøve på nytt`() {
-        stub(WireMock.serverError().withFault(Fault.CONNECTION_RESET_BY_PEER))
-        post()
-        wireMockServer.verify(3, RequestPatternBuilder.allRequests())
-    }
-
-    @Test
-    internal fun `timeout - skal prøve på nytt ved timeout`() {
-        stub(WireMock.serverError().withFixedDelay(2000))
-        post()
-        wireMockServer.verify(3, RequestPatternBuilder.allRequests())
-    }
-
-    private fun stub(responseDefinitionBuilder: ResponseDefinitionBuilder?) {
-        wireMockServer.stubFor(
-            WireMock
-                .post(WireMock.anyUrl())
-                .willReturn(responseDefinitionBuilder),
+    fun `502 - skal prøve på nytt`() =
+        stubAndPost(
+            WireMock.serverError().withStatus(502).withFault(Fault.CONNECTION_RESET_BY_PEER),
+            expectedCalls = 3,
         )
-    }
 
-    private fun post(): Exception? =
+    @Test
+    fun `socketException - skal prøve på nytt`() =
+        stubAndPost(
+            WireMock.serverError().withFault(Fault.CONNECTION_RESET_BY_PEER),
+            expectedCalls = 3,
+        )
+
+    @Test
+    fun `timeout - skal prøve på nytt ved timeout`() =
+        stubAndPost(
+            WireMock.serverError().withFixedDelay(2000),
+            expectedCalls = 3,
+        )
+
+    private fun stubAndPost(
+        response: com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder,
+        expectedCalls: Int,
+    ) {
+        wireMockServer.stubFor(WireMock.post(WireMock.anyUrl()).willReturn(response))
         try {
             client.post(
                 OAuth2HttpRequest
                     .builder(URI.create(wireMockServer.baseUrl()))
-                    .oAuth2HttpHeaders(OAuth2HttpHeaders.builder().build())
-                    .build(),
+                    .oAuth2HttpHeaders(
+                        no.nav.security.token.support.client.core.http.OAuth2HttpHeaders
+                            .builder()
+                            .build(),
+                    ).build(),
             )
-            null
-        } catch (e: Exception) {
-            e
+        } catch (_: Exception) {
         }
-
-    companion object {
-        private lateinit var wireMockServer: WireMockServer
-
-        @BeforeAll
-        @JvmStatic
-        fun initClass() {
-            wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
-            wireMockServer.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun tearDown() {
-            wireMockServer.stop()
-        }
+        wireMockServer.verify(expectedCalls, WireMock.postRequestedFor(WireMock.anyUrl()))
     }
 }
