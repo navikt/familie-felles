@@ -12,10 +12,10 @@ import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.stereotype.Component
 
-@Configuration
+@Component
 class NaisProxyCustomizer(
     @Value("\${familie.nais.proxy.connectTimeout:15000}") val connectTimeout: Long,
     @Value("\${familie.nais.proxy.socketTimeout:15000}") val socketTimeout: Long,
