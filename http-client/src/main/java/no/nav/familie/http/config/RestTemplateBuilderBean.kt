@@ -13,8 +13,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 class RestTemplateBuilderBean {
     @Bean
     @ConditionalOnProperty("no.nav.security.jwt.issuer.azuread.proxyurl")
-    fun restTemplateBuilder(naisProxyCustomizer: NaisProxyCustomizer): RestTemplateBuilder =
-        naisProxyCustomizer.customize(RestTemplateBuilder())
+    fun restTemplateBuilder(iNaisProxyCustomizer: INaisProxyCustomizer): RestTemplateBuilder = RestTemplateBuilder(iNaisProxyCustomizer)
 
     /**
      * Denne bønnnen initialiseres hvis proxy-url ikke finnes. Hvis proxy-url finnnes vil bønnen over initialiseres og
