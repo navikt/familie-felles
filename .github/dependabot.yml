@@ -13,6 +13,10 @@ updates:
       interval: weekly
       day: "sunday"
       time: "04:00"
+    cooldown:
+      default-days: 4
+      exclude:
+        - "no.nav.familie*"
     open-pull-requests-limit: 10
     registries:
       - familie-felles
@@ -26,6 +30,10 @@ updates:
       interval: weekly
       day: "sunday"
       time: "04:00"
+    cooldown:
+      default-days: 4
+      exclude:
+        - "no.nav.familie*"
     groups:
       workflows:
         patterns:
