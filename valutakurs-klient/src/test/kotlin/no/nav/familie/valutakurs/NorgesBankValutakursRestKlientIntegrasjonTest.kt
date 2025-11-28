@@ -3,13 +3,11 @@ package no.nav.familie.valutakurs
 import no.nav.familie.valutakurs.config.SDMXValutakursRestKlientConfig
 import no.nav.familie.valutakurs.domene.norgesbank.Frekvens
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@Tag("integration")
 class NorgesBankValutakursRestKlientIntegrasjonTest {
     @Test
     fun `Test mot Norges Bank at vi får hentet valutakurs`() {

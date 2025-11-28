@@ -3,12 +3,10 @@ package no.nav.familie.valutakurs
 import no.nav.familie.valutakurs.config.SDMXValutakursRestKlientConfig
 import no.nav.familie.valutakurs.domene.ecb.Frequency
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.time.LocalDate
 
-@Tag("integration")
 class ValutakursRestClientIntegrasjonTest {
     @Test
     fun `Test mot ECB at vi får hentet valutakurs`() {
