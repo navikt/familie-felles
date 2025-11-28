@@ -1,10 +1,10 @@
-package no.nav.familie.valutakurs.domene
+package no.nav.familie.valutakurs.domene.sdmx
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 
-data class ECBExchangeRatesDataSet(
+data class SDMXExchangeRatesDataSet(
     @field:JacksonXmlElementWrapper(useWrapping = false)
     @field:JacksonXmlProperty(localName = "Series")
-    val ecbExchangeRatesForCurrencies: List<ECBExchangeRatesForCurrency>,
+    val sdmxExchangeRatesForCurrencies: List<SDMXExchangeRatesForCurrency>,
 )

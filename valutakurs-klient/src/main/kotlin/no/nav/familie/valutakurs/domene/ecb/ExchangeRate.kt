@@ -1,4 +1,4 @@
-package no.nav.familie.valutakurs.domene
+package no.nav.familie.valutakurs.domene.ecb
 
 import java.math.BigDecimal
 import java.time.LocalDate

@@ -1,20 +1,20 @@
-package no.nav.familie.valutakurs.domene
+package no.nav.familie.valutakurs.domene.sdmx
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import java.math.BigDecimal
 
-data class ECBExchangeRate(
+data class SDMXExchangeRate(
     @field:JacksonXmlProperty(localName = "ObsDimension")
-    val date: ECBExchangeRateDate,
+    val date: SDMXExchangeRateDate,
     @field:JacksonXmlProperty(localName = "ObsValue")
-    val ecbExchangeRateValue: ECBExchangeRateValue,
+    val sdmxExchangeRateValue: SDMXExchangeRateValue,
 )
 
-data class ECBExchangeRateDate(
+data class SDMXExchangeRateDate(
     @field:JacksonXmlProperty(isAttribute = true)
     val value: String,
 )
 
-data class ECBExchangeRateValue(
+data class SDMXExchangeRateValue(
     @field:JacksonXmlProperty(isAttribute = true)
     val value: BigDecimal,
 )
