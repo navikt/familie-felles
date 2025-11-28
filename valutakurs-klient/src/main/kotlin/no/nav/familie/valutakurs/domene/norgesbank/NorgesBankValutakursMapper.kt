@@ -93,9 +93,10 @@ object NorgesBankValutakursMapper {
     }
 
 /**
-     * Norges Bank leverer ikke alltid valutakurs opp mot 1 NOK, men leverer i noen tilfeller opp mot 10, 100 og 1000 NOK.
-     * Vi må derfor hente ut enhets-multiplikatoren med id *UNIT_MULT* og bruke denne for å kalkulere kursen opp mot 1 NOK.
+     * Norges Bank leverer ikke alltid valutakurs på lik enhet, men leverer i noen tilfeller enhetsverdi multiplisert med 10, 100 eller 1000.
+     * Vi må derfor hente ut enhets-multiplikatoren med id *UNIT_MULT* og bruke denne for å kalkulere enhetsverdien.
      * Kursen kalkuleres ved (kurs / 10^UNIT_MULT). Altså vil det bli henholdsvis kurs/1, kurs/10, kurs/100 osv basert på verdien til *UNIT_MULT*.
+     * Eksempelvis leveres kursen for DKK som verdien av 100 DKK og ikke 1 DKK. I dette tilfellet er *UNIT_MULT* satt til 2, og vi finner enhetsverdien ved ta kurs/100.
      * Runder av kursen til 4 desimaler da det er dette vi tidligere fikk direkte fra ECB.
      */
     private fun NorgesBankValutakursData.tilKalkulertKurs(): BigDecimal {
