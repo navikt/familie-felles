@@ -1,5 +1,6 @@
 package no.nav.familie.valutakurs.domene.norgesbank
 
+import no.nav.familie.valutakurs.domene.Valutakurs
 import no.nav.familie.valutakurs.exception.NorgesBankValutakursMappingException
 import java.math.BigDecimal
 import java.math.RoundingMode

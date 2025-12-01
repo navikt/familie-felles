@@ -1,10 +1,10 @@
 package no.nav.familie.valutakurs
 
 import no.nav.familie.valutakurs.config.SDMXValutakursRestKlientConfig
+import no.nav.familie.valutakurs.domene.Valutakurs
 import no.nav.familie.valutakurs.domene.norgesbank.Frekvens
 import no.nav.familie.valutakurs.domene.norgesbank.NorgesBankValutakursData
 import no.nav.familie.valutakurs.domene.norgesbank.NorgesBankValutakursMapper.tilValutakurs
-import no.nav.familie.valutakurs.domene.norgesbank.Valutakurs
 import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.NorgesBankValutakursMappingException
 import no.nav.familie.valutakurs.exception.ValutakursException

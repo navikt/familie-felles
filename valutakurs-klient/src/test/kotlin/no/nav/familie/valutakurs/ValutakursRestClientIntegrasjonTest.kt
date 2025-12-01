@@ -24,8 +24,8 @@ class ValutakursRestClientIntegrasjonTest {
             )
 
         assertEquals(1, kurser.size)
-        assertEquals(kursdato, kurser.first().date)
-        assertEquals("NOK", kurser.first().currency)
-        assertEquals(BigDecimal.valueOf(11.5975), kurser.first().exchangeRate)
+        assertEquals(kursdato, kurser.first().kursDato)
+        assertEquals("NOK", kurser.first().valuta)
+        assertEquals(BigDecimal.valueOf(11.5975), kurser.first().kurs)
     }
 }

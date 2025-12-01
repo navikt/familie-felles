@@ -2,6 +2,7 @@ package no.nav.familie.valutakurs.domene.ecb
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import no.nav.familie.valutakurs.domene.Valutakurs
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
@@ -24,7 +25,7 @@ fun ECBValutakursData.exchangeRatesForCurrency(currency: String): List<SDMXExcha
         }.flatMap { it.sdmxExchangeRates }
 
 @Throws(ValutakursTransformationException::class)
-fun ECBValutakursData.toExchangeRates(): List<ExchangeRate> {
+fun ECBValutakursData.toExchangeRates(): List<Valutakurs> {
     try {
         return this.sdmxExchangeRatesDataSet.sdmxExchangeRatesForCurrencies
             .flatMap { ecbExchangeRatesForCurrency ->
@@ -40,7 +41,7 @@ fun ECBValutakursData.toExchangeRates(): List<ExchangeRate> {
                                     .parse(ecbExchangeRate.date.value)
                                     .atEndOfMonth()
                             }
-                        ExchangeRate(currency, ecbExchangeRate.sdmxExchangeRateValue.value, date)
+                        Valutakurs(currency, ecbExchangeRate.sdmxExchangeRateValue.value, date)
                     }
             }
     } catch (e: NoSuchElementException) {

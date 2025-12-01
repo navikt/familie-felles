@@ -8,7 +8,7 @@ import no.nav.familie.valutakurs.SDMXRestKlient.Companion.APPLICATION_CONTEXT_SD
 import no.nav.familie.valutakurs.config.SDMXValutakursRestKlientConfig
 import no.nav.familie.valutakurs.domene.ecb.ECBValutakursData
 import no.nav.familie.valutakurs.domene.ecb.Frequency
-import no.nav.familie.valutakurs.domene.ecb.exchangeRateForCurrency
+import no.nav.familie.valutakurs.domene.exchangeRateForCurrency
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateDate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
@@ -91,8 +91,8 @@ class ValutakursRestClientTest {
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
             assertNotNull(sekValutakurs)
             assertNotNull(nokValutakurs)
-            assertEquals(valutakursDato, sekValutakurs?.date)
-            assertEquals(valutakursDato, nokValutakurs?.date)
+            assertEquals(valutakursDato, sekValutakurs?.kursDato)
+            assertEquals(valutakursDato, nokValutakurs?.kursDato)
         }
 
         @Test
@@ -117,7 +117,7 @@ class ValutakursRestClientTest {
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
             assertNull(eurValutakurs)
             assertNotNull(nokValutakurs)
-            assertEquals(valutakursDato, nokValutakurs?.date)
+            assertEquals(valutakursDato, nokValutakurs?.kursDato)
         }
 
         @Test
@@ -138,7 +138,7 @@ class ValutakursRestClientTest {
             )
             val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
-            assertEquals(YearMonth.of(2022, 6).atEndOfMonth(), nokValutakurs?.date)
+            assertEquals(YearMonth.of(2022, 6).atEndOfMonth(), nokValutakurs?.kursDato)
         }
 
         @Test
@@ -159,7 +159,7 @@ class ValutakursRestClientTest {
             )
             val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
-            assertEquals(YearMonth.of(2022, 7).atEndOfMonth(), nokValutakurs?.date)
+            assertEquals(YearMonth.of(2022, 7).atEndOfMonth(), nokValutakurs?.kursDato)
         }
 
         @Test

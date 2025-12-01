@@ -1,8 +1,8 @@
 package no.nav.familie.valutakurs
 
 import no.nav.familie.valutakurs.config.SDMXValutakursRestKlientConfig
+import no.nav.familie.valutakurs.domene.Valutakurs
 import no.nav.familie.valutakurs.domene.ecb.ECBValutakursData
-import no.nav.familie.valutakurs.domene.ecb.ExchangeRate
 import no.nav.familie.valutakurs.domene.ecb.Frequency
 import no.nav.familie.valutakurs.domene.ecb.toExchangeRates
 import no.nav.familie.valutakurs.exception.IngenValutakursException
@@ -35,7 +35,7 @@ class ValutakursRestClient(
         frequency: Frequency,
         currencies: List<String>,
         exchangeRateDate: LocalDate,
-    ): List<ExchangeRate> {
+    ): List<Valutakurs> {
         val uri = lagECBURI(frequency, currencies, exchangeRateDate)
         try {
             logger.info("Henter valutakurs fra ECB for ${currencies.toCurrencyParams()} på dato $exchangeRateDate")
