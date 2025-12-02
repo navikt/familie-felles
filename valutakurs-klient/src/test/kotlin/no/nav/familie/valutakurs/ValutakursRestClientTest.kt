@@ -40,7 +40,7 @@ class ValutakursRestClientTest {
     companion object {
         private lateinit var wireMockServer: WireMockServer
 
-        private lateinit var valutakursRestClient: ValutakursRestClient
+        private lateinit var ecbValutakursRestKlient: ECBValutakursRestKlient
         private lateinit var xmlMapper: XmlMapper
 
         @BeforeAll
@@ -52,7 +52,8 @@ class ValutakursRestClientTest {
             val config = SDMXValutakursRestKlientConfig()
             xmlMapper = config.xmlMapper()
             val restTemplate = config.xmlRestTemplate()
-            valutakursRestClient = ValutakursRestClient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
+            ecbValutakursRestKlient =
+                ECBValutakursRestKlient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
         }
 
         @AfterAll
@@ -84,7 +85,7 @@ class ValutakursRestClientTest {
                             .withBody(body),
                     ),
             )
-            val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
+            val valutakurser = ecbValutakursRestKlient.hentValutakurs(Frequency.Daily, listOf("SEK", "NOK"), valutakursDato)
             assertNotNull(valutakurser)
             assertEquals(2, valutakurser.size)
             val sekValutakurs = valutakurser.exchangeRateForCurrency("SEK")
@@ -110,7 +111,7 @@ class ValutakursRestClientTest {
                             .withBody(body),
                     ),
             )
-            val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
+            val valutakurser = ecbValutakursRestKlient.hentValutakurs(Frequency.Daily, listOf("NOK", "EUR"), valutakursDato)
             assertNotNull(valutakurser)
             assertEquals(1, valutakurser.size)
             val eurValutakurs = valutakurser.exchangeRateForCurrency("EUR")
@@ -136,7 +137,7 @@ class ValutakursRestClientTest {
                             .withBody(body),
                     ),
             )
-            val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
+            val valutakurser = ecbValutakursRestKlient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
             assertEquals(YearMonth.of(2022, 6).atEndOfMonth(), nokValutakurs?.kursDato)
         }
@@ -157,7 +158,7 @@ class ValutakursRestClientTest {
                             .withBody(body),
                     ),
             )
-            val valutakurser = valutakursRestClient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
+            val valutakurser = ecbValutakursRestKlient.hentValutakurs(Frequency.Monthly, listOf("NOK"), valutakursDato)
             val nokValutakurs = valutakurser.exchangeRateForCurrency("NOK")
             assertEquals(YearMonth.of(2022, 7).atEndOfMonth(), nokValutakurs?.kursDato)
         }
@@ -179,7 +180,7 @@ class ValutakursRestClientTest {
             )
             val valutakursClientException =
                 assertThrows<ValutakursClientException> {
-                    valutakursRestClient.hentValutakurs(
+                    ecbValutakursRestKlient.hentValutakurs(
                         Frequency.Daily,
                         listOf("NOK", "SEK"),
                         valutakursDato,
@@ -205,7 +206,7 @@ class ValutakursRestClientTest {
             )
             val valutakursClientException =
                 assertThrows<ValutakursClientException> {
-                    valutakursRestClient.hentValutakurs(
+                    ecbValutakursRestKlient.hentValutakurs(
                         Frequency.Daily,
                         listOf("NOK", "SEK"),
                         valutakursDato,
@@ -232,7 +233,7 @@ class ValutakursRestClientTest {
             )
             val valutakursClientException =
                 assertThrows<ValutakursClientException> {
-                    valutakursRestClient.hentValutakurs(
+                    ecbValutakursRestKlient.hentValutakurs(
                         Frequency.Daily,
                         listOf("NOK"),
                         valutakursDato,
@@ -260,7 +261,7 @@ class ValutakursRestClientTest {
             )
             val valutakursClientException =
                 assertThrows<ValutakursClientException> {
-                    valutakursRestClient.hentValutakurs(
+                    ecbValutakursRestKlient.hentValutakurs(
                         Frequency.Daily,
                         listOf("NOK"),
                         valutakursDato,

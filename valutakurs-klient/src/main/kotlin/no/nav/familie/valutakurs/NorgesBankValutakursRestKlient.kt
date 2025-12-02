@@ -39,16 +39,12 @@ class NorgesBankValutakursRestKlient(
         val uri = lagNorgesBankURI(frekvens, valuta, kursDato)
         try {
             logger.info("Henter valutakurs fra Norges Bank for $valuta på dato $kursDato")
-            return hentValutakurs<NorgesBankValutakursData>(
-                uri,
-            ).tilValutakurs(valuta = valuta, frekvens = frekvens, kursDato = kursDato)
+            return hentValutakurs<NorgesBankValutakursData>(uri)
+                .tilValutakurs(valuta = valuta, frekvens = frekvens, kursDato = kursDato)
         } catch (e: NorgesBankValutakursMappingException) {
             throw ValutakursException(message = e.message!!, e)
         } catch (e: NullPointerException) {
-            throw IngenValutakursException(
-                "Fant ingen valutakurser.",
-                e,
-            )
+            throw IngenValutakursException("Fant ingen valutakurser.", e)
         }
     }
 

@@ -77,9 +77,7 @@ object NorgesBankValutakursMapper {
 
     private fun NorgesBankValutakursSeries.validerInnsamlingstidspunkt() {
         val innsamlingstidspunkt = hentAttribute("COLLECTION")
-        if (innsamlingstidspunkt !=
-            "C"
-        ) {
+        if (innsamlingstidspunkt != "C") {
             throw NorgesBankValutakursMappingException.UgyldigData(
                 "Forventer at innsamlingstidspunkt er 'C' men fikk '$innsamlingstidspunkt'.",
             )

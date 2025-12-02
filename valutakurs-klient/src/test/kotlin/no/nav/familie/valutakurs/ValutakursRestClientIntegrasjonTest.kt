@@ -14,7 +14,7 @@ class ValutakursRestClientIntegrasjonTest {
         val config = SDMXValutakursRestKlientConfig()
 
         val kurser =
-            ValutakursRestClient(
+            ECBValutakursRestKlient(
                 restOperations = config.xmlRestTemplate(),
                 ecbApiUrl = "https://data-api.ecb.europa.eu/service/data/EXR/",
             ).hentValutakurs(

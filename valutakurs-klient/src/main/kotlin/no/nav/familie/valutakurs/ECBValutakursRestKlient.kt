@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 @Component
 @Import(SDMXValutakursRestKlientConfig::class)
-class ValutakursRestClient(
+class ECBValutakursRestKlient(
     @Qualifier("sdmxXmlRestTemplate") restOperations: RestOperations,
     @param:Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://data-api.ecb.europa.eu/service/data/EXR/",
 ) : SDMXRestKlient(restOperations, "ecb") {
@@ -65,6 +65,6 @@ class ValutakursRestClient(
         this.reduceIndexed { index, params, currency -> if (index != 0) "$params+$currency" else currency }
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(ValutakursRestClient::class.java)
+        val logger: Logger = LoggerFactory.getLogger(ECBValutakursRestKlient::class.java)
     }
 }
