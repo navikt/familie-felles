@@ -1,35 +1,38 @@
-package no.nav.familie.valutakurs.domene
+package no.nav.familie.valutakurs.domene.ecb
+
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
+import no.nav.familie.valutakurs.domene.Valutakurs
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
+import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeParseException
-import kotlin.jvm.Throws
 
 @JacksonXmlRootElement(localName = "GenericData")
-data class ECBExchangeRatesData(
+data class ECBValutakursData(
     @field:JacksonXmlProperty(localName = "DataSet")
-    val ecbExchangeRatesDataSet: ECBExchangeRatesDataSet,
+    val sdmxExchangeRatesDataSet: SDMXExchangeRatesDataSet,
 )
 
-fun ECBExchangeRatesData.exchangeRatesForCurrency(currency: String): List<ECBExchangeRate> =
-    this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies
+fun ECBValutakursData.exchangeRatesForCurrency(currency: String): List<SDMXExchangeRate> =
+    this.sdmxExchangeRatesDataSet.sdmxExchangeRatesForCurrencies
         .filter {
-            it.ecbExchangeRateKeys.any { ecbKeyValue ->
+            it.sdmxExchangeRateKeys.any { ecbKeyValue ->
                 ecbKeyValue.id == "CURRENCY" && ecbKeyValue.value == currency
             }
-        }.flatMap { it.ecbExchangeRates }
+        }.flatMap { it.sdmxExchangeRates }
 
 @Throws(ValutakursTransformationException::class)
-fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
+fun ECBValutakursData.toExchangeRates(): List<Valutakurs> {
     try {
-        return this.ecbExchangeRatesDataSet.ecbExchangeRatesForCurrencies
+        return this.sdmxExchangeRatesDataSet.sdmxExchangeRatesForCurrencies
             .flatMap { ecbExchangeRatesForCurrency ->
-                ecbExchangeRatesForCurrency.ecbExchangeRates
+                ecbExchangeRatesForCurrency.sdmxExchangeRates
                     .map { ecbExchangeRate ->
-                        val currency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "CURRENCY" }.value
-                        val frequency = ecbExchangeRatesForCurrency.ecbExchangeRateKeys.first { it.id == "FREQ" }.value
+                        val currency = ecbExchangeRatesForCurrency.sdmxExchangeRateKeys.first { it.id == "CURRENCY" }.value
+                        val frequency = ecbExchangeRatesForCurrency.sdmxExchangeRateKeys.first { it.id == "FREQ" }.value
                         val date: LocalDate =
                             if (frequency == "D") {
                                 LocalDate.parse(ecbExchangeRate.date.value)
@@ -38,7 +41,7 @@ fun ECBExchangeRatesData.toExchangeRates(): List<ExchangeRate> {
                                     .parse(ecbExchangeRate.date.value)
                                     .atEndOfMonth()
                             }
-                        ExchangeRate(currency, ecbExchangeRate.ecbExchangeRateValue.value, date)
+                        Valutakurs(currency, ecbExchangeRate.sdmxExchangeRateValue.value, date)
                     }
             }
     } catch (e: NoSuchElementException) {

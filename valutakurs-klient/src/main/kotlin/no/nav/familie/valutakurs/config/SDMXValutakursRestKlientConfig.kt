@@ -3,7 +3,7 @@ package no.nav.familie.valutakurs.config
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.familie.valutakurs.ValutakursRestClient.Companion.APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA
+import no.nav.familie.valutakurs.SDMXRestKlient.Companion.APPLICATION_CONTEXT_SDMX_XML_2_1_GENERIC_DATA
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +13,7 @@ import org.springframework.web.client.RestOperations
 
 @Suppress("SpringFacetCodeInspection")
 @Configuration
-class ValutakursRestClientConfig {
+class SDMXValutakursRestKlientConfig {
     fun xmlMapper(): XmlMapper {
         val mapper =
             XmlMapper().apply {
@@ -23,14 +23,15 @@ class ValutakursRestClientConfig {
         return mapper
     }
 
-    @Bean("ecbRestTemplate")
+    @Bean("sdmxXmlRestTemplate")
     fun xmlRestTemplate(): RestOperations {
         val converter =
             MappingJackson2HttpMessageConverter(xmlMapper()).apply {
                 supportedMediaTypes =
                     listOf(
-                        MediaType.parseMediaType(APPLICATION_CONTEXT_SDMX_ML_2_1_GENERIC_DATA),
+                        MediaType.parseMediaType(APPLICATION_CONTEXT_SDMX_XML_2_1_GENERIC_DATA),
                         MediaType.parseMediaType("application/octet-stream"),
+                        MediaType.parseMediaType("application/xml;charset=UTF-8"),
                     )
             }
         return RestTemplateBuilder()
