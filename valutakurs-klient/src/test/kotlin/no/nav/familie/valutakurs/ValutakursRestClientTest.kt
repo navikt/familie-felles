@@ -213,7 +213,10 @@ class ValutakursRestClientTest {
                     )
                 }
             assertTrue(valutakursClientException.cause is RestClientResponseException)
-            assertEquals(HttpStatus.BAD_REQUEST.value(), (valutakursClientException.cause as RestClientResponseException).rawStatusCode)
+            assertEquals(
+                HttpStatus.BAD_REQUEST.value(),
+                (valutakursClientException.cause as RestClientResponseException).statusCode.value(),
+            )
         }
 
         @Test
