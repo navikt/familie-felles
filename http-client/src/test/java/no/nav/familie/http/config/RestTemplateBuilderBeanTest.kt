@@ -1,4 +1,4 @@
-package no.nav.familie.http.config
+package no.nav.familie.http.client
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -10,60 +10,74 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.springframework.boot.restclient.RestTemplateBuilder
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import java.net.SocketTimeoutException
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class RestTemplateBuilderBeanTest {
-    companion object {
-        private lateinit var wireMockServer: WireMockServer
-        private lateinit var restTemplate: RestTemplate
+    private lateinit var wireMockServer: WireMockServer
+    private lateinit var restTemplate: RestTemplate
 
-        @BeforeAll
-        @JvmStatic
-        fun initClass() {
-            wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
-            wireMockServer.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun tearDown() {
-            wireMockServer.stop()
-        }
+    @BeforeAll
+    fun setupServer() {
+        wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
+        wireMockServer.start()
     }
 
-    @AfterEach
-    fun tearDownEachTest() {
-        wireMockServer.resetAll()
+    @AfterAll
+    fun tearDownServer() {
+        wireMockServer.stop()
     }
 
     @BeforeEach
-    fun setupEachTest() {
+    fun setupRestTemplate() {
+        // Sett timeouts direkte, SB4-kompatibelt
+        val requestFactory =
+            HttpComponentsClientHttpRequestFactory().apply {
+                setConnectionRequestTimeout(400)
+                setReadTimeout(400)
+            }
+
         restTemplate =
-            RestTemplateBuilderBean()
-                .restTemplateBuilder(NaisProxyCustomizer(400, 400, 400))
+            RestTemplateBuilder()
+                .requestFactory { requestFactory }
                 .build()
     }
 
+    @AfterEach
+    fun resetWireMock() {
+        wireMockServer.resetAll()
+    }
+
     @Test
-    internal fun `delay med 500 kaster exception`() {
+    fun `delay med 500 kaster exception`() {
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withStatus(200).withFixedDelay(500)),
         )
-        assertThat(catchThrowable { restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}") })
-            .hasCauseInstanceOf(SocketTimeoutException::class.java)
+
+        val thrown =
+            catchThrowable {
+                restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")
+            }
+
+        assertThat(thrown).hasCauseInstanceOf(SocketTimeoutException::class.java)
     }
 
     @Test
-    internal fun `delay med 50 kaster ikke exception`() {
+    fun `delay med 50 kaster ikke exception`() {
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.anyUrl())
                 .willReturn(WireMock.aResponse().withFixedDelay(50)),
         )
+
+        // Kaster ikke exception
         restTemplate.getForEntity<String>("http://localhost:${wireMockServer.port()}")
     }
 }
