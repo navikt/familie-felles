@@ -6,8 +6,7 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.objectMapper
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import no.nav.familie.log.logg.Logg
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -32,8 +31,7 @@ abstract class AbstractRestClient(
     protected val responsSuccess: Counter = Metrics.counter("$metricsPrefix.response", "status", "success")
     protected val responsFailure: Counter = Metrics.counter("$metricsPrefix.response", "status", "failure")
 
-    protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
-    protected val log: Logger = LoggerFactory.getLogger(this::class.java)
+    protected val logger: Logg = Logg.getLogger(this::class)
 
     inline fun <reified T : Any> getForEntity(
         uri: URI,
@@ -69,8 +67,8 @@ abstract class AbstractRestClient(
         uri: URI,
     ): T {
         if (!respons.statusCode.is2xxSuccessful) {
-            secureLogger.info("Kall mot $uri feilet:  ${respons.body}")
-            log.info("Kall mot $uri feilet: ${respons.statusCode}")
+            logger.info("Kall mot $uri feilet:  ${respons.body}")
+            logger.vanligInfo("Kall mot $uri feilet: ${respons.statusCode}")
             throw HttpServerErrorException(respons.statusCode, "", respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
         }
         return respons.body as T
@@ -88,19 +86,19 @@ abstract class AbstractRestClient(
             return validerOgPakkUt(responseEntity, uri)
         } catch (e: RestClientResponseException) {
             responsFailure.increment()
-            secureLogger.warn("RestClientResponseException ved kall mot uri=$uri", e)
+            logger.warn("RestClientResponseException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: HttpClientErrorException) {
             responsFailure.increment()
-            secureLogger.warn("HttpClientErrorException ved kall mot uri=$uri", e)
+            logger.warn("HttpClientErrorException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: ResourceAccessException) {
             responsFailure.increment()
-            secureLogger.warn("ResourceAccessException ved kall mot uri=$uri", e)
+            logger.warn("ResourceAccessException ved kall mot uri=$uri", e)
             throw e
         } catch (e: Exception) {
             responsFailure.increment()
-            secureLogger.warn("Feil ved kall mot uri=$uri", e)
+            logger.warn("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }

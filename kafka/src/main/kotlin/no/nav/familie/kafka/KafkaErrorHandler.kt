@@ -1,9 +1,8 @@
 package no.nav.familie.kafka
 
+import no.nav.familie.log.logg.Logg
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.CommonContainerStoppingErrorHandler
 import org.springframework.kafka.listener.MessageListenerContainer
 import org.springframework.scheduling.TaskScheduler
@@ -17,8 +16,7 @@ import java.util.concurrent.atomic.AtomicLong
 class KafkaErrorHandler(
     private val taskScheduler: TaskScheduler,
 ) : CommonContainerStoppingErrorHandler() {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
-    private val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
+    private val logger = Logg.getLogger(this::class)
 
     private val counter = AtomicInteger(0)
     private val lastError = AtomicLong(0)
@@ -37,11 +35,11 @@ class KafkaErrorHandler(
             scheduleRestart(e, records, consumer, container, "Ukjent topic")
         } else {
             records.first().run {
-                logger.error(
+                logger.vanligError(
                     "Feil ved konsumering av melding fra ${this.topic()}. " +
                         "offset: ${this.offset()}, partition: ${this.partition()} (Forsøk nr ${counter.getAndAdd(1)})",
                 )
-                secureLogger.error("${this.topic()} - Problemer med prosessering av $records (Forsøk nr ${counter.getAndAdd(1)})", e)
+                logger.error("${this.topic()} - Problemer med prosessering av $records (Forsøk nr ${counter.getAndAdd(1)})", e)
                 scheduleRestart(e, records, consumer, container, this.topic())
             }
         }
@@ -65,14 +63,14 @@ class KafkaErrorHandler(
         taskScheduler.schedule(
             {
                 if (container.isRunning) {
-                    logger.info("Container for {} kjører allerede – avbryter restart.", topic)
+                    logger.vanligInfo("Container for {} kjører allerede – avbryter restart.", topic)
                 } else {
-                    logger.warn("Starter kafka container for {} (forsøk #{})", topic, attempt)
+                    logger.vanligWarn("Starter kafka container for {} (forsøk #{})", topic, attempt)
                     try {
                         container.start()
-                        logger.info("Kafka container for {} startet OK.", topic)
+                        logger.vanligInfo("Kafka container for {} startet OK.", topic)
                     } catch (exception: Exception) {
-                        logger.error(
+                        logger.vanligError(
                             "Feil oppstod ved venting/oppstart av kafka container for {} (forsøk #{}). Planlegger nytt forsøk.",
                             topic,
                             attempt,
@@ -101,9 +99,9 @@ class KafkaErrorHandler(
             Instant.ofEpochMilli(now + delayTime),
         )
 
-        logger.warn("Stopper kafka container for {} i {}", topic, Duration.ofMillis(delayTime))
+        logger.vanligWarn("Stopper kafka container for {} i {}", topic, Duration.ofMillis(delayTime))
         super.handleRemaining(
-            Exception("Sjekk securelogs for mer info - ${e::class.java.simpleName}"),
+            Exception("Sjekk team-logs for mer info - ${e::class.java.simpleName}"),
             records,
             consumer,
             container,

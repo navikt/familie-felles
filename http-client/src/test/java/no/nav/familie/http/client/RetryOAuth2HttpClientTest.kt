@@ -19,13 +19,13 @@ import java.net.URI
 import java.time.Duration
 
 internal class RetryOAuth2HttpClientTest {
-
-    val settings = ClientHttpRequestFactorySettings(
-        ClientHttpRequestFactorySettings.Redirects.DONT_FOLLOW,
-        Duration.ofSeconds(1),
-        Duration.ofSeconds(1),
-       null
-    )
+    val settings =
+        ClientHttpRequestFactorySettings(
+            ClientHttpRequestFactorySettings.Redirects.DONT_FOLLOW,
+            Duration.ofSeconds(1),
+            Duration.ofSeconds(1),
+            null,
+        )
     val requestFactory =
         ClientHttpRequestFactoryBuilder
             .detect()

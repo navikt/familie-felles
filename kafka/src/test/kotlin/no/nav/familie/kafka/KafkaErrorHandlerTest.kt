@@ -40,7 +40,7 @@ class KafkaErrorHandlerTest {
             }
 
         assertThat(throwable)
-            .hasStackTraceContaining("Sjekk securelogs for mer info")
+            .hasStackTraceContaining("Sjekk team-logs for mer info")
             .hasCauseExactlyInstanceOf(Exception::class.java)
         assertThat(throwable.stackTraceToString()).doesNotContain("Feil i test")
     }
@@ -58,7 +58,7 @@ class KafkaErrorHandlerTest {
                 )
             }
         assertThat(throwable)
-            .hasStackTraceContaining("Sjekk securelogs for mer info")
+            .hasStackTraceContaining("Sjekk team-logs for mer info")
             .hasCauseExactlyInstanceOf(Exception::class.java)
         assertThat(throwable.stackTraceToString()).doesNotContain("Feil i test")
     }

@@ -6,8 +6,7 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
 import no.nav.familie.kontrakter.felles.Ressurs
 import no.nav.familie.kontrakter.felles.objectMapper
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import no.nav.familie.log.logg.Logg
 import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -28,7 +27,7 @@ abstract class AbstractWebClient(
     protected val responsSuccess: Counter = Metrics.counter("$metricsPrefix.response", "status", "success")
     protected val responsFailure: Counter = Metrics.counter("$metricsPrefix.response", "status", "failure")
 
-    protected val secureLogger: Logger = LoggerFactory.getLogger("secureLogger")
+    protected val logger: Logg = Logg.getLogger(this::class)
 
     inline fun <reified T : Any> getForEntity(
         uri: URI,
@@ -114,11 +113,11 @@ abstract class AbstractWebClient(
             return t
         } catch (e: WebClientResponseException) {
             responsFailure.increment()
-            secureLogger.warn("RestClientResponseException ved kall mot uri=$uri", e)
+            logger.warn("RestClientResponseException ved kall mot uri=$uri", e)
             lesRessurs(e)?.let { throw RessursException(it, e) } ?: throw e
         } catch (e: Exception) {
             responsFailure.increment()
-            secureLogger.warn("Feil ved kall mot uri=$uri", e)
+            logger.warn("Feil ved kall mot uri=$uri", e)
             throw RuntimeException("Feil ved kall mot uri=$uri", e)
         }
     }
