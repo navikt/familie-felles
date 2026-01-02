@@ -33,6 +33,7 @@
     <modules>
         <module>log</module>
         <module>http-client</module>
+        <module>rest-klient</module>
         <module>sikkerhet</module>
         <module>leader</module>
         <module>modell</module>
