@@ -39,7 +39,7 @@ class ECBValutakursRestKlient(
         val uri = lagECBURI(frequency, currencies, exchangeRateDate)
         try {
             logger.info("Henter valutakurs fra ECB for ${currencies.toCurrencyParams()} på dato $exchangeRateDate")
-            return hentValutakurs<ECBValutakursData>(uri).toExchangeRates()
+            return hentValutakurs<ECBValutakursData>(uri)?.toExchangeRates() ?: throw NullPointerException()
         } catch (e: ValutakursTransformationException) {
             throw ValutakursException(e.message, e)
         } catch (e: NullPointerException) {
