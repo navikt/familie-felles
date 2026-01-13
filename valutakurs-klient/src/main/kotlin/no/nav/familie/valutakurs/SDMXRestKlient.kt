@@ -11,7 +11,7 @@ abstract class SDMXRestKlient(
     restOperations: RestOperations,
     metricsPrefix: String,
 ) : AbstractRestClient(restOperations, metricsPrefix) {
-    inline fun <reified T : Any> hentValutakurs(url: URI): T? {
+    inline fun <reified T : Any> hentValutakurs(url: URI): T {
         try {
             return getForEntity(url, headers())
         } catch (e: RestClientResponseException) {

@@ -40,7 +40,7 @@ class NorgesBankValutakursRestKlient(
         try {
             logger.info("Henter valutakurs fra Norges Bank for $valuta på dato $kursDato")
             return hentValutakurs<NorgesBankValutakursData>(uri)
-                ?.tilValutakurs(valuta = valuta, frekvens = frekvens, kursDato = kursDato) ?: throw NullPointerException()
+                .tilValutakurs(valuta = valuta, frekvens = frekvens, kursDato = kursDato)
         } catch (e: NorgesBankValutakursMappingException) {
             throw ValutakursException(message = e.message!!, e)
         } catch (e: NullPointerException) {

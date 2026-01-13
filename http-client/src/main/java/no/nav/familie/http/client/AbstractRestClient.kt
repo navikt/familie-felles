@@ -38,48 +38,48 @@ abstract class AbstractRestClient(
     inline fun <reified T : Any> getForEntity(
         uri: URI,
         httpHeaders: HttpHeaders? = null,
-    ): T? = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.GET, HttpEntity(null, httpHeaders)) }
 
     inline fun <reified T : Any> postForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T? = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.POST, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> putForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T? = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PUT, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> patchForEntity(
         uri: URI,
         payload: Any,
         httpHeaders: HttpHeaders? = null,
-    ): T? = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.PATCH, HttpEntity(payload, httpHeaders)) }
 
     inline fun <reified T : Any> deleteForEntity(
         uri: URI,
         payload: Any? = null,
         httpHeaders: HttpHeaders? = null,
-    ): T? = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
+    ): T = executeMedMetrics(uri) { operations.exchange<T>(uri, HttpMethod.DELETE, HttpEntity(payload, httpHeaders)) }
 
     private fun <T : Any> validerOgPakkUt(
         respons: ResponseEntity<T>,
         uri: URI,
-    ): T? {
+    ): T {
         if (!respons.statusCode.is2xxSuccessful) {
             secureLogger.info("Kall mot $uri feilet:  ${respons.body}")
             log.info("Kall mot $uri feilet: ${respons.statusCode}")
             throw HttpServerErrorException(respons.statusCode, "", respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
         }
-        return respons.body
+        return respons.body ?: throw NullPointerException()
     }
 
     fun <T : Any> executeMedMetrics(
         uri: URI,
         function: () -> ResponseEntity<T>,
-    ): T? {
+    ): T {
         try {
             val startTime = System.nanoTime()
             val responseEntity = function.invoke()
