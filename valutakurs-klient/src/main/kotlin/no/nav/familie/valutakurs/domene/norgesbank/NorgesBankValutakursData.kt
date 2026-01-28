@@ -1,11 +1,11 @@
 package no.nav.familie.valutakurs.domene.norgesbank
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateAttributes
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 
 @JacksonXmlRootElement(localName = "GenericData")
 data class NorgesBankValutakursData(
