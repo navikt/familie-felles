@@ -1,11 +1,11 @@
 package no.nav.familie.valutakurs.domene.ecb
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import no.nav.familie.valutakurs.domene.Valutakurs
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRate
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeParseException
