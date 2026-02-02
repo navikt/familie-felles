@@ -73,7 +73,7 @@ abstract class AbstractRestClient(
             log.info("Kall mot $uri feilet: ${respons.statusCode}")
             throw HttpServerErrorException(respons.statusCode, "", respons.body?.toString()?.toByteArray(), Charsets.UTF_8)
         }
-        return respons.body ?: throw NullPointerException("Response body var null for vellykket kall mot $uri")
+        return respons.body ?: throw ResponseBodyNullException("Response body var null for vellykket kall mot $uri")
     }
 
     fun <T : Any> executeMedMetrics(
