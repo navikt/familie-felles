@@ -14,7 +14,11 @@ abstract class AbstractPingableRestClient(
     abstract val pingUri: URI
 
     override fun ping() {
-        super.getForEntity<String>(pingUri, null)
+        try {
+            super.getForEntity<String>(pingUri, null)
+        } catch (e: ResponseBodyNullException) {
+            // Ignorer, ping kan ha null-body
+        }
     }
 
     override fun toString(): String = this::class.simpleName + " [operations=" + operations + "]"
