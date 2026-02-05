@@ -98,6 +98,8 @@ abstract class AbstractRestClient(
             responsFailure.increment()
             secureLogger.warn("ResourceAccessException ved kall mot uri=$uri", e)
             throw e
+        } catch (e: ResponseBodyNullException) {
+            throw e
         } catch (e: NullPointerException) {
             responsSuccess.increment()
             secureLogger.warn("NullPointerException ved kall mot uri=$uri", e)
