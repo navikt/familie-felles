@@ -4,9 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.restklient.client.AbstractRestClient
-import no.nav.familie.restklient.client.RessursException
-import no.nav.familie.restklient.config.jsonMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.AfterAll
@@ -58,7 +56,7 @@ internal class AbstractRestClientTest {
 
     @Test
     internal fun `feil med ressurs kaster RessursException`() {
-        val ressurs = Ressurs.failure<Any>("Feilet")
+        val ressurs = Ressurs.failure<String>("Feilet")
         val body = jsonMapper.writeValueAsString(ressurs)
         wireMockServer.stubFor(
             WireMock

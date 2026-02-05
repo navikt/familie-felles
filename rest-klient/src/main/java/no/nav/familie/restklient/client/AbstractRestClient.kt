@@ -4,7 +4,7 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.core.instrument.Timer
 import no.nav.familie.kontrakter.felles.Ressurs
-import no.nav.familie.restklient.config.jsonMapper
+import no.nav.familie.kontrakter.felles.jsonMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
