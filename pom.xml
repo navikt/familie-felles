@@ -13,7 +13,7 @@
     <url>https://github.com/navikt/familie-felles</url>
 
     <properties>
-        <revision>3.4</revision>
+        <revision>4.0</revision>
         <sha1/>
         <changelist>-SNAPSHOT</changelist>
         <java.version>21</java.version>
@@ -26,14 +26,14 @@
         <kotest.version>6.0.4</kotest.version>
         <kotlin.version>2.2.21</kotlin.version>
         <mockk.version>1.14.6</mockk.version>
-        <nav.security.token.version>5.0.37</nav.security.token.version>
+        <nav.security.token.version>6.0.0</nav.security.token.version>
         <wiremock.version>3.13.1</wiremock.version>        
     </properties>
 
     <modules>
         <module>log</module>
         <module>http-client</module>
-        <module>web-client</module>
+        <module>rest-klient</module>
         <module>sikkerhet</module>
         <module>leader</module>
         <module>modell</module>
@@ -50,9 +50,13 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.5.7</version>
+                <version>4.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
             </dependency>
             <dependency>
                 <groupId>no.nav.familie.kontrakter</groupId>
@@ -138,7 +142,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>web-client</artifactId>
+                <artifactId>rest-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

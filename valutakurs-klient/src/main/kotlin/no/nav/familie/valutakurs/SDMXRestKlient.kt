@@ -1,6 +1,6 @@
 package no.nav.familie.valutakurs
 
-import no.nav.familie.http.client.AbstractRestClient
+import no.nav.familie.restklient.client.AbstractRestClient
 import no.nav.familie.valutakurs.exception.ValutakursException
 import org.springframework.http.HttpHeaders
 import org.springframework.web.client.RestClientResponseException

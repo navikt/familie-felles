@@ -1,6 +1,7 @@
 package no.nav.familie.http.config
 
 import org.apache.hc.client5.http.classic.HttpClient
+import org.apache.hc.client5.http.config.ConnectionConfig
 import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
@@ -10,7 +11,7 @@ import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.http.protocol.HttpContext
 import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateCustomizer
+import org.springframework.boot.restclient.RestTemplateCustomizer
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -25,18 +26,26 @@ class NaisProxyCustomizer(
 ) : INaisProxyCustomizer {
     override fun customize(restTemplate: RestTemplate) {
         val proxy = HttpHost("webproxy-nais.nav.no", 8088)
+
+        val connectionConfig =
+            ConnectionConfig
+                .custom()
+                .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
+                .setSocketTimeout(Timeout.ofMilliseconds(socketTimeout))
+                .build()
+
         val client: HttpClient =
             HttpClientBuilder
                 .create()
                 .setDefaultRequestConfig(
                     RequestConfig
                         .custom()
-                        .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
-                        .setConnectionRequestTimeout(Timeout.ofSeconds(requestTimeout))
+                        .setConnectionRequestTimeout(Timeout.ofMilliseconds(requestTimeout))
                         .build(),
                 ).setConnectionManager(
                     PoolingHttpClientConnectionManagerBuilder
                         .create()
+                        .setDefaultConnectionConfig(connectionConfig)
                         .setDefaultSocketConfig(
                             SocketConfig
                                 .custom()
@@ -45,15 +54,10 @@ class NaisProxyCustomizer(
                         ).build(),
                 ).setRoutePlanner(
                     object : DefaultProxyRoutePlanner(proxy) {
-                        public override fun determineProxy(
+                        override fun determineProxy(
                             target: HttpHost,
                             context: HttpContext,
-                        ): HttpHost? =
-                            if (target.hostName.contains("microsoft")) {
-                                super.determineProxy(target, context)
-                            } else {
-                                null
-                            }
+                        ): HttpHost? = if (target.hostName.contains("microsoft")) super.determineProxy(target, context) else null
                     },
                 ).build()
 

@@ -1,6 +1,5 @@
 package no.nav.familie.valutakurs
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClientResponseException
+import tools.jackson.dataformat.xml.XmlMapper
 import java.math.BigDecimal
 import java.net.URI
 import java.time.LocalDate
@@ -213,7 +213,10 @@ class ValutakursRestClientTest {
                     )
                 }
             assertTrue(valutakursClientException.cause is RestClientResponseException)
-            assertEquals(HttpStatus.BAD_REQUEST.value(), (valutakursClientException.cause as RestClientResponseException).rawStatusCode)
+            assertEquals(
+                HttpStatus.BAD_REQUEST.value(),
+                (valutakursClientException.cause as RestClientResponseException).statusCode.value(),
+            )
         }
 
         @Test
