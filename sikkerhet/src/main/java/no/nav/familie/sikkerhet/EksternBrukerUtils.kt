@@ -1,57 +1,50 @@
 package no.nav.familie.sikkerhet
 
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
-import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
-import org.springframework.web.context.request.RequestContextHolder
+import no.nav.familie.sikkerhet.context.TokenContextHolder
 
 object EksternBrukerUtils {
     const val ISSUER_SELVBETJENING = "selvbetjening"
     const val ISSUER_TOKENX = "tokenx"
 
-    private val TOKEN_VALIDATION_CONTEXT_ATTRIBUTE = SpringTokenValidationContextHolder::class.java.name
-
     private val FNR_REGEX = """[0-9]{11}""".toRegex()
 
+    /**
+     * Henter fødselsnummer fra `pid`- eller `sub`-claimet i tokenet til innlogget ekstern bruker.
+     *
+     * Kaster [JwtTokenInvalidException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
+     */
     fun hentFnrFraToken(): String {
-        val claims = claims()
-        val fnr = (
-            claims.getStringClaim("pid") ?: claims.subject
-                ?: throw JwtTokenValidatorException("Finner ikke sub/pid på token")
-        )
+        val issuer = resolveIssuer()
+        val fnr =
+            (
+                TokenContextHolder.getClaimAsString("pid", issuer)
+                    ?: TokenContextHolder.getClaimAsString("sub", issuer)
+                    ?: throw JwtTokenInvalidException("Finner ikke sub/pid på token")
+            )
         if (!FNR_REGEX.matches(fnr)) {
-            error("$fnr er ikke gyldig fnr")
+            throw JwtTokenInvalidException("Ugyldig fødselsnummer")
         }
         return fnr
     }
 
+    /** Returnerer true hvis [personIdent] er lik fødselsnummeret i innlogget brukers token. */
     fun personIdentErLikInnloggetBruker(personIdent: String): Boolean = personIdent == hentFnrFraToken()
 
-    fun getBearerTokenForLoggedInUser(): String =
-        getFromContext { validationContext, issuer ->
-            validationContext
-                .getJwtToken(
-                    issuer,
-                )?.encodedToken ?: throw JwtTokenValidatorException("Klarte ikke hente token fra issuer $issuer")
-        }
-
-    private fun claims(): JwtTokenClaims =
-        getFromContext { validationContext, issuer ->
-            validationContext.getClaims(issuer)
-        }
-
-    private fun <T> getFromContext(fn: (TokenValidationContext, String) -> T): T {
-        val validationContext = getTokenValidationContext()
-        return when {
-            validationContext.hasTokenFor(ISSUER_SELVBETJENING) -> fn.invoke(validationContext, ISSUER_SELVBETJENING)
-            validationContext.hasTokenFor(ISSUER_TOKENX) -> fn.invoke(validationContext, ISSUER_TOKENX)
-            else -> error("Finner ikke token for ekstern bruker - issuers=${validationContext.issuers}")
-        }
+    /**
+     * Henter bearer token for innlogget ekstern bruker (tokenx eller selvbetjening).
+     *
+     * Kaster [JwtTokenInvalidException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
+     */
+    fun getBearerTokenForLoggedInUser(): String {
+        val issuer = resolveIssuer()
+        return TokenContextHolder.getBearerToken(issuer)
+            ?: throw JwtTokenInvalidException("Klarte ikke hente token fra issuer $issuer")
     }
 
-    private fun getTokenValidationContext(): TokenValidationContext =
-        RequestContextHolder
-            .currentRequestAttributes()
-            .getAttribute(TOKEN_VALIDATION_CONTEXT_ATTRIBUTE, 0) as TokenValidationContext
+    private fun resolveIssuer(): String =
+        when {
+            TokenContextHolder.hasTokenFor(ISSUER_SELVBETJENING) -> ISSUER_SELVBETJENING
+            TokenContextHolder.hasTokenFor(ISSUER_TOKENX) -> ISSUER_TOKENX
+            else -> throw JwtTokenInvalidException("Finner ikke token for ekstern bruker - issuers=${TokenContextHolder.issuers()}")
+        }
 }

@@ -2,11 +2,12 @@ package no.nav.familie.restklient.interceptor
 
 import com.nimbusds.oauth2.sdk.GrantType
 import no.nav.familie.restklient.sts.StsRestClient
+import no.nav.familie.sikkerhet.context.TokenContextConfigurationException
+import no.nav.familie.sikkerhet.context.TokenContextHolder
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -187,13 +188,12 @@ private fun clientPropertiesForGrantType(
 
 private fun clientCredentialOrJwtBearer() = if (erSystembruker()) GrantType.CLIENT_CREDENTIALS else GrantType.JWT_BEARER
 
-private fun erSystembruker(): Boolean {
-    return try {
-        val preferredUsername =
-            SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread").get("preferred_username")
-        return preferredUsername == null
+private fun erSystembruker(): Boolean =
+    try {
+        TokenContextHolder.getClaimAsString("preferred_username") == null
+    } catch (e: TokenContextConfigurationException) {
+        throw e // Konfigurasjonsfeil skal ikke catches
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
         true
     }
-}

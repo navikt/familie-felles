@@ -3,7 +3,7 @@ package no.nav.familie.sikkerhet
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
+import no.nav.familie.sikkerhet.context.TokenContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
@@ -59,14 +59,11 @@ class ClientTokenValidationFilter(
 
     private fun accepted(): Boolean {
         try {
-            val claims = SpringTokenValidationContextHolder().getTokenValidationContext().getClaims(issuerName)
+            val sub = TokenContextHolder.getClaimAsString("sub", issuerName)
+            val oid = TokenContextHolder.getClaimAsString("oid", issuerName)
+            val clientId = TokenContextHolder.getClaimAsString("azp", issuerName)
 
-            val sub = claims.get("sub") as String?
-            val oid = claims.get("oid") as String?
-            val clientId = claims.get("azp") as String?
-
-            @Suppress("UNCHECKED_CAST")
-            val roles = claims.get("roles") as List<String>? ?: emptyList()
+            val roles = TokenContextHolder.getClaimAsStringList("roles", issuerName).orEmpty()
             val accessAsApplication = roles.contains("access_as_application")
 
             val erClientCredential = sub != null && sub == oid
