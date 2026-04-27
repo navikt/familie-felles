@@ -1,5 +1,7 @@
 package no.nav.familie.sikkerhet.context
 
+import no.nav.familie.sikkerhet.context.TokenContextHolder.clearContext
+import no.nav.familie.sikkerhet.context.TokenContextHolder.setContext
 import java.time.Instant
 
 /**
@@ -8,20 +10,37 @@ import java.time.Instant
  * [TokenContextValidationAutoConfiguration] sørger for at nøyaktig én [TokenContext] er konfigurert
  * ved oppstart, så context aldri er null i en kjørende applikasjon.
  *
- * [setContext] og [clearContext] er `internal` og kun beregnet for tester i dette biblioteket.
+ * [setContext] og [clearContext] er `internal` for å forhindre at konteksten settes eller nullstilles i produksjonskode.
  */
 object TokenContextHolder {
     @Volatile
     private var context: TokenContext? = null
 
+    /**
+     * Registrerer [TokenContext]-implementasjonen som skal brukes.
+     *
+     * Kalles av [TokenContextValidationAutoConfiguration] ved oppstart.
+     * Tilgjengelig for tester via `TokenContextTestHelper` i test-jar.
+     */
     internal fun setContext(tokenContext: TokenContext) {
         context = tokenContext
     }
 
+    /**
+     * Nullstiller konteksten slik at [getContext] igjen kaster [TokenContextConfigurationException].
+     *
+     * Brukes i tester for å simulere fravær av konfigurasjon og for opprydding etter tester som setter kontekst.
+     * Tilgjengelig for tester via `TokenContextTestHelper` i test-jar.
+     */
     internal fun clearContext() {
         context = null
     }
 
+    /**
+     * Returnerer den registrerte [TokenContext]-implementasjonen.
+     *
+     * @throws TokenContextConfigurationException hvis ingen kontekst er satt.
+     */
     internal fun getContext(): TokenContext =
         context
             ?: throw TokenContextConfigurationException(
