@@ -35,7 +35,7 @@ interface TokenContext {
     fun hasTokenFor(issuer: String): Boolean
 
     /** Henter bearer token for den angitte issueren, eller null hvis det ikke finnes. */
-    fun getBearerToken(issuer: String): String?
+    fun getBearerToken(issuer: String = "azuread"): String?
 
     /** Alle issuere det finnes validerte tokens for. */
     fun issuers(): Collection<String>
