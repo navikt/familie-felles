@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration
 class FamilieFellesSpringSecurityKonfigurasjon(
     @Value("\${AZURE_OPENID_CONFIG_ISSUER:}") private val azureIssuer: String,
     @Value("\${TOKEN_X_ISSUER:}") private val tokenxIssuer: String,
-    @Value("\${SELVBETJENING_ISSUER:}") private val selvbetjeningIssuer: String,
+    @Value("\${IDPORTEN_ISSUER:}") private val selvbetjeningIssuer: String,
 ) {
     @Bean
     fun familieFellesSpringSecurityTokenContext(): SpringSecurityTokenContext {
