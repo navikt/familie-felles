@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.sikkerhet.context.TokenContext
 import no.nav.familie.sikkerhet.context.TokenContextConfigurationException
-import no.nav.familie.sikkerhet.context.TokenContextHolder
+import no.nav.familie.sikkerhet.context.TokenContextTestHelper
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
-import org.springframework.test.util.ReflectionTestUtils
 import java.net.URI
 
 class BearerTokenClientInterceptorTest {
@@ -24,7 +23,7 @@ class BearerTokenClientInterceptorTest {
 
     @BeforeEach
     fun setup() {
-        ReflectionTestUtils.setField(TokenContextHolder, "context", tokenContext)
+        TokenContextTestHelper.setContext(tokenContext)
         bearerTokenClientInterceptor =
             BearerTokenClientInterceptor(
                 oAuth2AccessTokenService,
@@ -34,7 +33,7 @@ class BearerTokenClientInterceptorTest {
 
     @AfterEach
     fun tearDown() {
-        ReflectionTestUtils.setField(TokenContextHolder, "context", null)
+        TokenContextTestHelper.clearContext()
     }
 
     @Test
@@ -65,7 +64,7 @@ class BearerTokenClientInterceptorTest {
 
     @Test
     fun `erSystembruker kaster TokenContextConfigurationException videre når TokenContextHolder ikke er konfigurert`() {
-        ReflectionTestUtils.setField(TokenContextHolder, "context", null)
+        TokenContextTestHelper.clearContext()
 
         val req = mockk<HttpRequest>(relaxed = true, relaxUnitFun = true)
         every { req.uri } returns (URI("http://firstResource.no"))
