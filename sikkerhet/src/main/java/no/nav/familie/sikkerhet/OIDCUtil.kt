@@ -9,7 +9,7 @@ import java.util.Date
 /**
  * Spring-bean med hjelpemetoder for å lese claims fra azuread-tokenet til innlogget Nav-ansatt.
  *
- * Kaster [JwtTokenInvalidException] hvis et forventet claim mangler i tokenet.
+ * Kaster [UgyldigJwtTokenException] hvis et forventet claim mangler i tokenet.
  * I `dev`- og `mock-auth`-profil returneres hardkodede testverdier.
  */
 @Component
@@ -22,7 +22,7 @@ class OIDCUtil {
 
     fun autentisertBruker(): String = subject ?: jwtError("Fant ikke subject")
 
-    fun jwtError(message: String): Nothing = throw JwtTokenInvalidException(message)
+    fun jwtError(message: String): Nothing = throw UgyldigJwtTokenException(message)
 
     fun getClaim(claim: String): String =
         if (erDevProfil()) {

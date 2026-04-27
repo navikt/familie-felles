@@ -29,7 +29,7 @@ Legg til avhengigheten i `pom.xml`:
 
 ## Krav: TokenContext-implementasjon
 
-`BearerTokenClientInterceptor` bruker `TokenContextHolder` for å avgjøre om en forespørsel kommer fra et system (ingen innlogget bruker) eller en bruker (on-behalf-of). Uten en konfigurert `TokenContext`-implementasjon kaster interceptoren en `TokenContextConfigurationException` ved oppstart.
+`BearerTokenClientInterceptor` bruker `TokenContextHolder` for å avgjøre om en forespørsel kommer fra et system (ingen innlogget bruker) eller en bruker (on-behalf-of). Uten en konfigurert `TokenContext`-implementasjon kaster interceptoren en `TokenContextKonfigurasjonException` ved oppstart.
 
 Legg til én av følgende avhengigheter og importer tilhørende konfigurasjonsklasse:
 

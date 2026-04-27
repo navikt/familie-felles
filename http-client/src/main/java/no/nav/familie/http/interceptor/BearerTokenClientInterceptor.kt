@@ -2,8 +2,8 @@ package no.nav.familie.http.interceptor
 
 import com.nimbusds.oauth2.sdk.GrantType
 import no.nav.familie.http.sts.StsRestClient
-import no.nav.familie.sikkerhet.context.TokenContextConfigurationException
 import no.nav.familie.sikkerhet.context.TokenContextHolder
+import no.nav.familie.sikkerhet.context.TokenContextKonfigurasjonException
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
@@ -191,7 +191,7 @@ private fun clientCredentialOrJwtBearer() = if (erSystembruker()) GrantType.CLIE
 private fun erSystembruker(): Boolean =
     try {
         TokenContextHolder.getClaimAsString("preferred_username") == null
-    } catch (e: TokenContextConfigurationException) {
+    } catch (e: TokenContextKonfigurasjonException) {
         throw e // Konfigurasjonsfeil skal ikke catches
     } catch (e: Throwable) {
         // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.

@@ -9,7 +9,7 @@ import java.time.Instant
  * - `@Import(FamilieFellesNavTokenSupportKonfigurasjon::class)` — Nav token-support
  * - `@Import(FamilieFellesSpringSecurityKonfigurasjon::class)` — Spring Security
  *
- * Spring feiler ved oppstart med [TokenContextConfigurationException] hvis ingen eller flere
+ * Spring feiler ved oppstart med [TokenContextKonfigurasjonException] hvis ingen eller flere
  * konfigurasjoner importeres. Se [TokenContextValidationAutoConfiguration].
  */
 interface TokenContext {

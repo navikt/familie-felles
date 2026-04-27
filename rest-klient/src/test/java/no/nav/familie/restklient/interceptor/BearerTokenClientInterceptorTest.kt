@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.familie.sikkerhet.context.TokenContext
-import no.nav.familie.sikkerhet.context.TokenContextConfigurationException
+import no.nav.familie.sikkerhet.context.TokenContextKonfigurasjonException
 import no.nav.familie.sikkerhet.context.TokenContextTestHelper
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import org.junit.jupiter.api.AfterEach
@@ -63,14 +63,14 @@ class BearerTokenClientInterceptorTest {
     }
 
     @Test
-    fun `erSystembruker kaster TokenContextConfigurationException videre når TokenContextHolder ikke er konfigurert`() {
+    fun `erSystembruker kaster TokenContextKonfigurasjonException videre når TokenContextHolder ikke er konfigurert`() {
         TokenContextTestHelper.clearContext()
 
         val req = mockk<HttpRequest>(relaxed = true, relaxUnitFun = true)
         every { req.uri } returns (URI("http://firstResource.no"))
         val execution = mockk<ClientHttpRequestExecution>(relaxed = true)
 
-        assertThrows(TokenContextConfigurationException::class.java) {
+        assertThrows(TokenContextKonfigurasjonException::class.java) {
             bearerTokenClientInterceptor.intercept(req, ByteArray(0), execution)
         }
     }

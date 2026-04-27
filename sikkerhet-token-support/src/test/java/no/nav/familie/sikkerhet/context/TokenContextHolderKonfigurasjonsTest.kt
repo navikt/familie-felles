@@ -14,10 +14,10 @@ import java.time.Instant
 /**
  * Tester oppførselen til [TokenContextHolder] avhengig av hvilke konfigurasjoner som importeres:
  *
- * - **Ingen**: [TokenContextValidationAutoConfiguration] feiler konteksten ved oppstart med [TokenContextConfigurationException].
+ * - **Ingen**: [TokenContextValidationAutoConfiguration] feiler konteksten ved oppstart med [TokenContextKonfigurasjonException].
  * - **Bare [FamilieFellesSpringSecurityKonfigurasjon]**: én bean — konteksten starter uten feil.
  * - **Bare [FamilieFellesNavTokenSupportKonfigurasjon]**: én bean — konteksten starter uten feil.
- * - **Begge**: [TokenContextValidationAutoConfiguration] feiler konteksten ved oppstart med [TokenContextConfigurationException].
+ * - **Begge**: [TokenContextValidationAutoConfiguration] feiler konteksten ved oppstart med [TokenContextKonfigurasjonException].
  * - **Med NAIS-miljøvariabler**: issuerNameMapping bygges automatisk fra `AZURE_OPENID_CONFIG_ISSUER` og `TOKEN_X_ISSUER`.
  */
 internal class TokenContextHolderKonfigurasjonsTest {
@@ -41,7 +41,7 @@ internal class TokenContextHolderKonfigurasjonsTest {
     open class BeggeKonfigurasjoner
 
     @Test
-    fun `ingen konfigurasjon - konteksten feiler ved oppstart med TokenContextConfigurationException`() {
+    fun `ingen konfigurasjon - konteksten feiler ved oppstart med TokenContextKonfigurasjonException`() {
         applicationContextRunner
             .withUserConfiguration(IngenKonfigurasjon::class.java)
             .run { ctx ->
@@ -49,7 +49,7 @@ internal class TokenContextHolderKonfigurasjonsTest {
                 Assertions
                     .assertThat(ctx.startupFailure)
                     .rootCause()
-                    .isInstanceOf(TokenContextConfigurationException::class.java)
+                    .isInstanceOf(TokenContextKonfigurasjonException::class.java)
                     .hasMessageContaining("Ingen TokenContext er konfigurert")
             }
     }
@@ -85,7 +85,7 @@ internal class TokenContextHolderKonfigurasjonsTest {
                 Assertions
                     .assertThat(ctx.startupFailure)
                     .rootCause()
-                    .isInstanceOf(TokenContextConfigurationException::class.java)
+                    .isInstanceOf(TokenContextKonfigurasjonException::class.java)
                     .hasMessageContaining("Flere TokenContext'er er konfigurert")
             }
     }

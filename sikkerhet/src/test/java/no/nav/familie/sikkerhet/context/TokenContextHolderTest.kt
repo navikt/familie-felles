@@ -59,10 +59,10 @@ internal class TokenContextHolderTest {
     }
 
     @Test
-    fun `getContext kaster TokenContextConfigurationException når ingen kontekst er satt`() {
+    fun `getContext kaster TokenContextKonfigurasjonException når ingen kontekst er satt`() {
         TokenContextHolder.clearContext()
         assertThatThrownBy { TokenContextHolder.getContext() }
-            .isInstanceOf(TokenContextConfigurationException::class.java)
+            .isInstanceOf(TokenContextKonfigurasjonException::class.java)
             .hasMessageContaining("Ingen TokenContext er konfigurert")
     }
 }

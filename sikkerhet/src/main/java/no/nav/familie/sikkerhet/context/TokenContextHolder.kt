@@ -1,6 +1,7 @@
 package no.nav.familie.sikkerhet.context
 
 import no.nav.familie.sikkerhet.context.TokenContextHolder.clearContext
+import no.nav.familie.sikkerhet.context.TokenContextHolder.getContext
 import no.nav.familie.sikkerhet.context.TokenContextHolder.setContext
 import java.time.Instant
 
@@ -27,7 +28,7 @@ object TokenContextHolder {
     }
 
     /**
-     * Nullstiller konteksten slik at [getContext] igjen kaster [TokenContextConfigurationException].
+     * Nullstiller konteksten slik at [getContext] igjen kaster [TokenContextKonfigurasjonException].
      *
      * Brukes i tester for å simulere fravær av konfigurasjon og for opprydding etter tester som setter kontekst.
      * Tilgjengelig for tester via `TokenContextTestHelper` i test-jar.
@@ -39,11 +40,11 @@ object TokenContextHolder {
     /**
      * Returnerer den registrerte [TokenContext]-implementasjonen.
      *
-     * @throws TokenContextConfigurationException hvis ingen kontekst er satt.
+     * @throws TokenContextKonfigurasjonException hvis ingen kontekst er satt.
      */
     internal fun getContext(): TokenContext =
         context
-            ?: throw TokenContextConfigurationException(
+            ?: throw TokenContextKonfigurasjonException(
                 "Ingen TokenContext er konfigurert. " +
                     "Importer én av følgende konfigurasjoner med @Import:\n" +
                     "  FamilieFellesNavTokenSupportKonfigurasjon  (fra sikkerhet-token-support)\n" +

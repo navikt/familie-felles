@@ -11,7 +11,7 @@ object EksternBrukerUtils {
     /**
      * Henter fødselsnummer fra `pid`- eller `sub`-claimet i tokenet til innlogget ekstern bruker.
      *
-     * Kaster [JwtTokenInvalidException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
+     * Kaster [UgyldigJwtTokenException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
      */
     fun hentFnrFraToken(): String {
         val issuer = resolveIssuer()
@@ -19,10 +19,10 @@ object EksternBrukerUtils {
             (
                 TokenContextHolder.getClaimAsString("pid", issuer)
                     ?: TokenContextHolder.getClaimAsString("sub", issuer)
-                    ?: throw JwtTokenInvalidException("Finner ikke sub/pid på token")
+                    ?: throw UgyldigJwtTokenException("Finner ikke sub/pid på token")
             )
         if (!FNR_REGEX.matches(fnr)) {
-            throw JwtTokenInvalidException("Ugyldig fødselsnummer")
+            throw UgyldigJwtTokenException("Ugyldig fødselsnummer")
         }
         return fnr
     }
@@ -33,18 +33,18 @@ object EksternBrukerUtils {
     /**
      * Henter bearer token for innlogget ekstern bruker (tokenx eller selvbetjening).
      *
-     * Kaster [JwtTokenInvalidException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
+     * Kaster [UgyldigJwtTokenException] hvis kallet ikke skjer i kontekst av en ekstern bruker.
      */
     fun getBearerTokenForLoggedInUser(): String {
         val issuer = resolveIssuer()
         return TokenContextHolder.getBearerToken(issuer)
-            ?: throw JwtTokenInvalidException("Klarte ikke hente token fra issuer $issuer")
+            ?: throw UgyldigJwtTokenException("Klarte ikke hente token fra issuer $issuer")
     }
 
     private fun resolveIssuer(): String =
         when {
             TokenContextHolder.hasTokenFor(ISSUER_SELVBETJENING) -> ISSUER_SELVBETJENING
             TokenContextHolder.hasTokenFor(ISSUER_TOKENX) -> ISSUER_TOKENX
-            else -> throw JwtTokenInvalidException("Finner ikke token for ekstern bruker - issuers=${TokenContextHolder.issuers()}")
+            else -> throw UgyldigJwtTokenException("Finner ikke token for ekstern bruker - issuers=${TokenContextHolder.issuers()}")
         }
 }

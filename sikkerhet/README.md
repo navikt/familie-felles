@@ -26,7 +26,7 @@ Legg til avhengigheten i `pom.xml`:
 
 ## Krav: TokenContext-implementasjon
 
-Appen må importere nøyaktig én `TokenContext`-implementasjon. Spring feiler ved oppstart med `TokenContextConfigurationException` hvis ingen eller flere importeres.
+Appen må importere nøyaktig én `TokenContext`-implementasjon. Spring feiler ved oppstart med `TokenContextKonfigurasjonException` hvis ingen eller flere importeres.
 
 Legg til én av følgende avhengigheter og importer tilhørende konfigurasjonsklasse:
 

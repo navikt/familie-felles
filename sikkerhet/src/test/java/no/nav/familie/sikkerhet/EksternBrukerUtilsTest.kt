@@ -61,7 +61,7 @@ internal class EksternBrukerUtilsTest {
     internal fun `skal kaste feil hvis selvbetjening eller tokenx ikke finnes`() {
         configureContext(issuers = listOf("annetToken"))
         assertThat(catchThrowable { EksternBrukerUtils.hentFnrFraToken() })
-            .isInstanceOf(JwtTokenInvalidException::class.java)
+            .isInstanceOf(UgyldigJwtTokenException::class.java)
             .hasMessage("Finner ikke token for ekstern bruker - issuers=[annetToken]")
     }
 
@@ -69,7 +69,7 @@ internal class EksternBrukerUtilsTest {
     internal fun `skal kaste feil hvis det ikke finnes en token`() {
         configureContext(issuers = emptyList())
         assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-            .isInstanceOf(JwtTokenInvalidException::class.java)
+            .isInstanceOf(UgyldigJwtTokenException::class.java)
             .hasMessage("Finner ikke token for ekstern bruker - issuers=[]")
     }
 
@@ -77,7 +77,7 @@ internal class EksternBrukerUtilsTest {
     internal fun `skal kaste feil hvis det ikke finnes subject eller pid`() {
         configureContext(hasSelvbetjening = true)
         assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-            .isInstanceOf(JwtTokenInvalidException::class.java)
+            .isInstanceOf(UgyldigJwtTokenException::class.java)
             .hasMessage("Finner ikke sub/pid på token")
     }
 
@@ -104,7 +104,7 @@ internal class EksternBrukerUtilsTest {
         listOf("1", "123456789012", "abcdefghijk").forEach { invalid ->
             configureContext(hasSelvbetjening = true, selvbetjeningClaims = mapOf("sub" to invalid))
             assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-                .isInstanceOf(JwtTokenInvalidException::class.java)
+                .isInstanceOf(UgyldigJwtTokenException::class.java)
                 .hasMessage("Ugyldig fødselsnummer")
         }
     }
@@ -114,7 +114,7 @@ internal class EksternBrukerUtilsTest {
         listOf("1", "123456789012", "abcdefghijk").forEach { invalid ->
             configureContext(hasSelvbetjening = true, selvbetjeningClaims = mapOf("pid" to invalid))
             assertThatThrownBy { EksternBrukerUtils.hentFnrFraToken() }
-                .isInstanceOf(JwtTokenInvalidException::class.java)
+                .isInstanceOf(UgyldigJwtTokenException::class.java)
                 .hasMessage("Ugyldig fødselsnummer")
         }
     }
