@@ -1,12 +1,14 @@
 package no.nav.familie.sikkerhet.context
 
 import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
+import org.slf4j.LoggerFactory
 import java.time.Instant
 
 /**
  * [TokenContext]-implementasjon som bruker Nav token-support sin [SpringTokenValidationContextHolder].
  */
 class NavTokenSupportTokenContext : TokenContext {
+    private val logger = LoggerFactory.getLogger(NavTokenSupportTokenContext::class.java)
     private val holder = SpringTokenValidationContextHolder()
 
     override fun getClaimAsString(
@@ -34,5 +36,8 @@ class NavTokenSupportTokenContext : TokenContext {
 
     override fun getExpiry(issuer: String): Instant? = getValidationContext()?.getClaims(issuer)?.expirationTime?.toInstant()
 
-    private fun getValidationContext() = runCatching { holder.getTokenValidationContext() }.getOrNull()
+    private fun getValidationContext() =
+        runCatching { holder.getTokenValidationContext() }
+            .onFailure { logger.error("Feil ved henting av token validation context", it) }
+            .getOrNull()
 }
