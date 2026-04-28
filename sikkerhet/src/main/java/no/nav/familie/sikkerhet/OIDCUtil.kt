@@ -1,57 +1,56 @@
 package no.nav.familie.sikkerhet
 
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
-import no.nav.security.token.support.core.jwt.JwtTokenClaims
+import no.nav.familie.sikkerhet.context.TokenContextHolder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import java.util.Date
 
+/**
+ * Spring-bean med hjelpemetoder for å lese claims fra azuread-tokenet til innlogget Nav-ansatt.
+ *
+ * Kaster [UgyldigJwtTokenException] hvis et forventet claim mangler i tokenet.
+ * I `dev`- og `mock-auth`-profil returneres hardkodede testverdier.
+ */
 @Component
-class OIDCUtil(
-    private val ctxHolder: TokenValidationContextHolder,
-) {
+class OIDCUtil {
     @Autowired
     private lateinit var environment: Environment
 
     val subject: String?
-        get() = claimSet().subject
+        get() = TokenContextHolder.getClaimAsString("sub")
 
     fun autentisertBruker(): String = subject ?: jwtError("Fant ikke subject")
 
-    fun jwtError(message: String): Nothing = throw JwtTokenValidatorException(message)
+    fun jwtError(message: String): Nothing = throw UgyldigJwtTokenException(message)
 
     fun getClaim(claim: String): String =
         if (erDevProfil()) {
-            claimSet().get(claim)?.toString() ?: "DEV_$claim"
+            TokenContextHolder.getClaimAsString(claim) ?: "DEV_$claim"
         } else {
-            claimSet().get(claim)?.toString() ?: jwtError("Fant ikke claim '$claim' i tokenet")
+            TokenContextHolder.getClaimAsString(claim) ?: jwtError("Fant ikke claim '$claim' i tokenet")
         }
 
-    fun getClaimAsList(claim: String): List<String>? = if (erDevProfil()) listOf("group1") else claimSet().getAsList(claim)
+    fun getClaimAsList(claim: String): List<String>? =
+        if (erDevProfil()) {
+            listOf("group1")
+        } else {
+            TokenContextHolder.getClaimAsStringList(claim)
+        }
 
     val navIdent: String
         get() =
             if (erDevProfil()) {
                 "TEST_Z123"
             } else {
-                claimSet().get("NAVident")?.toString() ?: jwtError("Fant ikke NAVident")
+                TokenContextHolder.getClaimAsString("NAVident") ?: jwtError("Fant ikke NAVident")
             }
 
     val groups: List<String>?
-        get() =
-            (claimSet().get("groups") as List<*>?)
-                ?.filterNotNull()
-                ?.map { it.toString() }
-
-    fun claimSet(): JwtTokenClaims = context().getClaims("azuread")
-
-    private fun context(): TokenValidationContext = ctxHolder.getTokenValidationContext()
+        get() = TokenContextHolder.getClaimAsStringList("groups")
 
     val expiryDate: Date?
-        get() = claimSet()?.expirationTime
+        get() = TokenContextHolder.getExpiry()?.let { Date.from(it) }
 
     private fun erDevProfil(): Boolean =
         environment.activeProfiles.any {

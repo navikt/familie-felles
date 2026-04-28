@@ -13,7 +13,7 @@
     <url>https://github.com/navikt/familie-felles</url>
 
     <properties>
-        <revision>4.0</revision>
+        <revision>4.1</revision>
         <sha1/>
         <changelist>-SNAPSHOT</changelist>
         <java.version>21</java.version>
@@ -35,6 +35,8 @@
         <module>http-client</module>
         <module>rest-klient</module>
         <module>sikkerhet</module>
+        <module>sikkerhet-token-support</module>
+        <module>sikkerhet-spring-security</module>
         <module>leader</module>
         <module>modell</module>
         <module>util</module>
@@ -148,6 +150,16 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sikkerhet</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sikkerhet-spring-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sikkerhet-token-support</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

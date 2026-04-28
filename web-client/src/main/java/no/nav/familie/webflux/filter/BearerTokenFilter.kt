@@ -1,13 +1,14 @@
 package no.nav.familie.webflux.filter
 
 import com.nimbusds.oauth2.sdk.GrantType
+import no.nav.familie.sikkerhet.context.TokenContextHolder
+import no.nav.familie.sikkerhet.context.TokenContextKonfigurasjonException
 import no.nav.familie.webflux.sts.StsTokenClient
 import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.OAuth2GrantType
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.exceptions.JwtTokenMissingException
-import no.nav.security.token.support.spring.SpringTokenValidationContextHolder
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ClientRequest
@@ -203,13 +204,11 @@ private fun clientPropertiesForGrantType(
 
 private fun clientCredentialOrJwtBearer() = if (erSystembruker()) OAuth2GrantType.CLIENT_CREDENTIALS else OAuth2GrantType.JWT_BEARER
 
-private fun erSystembruker(): Boolean {
-    return try {
-        val preferredUsername =
-            SpringTokenValidationContextHolder().getTokenValidationContext().getClaims("azuread").get("preferred_username")
-        return preferredUsername == null
-    } catch (e: Exception) {
-        // Ingen request context. Skjer ved kall som har opphav i kjørende applikasjon. Ping etc.
+private fun erSystembruker(): Boolean =
+    try {
+        TokenContextHolder.getClaimAsString("preferred_username") == null
+    } catch (e: TokenContextKonfigurasjonException) {
+        throw e
+    } catch (e: Throwable) {
         true
     }
-}
