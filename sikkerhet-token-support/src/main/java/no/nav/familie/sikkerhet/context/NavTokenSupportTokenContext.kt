@@ -36,8 +36,5 @@ class NavTokenSupportTokenContext : TokenContext {
 
     override fun getExpiry(issuer: String): Instant? = getValidationContext()?.getClaims(issuer)?.expirationTime?.toInstant()
 
-    private fun getValidationContext() =
-        runCatching { holder.getTokenValidationContext() }
-            .onFailure { logger.error("Feil ved henting av token validation context", it) }
-            .getOrNull()
+    private fun getValidationContext() = runCatching { holder.getTokenValidationContext() }.getOrNull()
 }
