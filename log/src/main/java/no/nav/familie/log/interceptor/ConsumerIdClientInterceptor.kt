@@ -1,4 +1,4 @@
-package no.nav.familie.http.interceptor
+package no.nav.familie.log.interceptor
 
 import no.nav.familie.log.NavHttpHeaders
 import org.springframework.beans.factory.annotation.Value

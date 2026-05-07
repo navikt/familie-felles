@@ -1,7 +1,7 @@
 package no.nav.familie.restklient.config
 
-import no.nav.familie.restklient.interceptor.ConsumerIdClientInterceptor
-import no.nav.familie.restklient.interceptor.MdcValuesPropagatingClientInterceptor
+import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
+import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
 import no.nav.familie.restklient.interceptor.StsBearerTokenClientInterceptor
 import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
