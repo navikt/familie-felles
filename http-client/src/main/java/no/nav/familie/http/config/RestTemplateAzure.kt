@@ -3,9 +3,8 @@ package no.nav.familie.http.config
 import no.nav.familie.http.interceptor.BearerTokenClientCredentialsClientInterceptor
 import no.nav.familie.http.interceptor.BearerTokenClientInterceptor
 import no.nav.familie.http.interceptor.BearerTokenOnBehalfOfClientInterceptor
-import no.nav.familie.http.interceptor.ConsumerIdClientInterceptor
-import no.nav.familie.http.interceptor.InternLoggerInterceptor
-import no.nav.familie.http.interceptor.MdcValuesPropagatingClientInterceptor
+import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
+import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
 import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,7 +16,6 @@ import org.springframework.web.client.RestOperations
 @Import(
     RestTemplateBuilderBean::class,
     ConsumerIdClientInterceptor::class,
-    InternLoggerInterceptor::class,
     BearerTokenClientInterceptor::class,
     BearerTokenClientCredentialsClientInterceptor::class,
     BearerTokenOnBehalfOfClientInterceptor::class,
@@ -27,7 +25,6 @@ class RestTemplateAzure {
     fun restTemplateJwtBearer(
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        internLoggerInterceptor: InternLoggerInterceptor,
         bearerTokenClientInterceptor: BearerTokenClientInterceptor,
     ): RestOperations =
         restTemplateBuilder
@@ -41,7 +38,6 @@ class RestTemplateAzure {
     fun restTemplateClientCredentialBearer(
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        internLoggerInterceptor: InternLoggerInterceptor,
         bearerTokenClientInterceptor: BearerTokenClientCredentialsClientInterceptor,
     ): RestOperations =
         restTemplateBuilder
@@ -55,7 +51,6 @@ class RestTemplateAzure {
     fun restTemplateOnBehalfOfBearer(
         restTemplateBuilder: RestTemplateBuilder,
         consumerIdClientInterceptor: ConsumerIdClientInterceptor,
-        internLoggerInterceptor: InternLoggerInterceptor,
         bearerTokenClientInterceptor: BearerTokenOnBehalfOfClientInterceptor,
     ): RestOperations =
         restTemplateBuilder
