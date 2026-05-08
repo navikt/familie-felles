@@ -8,9 +8,8 @@ import org.springframework.web.client.RestClient
 @Component
 class TexasClient(
     @param:Value("\${NAIS_TOKEN_ENDPOINT}") private val tokenEndpoint: String,
+    private val restClient: RestClient = RestClient.create(),
 ) {
-    private val restClient = RestClient.create()
-
     fun hentMaskinToken(scope: String): String {
         val body =
             mapOf(
