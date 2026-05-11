@@ -16,11 +16,11 @@ class TexasRestClientFactory(
     private val consumerIdClientInterceptor: ConsumerIdClientInterceptor,
     private val mdcValuesPropagatingClientInterceptor: MdcValuesPropagatingClientInterceptor,
 ) {
-    fun lagMaskinRestKlient(target: String): RestClient =
+    fun lagMaskinTilMaskinRestKlient(target: String): RestClient =
         RestClient
             .builder()
             .requestInterceptor(consumerIdClientInterceptor)
             .requestInterceptor(mdcValuesPropagatingClientInterceptor)
-            .requestInterceptor(TexasMaskinTokenInterceptor(texasClient, target))
+            .requestInterceptor(TexasMaskinTilMaskinTokenInterceptor(texasClient, target))
             .build()
 }

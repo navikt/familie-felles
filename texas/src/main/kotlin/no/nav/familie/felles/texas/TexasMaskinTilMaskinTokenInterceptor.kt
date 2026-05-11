@@ -5,7 +5,7 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class TexasMaskinTokenInterceptor(
+class TexasMaskinTilMaskinTokenInterceptor(
     private val texasClient: TexasClient,
     private val target: String,
 ) : ClientHttpRequestInterceptor {
@@ -14,7 +14,7 @@ class TexasMaskinTokenInterceptor(
         body: ByteArray,
         execution: ClientHttpRequestExecution,
     ): ClientHttpResponse {
-        val token = texasClient.hentMaskinToken(target)
+        val token = texasClient.hentMaskinTilMaskinToken(target)
         request.headers.setBearerAuth(token)
         return execution.execute(request, body)
     }

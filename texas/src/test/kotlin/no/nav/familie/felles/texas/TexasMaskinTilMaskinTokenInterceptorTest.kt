@@ -6,12 +6,11 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.mock.http.client.MockClientHttpRequest
 
-class TexasMaskinTokenInterceptorTest {
+class TexasMaskinTilMaskinTokenInterceptorTest {
     private val texasClient = mockk<TexasClient>()
     private val execution = mockk<ClientHttpRequestExecution>()
     private val response = mockk<ClientHttpResponse>()
@@ -23,28 +22,28 @@ class TexasMaskinTokenInterceptorTest {
         val request = MockClientHttpRequest(HttpMethod.GET, "/test")
         val body = ByteArray(0)
 
-        every { texasClient.hentMaskinToken(target) } returns token
+        every { texasClient.hentMaskinTilMaskinToken(target) } returns token
         every { execution.execute(request, body) } returns response
 
-        val interceptor = TexasMaskinTokenInterceptor(texasClient, target)
+        val interceptor = TexasMaskinTilMaskinTokenInterceptor(texasClient, target)
         interceptor.intercept(request, body, execution)
 
         assertEquals("Bearer $token", request.headers.getFirst("Authorization"))
     }
 
     @Test
-    fun `skal kalle hentMaskinToken med riktig target`() {
+    fun `skal kalle hentMaskinTilMaskinToken med riktig target`() {
         val target = "api://min-tjeneste/.default"
         val request = MockClientHttpRequest(HttpMethod.POST, "/api/data")
         val body = "{}".toByteArray()
 
-        every { texasClient.hentMaskinToken(target) } returns "et-token"
+        every { texasClient.hentMaskinTilMaskinToken(target) } returns "et-token"
         every { execution.execute(request, body) } returns response
 
-        val interceptor = TexasMaskinTokenInterceptor(texasClient, target)
+        val interceptor = TexasMaskinTilMaskinTokenInterceptor(texasClient, target)
         interceptor.intercept(request, body, execution)
 
-        verify(exactly = 1) { texasClient.hentMaskinToken(target) }
+        verify(exactly = 1) { texasClient.hentMaskinTilMaskinToken(target) }
     }
 
     @Test
@@ -53,10 +52,10 @@ class TexasMaskinTokenInterceptorTest {
         val request = MockClientHttpRequest(HttpMethod.GET, "/")
         val body = ByteArray(0)
 
-        every { texasClient.hentMaskinToken(target) } returns "et-token"
+        every { texasClient.hentMaskinTilMaskinToken(target) } returns "et-token"
         every { execution.execute(request, body) } returns response
 
-        val interceptor = TexasMaskinTokenInterceptor(texasClient, target)
+        val interceptor = TexasMaskinTilMaskinTokenInterceptor(texasClient, target)
         val result = interceptor.intercept(request, body, execution)
 
         verify(exactly = 1) { execution.execute(request, body) }

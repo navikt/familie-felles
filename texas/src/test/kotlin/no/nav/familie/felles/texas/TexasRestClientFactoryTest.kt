@@ -21,15 +21,15 @@ class TexasRestClientFactoryTest {
 
     @Test
     fun `skal opprette en RestClient for gitt target`() {
-        val client = factory.lagMaskinRestKlient("api://min-tjeneste/.default")
+        val client = factory.lagMaskinTilMaskinRestKlient("api://min-tjeneste/.default")
 
         assertNotNull(client)
     }
 
     @Test
     fun `skal opprette uavhengige RestClient-instanser per target`() {
-        val client1 = factory.lagMaskinRestKlient("api://tjeneste-a/.default")
-        val client2 = factory.lagMaskinRestKlient("api://tjeneste-b/.default")
+        val client1 = factory.lagMaskinTilMaskinRestKlient("api://tjeneste-a/.default")
+        val client2 = factory.lagMaskinTilMaskinRestKlient("api://tjeneste-b/.default")
 
         assertNotNull(client1)
         assertNotNull(client2)

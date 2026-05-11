@@ -37,7 +37,7 @@ class TexasClientTest {
                 ),
             )
 
-        val token = client.hentMaskinToken("api://min-tjeneste/.default")
+        val token = client.hentMaskinTilMaskinToken("api://min-tjeneste/.default")
 
         assertEquals("mitt-token", token)
         mockServer.verify()
@@ -61,7 +61,7 @@ class TexasClientTest {
                 ),
             )
 
-        client.hentMaskinToken(scope)
+        client.hentMaskinTilMaskinToken(scope)
 
         mockServer.verify()
     }

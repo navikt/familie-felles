@@ -10,7 +10,7 @@ class TexasClient(
     @param:Value("\${NAIS_TOKEN_ENDPOINT}") private val tokenEndpoint: String,
     private val restClient: RestClient = RestClient.create(),
 ) {
-    fun hentMaskinToken(scope: String): String {
+    fun hentMaskinTilMaskinToken(scope: String): String {
         val body =
             mapOf(
                 "identity_provider" to "entra_id",
