@@ -1,8 +1,7 @@
 package no.nav.familie.felles.tokenklient.tokenx
 
-import no.nav.familie.felles.tokenklient.TokenResponse
+import no.nav.familie.felles.tokenklient.TokenHenter
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 
@@ -22,16 +21,6 @@ class TokenXClient(
                 "target" to scope,
                 "user_token" to tokenValue,
             )
-        val response =
-            restClient
-                .post()
-                .uri(tokenEndpoint)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
-                .retrieve()
-                .body(TokenResponse::class.java)
-                ?: throw IllegalStateException("Fikk ikke svar fra token-exchange endpoint")
-
-        return response.accessToken
+        return TokenHenter.hentToken(restClient, tokenEndpoint, body)
     }
 }
