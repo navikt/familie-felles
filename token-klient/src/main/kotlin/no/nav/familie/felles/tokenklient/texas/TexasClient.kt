@@ -1,5 +1,6 @@
-package no.nav.familie.felles.tokenklient
+package no.nav.familie.felles.tokenklient.texas
 
+import no.nav.familie.felles.tokenklient.TokenResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -24,7 +25,7 @@ class TexasClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
                 .retrieve()
-                .body(TexasTokenResponse::class.java)
+                .body(TokenResponse::class.java)
                 ?: throw IllegalStateException("Fikk ikke svar fra Texas")
         return response.accessToken
     }

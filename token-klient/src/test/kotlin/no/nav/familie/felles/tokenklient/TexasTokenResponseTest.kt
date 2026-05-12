@@ -18,7 +18,7 @@ class TexasTokenResponseTest {
             }
             """.trimIndent()
 
-        val response = objectMapper.readValue(json, TexasTokenResponse::class.java)
+        val response = objectMapper.readValue(json, TokenResponse::class.java)
 
         assertEquals("mitt-token-123", response.accessToken)
         assertEquals(3600, response.utløperOm)
@@ -36,7 +36,7 @@ class TexasTokenResponseTest {
             }
             """.trimIndent()
 
-        val response = objectMapper.readValue(json, TexasTokenResponse::class.java)
+        val response = objectMapper.readValue(json, TokenResponse::class.java)
 
         assertEquals("eyJhbGciOiJSUzI1NiJ9.payload.signature", response.accessToken)
         assertEquals(900, response.utløperOm)

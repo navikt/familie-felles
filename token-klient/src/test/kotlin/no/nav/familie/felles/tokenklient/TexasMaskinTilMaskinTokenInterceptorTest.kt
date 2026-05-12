@@ -3,6 +3,8 @@ package no.nav.familie.felles.tokenklient
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.familie.felles.tokenklient.texas.TexasClient
+import no.nav.familie.felles.tokenklient.texas.TexasMaskinTilMaskinTokenInterceptor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod

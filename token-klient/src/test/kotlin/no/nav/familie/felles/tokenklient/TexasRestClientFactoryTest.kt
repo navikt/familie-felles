@@ -1,6 +1,8 @@
 package no.nav.familie.felles.tokenklient
 
 import io.mockk.mockk
+import no.nav.familie.felles.tokenklient.texas.TexasClient
+import no.nav.familie.felles.tokenklient.texas.TexasRestClientFactory
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
 import org.junit.jupiter.api.Assertions.assertNotNull

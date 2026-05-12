@@ -1,4 +1,4 @@
-package no.nav.familie.felles.tokenklient
+package no.nav.familie.felles.tokenklient.texas
 
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor

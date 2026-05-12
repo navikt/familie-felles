@@ -1,4 +1,4 @@
-package no.nav.familie.felles.tokenklient
+package no.nav.familie.felles.tokenklient.texas
 
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution

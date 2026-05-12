@@ -2,7 +2,7 @@ package no.nav.familie.felles.tokenklient
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class TexasTokenResponse(
+data class TokenResponse(
     @JsonProperty("access_token")
     val accessToken: String,
     @JsonProperty("expires_in")
