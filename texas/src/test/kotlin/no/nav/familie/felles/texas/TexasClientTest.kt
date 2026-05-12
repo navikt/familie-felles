@@ -1,68 +1,77 @@
 package no.nav.familie.felles.texas
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
-import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.match.MockRestRequestMatchers.content
-import org.springframework.test.web.client.match.MockRestRequestMatchers.method
-import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
-import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestTemplate
 
 class TexasClientTest {
-    private val tokenEndpoint = "http://texas-mock/token"
+    companion object {
+        private lateinit var wireMockServer: WireMockServer
 
-    private fun lagClientOgServer(): Pair<TexasClient, MockRestServiceServer> {
-        val restTemplate = RestTemplate()
-        val mockServer = MockRestServiceServer.createServer(restTemplate)
-        val restClient = RestClient.create(restTemplate)
-        val client = TexasClient(tokenEndpoint, restClient)
-        return Pair(client, mockServer)
+        @BeforeAll
+        @JvmStatic
+        fun initClass() {
+            wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().http2PlainDisabled(true))
+            wireMockServer.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun tearDown() {
+            wireMockServer.stop()
+        }
+    }
+
+    @AfterEach
+    fun tearDownEachTest() {
+        wireMockServer.resetAll()
     }
 
     @Test
     fun `skal returnere access_token fra velykket respons`() {
-        val (client, mockServer) = lagClientOgServer()
-
-        mockServer
-            .expect(requestTo(tokenEndpoint))
-            .andExpect(method(HttpMethod.POST))
-            .andRespond(
-                withSuccess(
-                    """{"access_token":"mitt-token","expires_in":3600,"token_type":"Bearer"}""",
-                    MediaType.APPLICATION_JSON,
+        wireMockServer.stubFor(
+            post(urlEqualTo("/token"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""{"access_token":"mitt-token","expires_in":3600,"token_type":"Bearer"}"""),
                 ),
-            )
+        )
 
+        val client = TexasClient("http://localhost:${wireMockServer.port()}/token")
         val token = client.hentMaskinTilMaskinToken("api://min-tjeneste/.default")
 
         assertEquals("mitt-token", token)
-        mockServer.verify()
     }
 
     @Test
     fun `skal sende identity_provider og target i request-body`() {
-        val (client, mockServer) = lagClientOgServer()
         val scope = "api://min-tjeneste/.default"
 
-        mockServer
-            .expect(requestTo(tokenEndpoint))
-            .andExpect(method(HttpMethod.POST))
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string(org.hamcrest.Matchers.containsString("\"identity_provider\":\"entra_id\"")))
-            .andExpect(content().string(org.hamcrest.Matchers.containsString("\"target\":\"$scope\"")))
-            .andRespond(
-                withSuccess(
-                    """{"access_token":"token","expires_in":3600,"token_type":"Bearer"}""",
-                    MediaType.APPLICATION_JSON,
+        wireMockServer.stubFor(
+            post(urlEqualTo("/token"))
+                .willReturn(
+                    aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""{"access_token":"token","expires_in":3600,"token_type":"Bearer"}"""),
                 ),
-            )
+        )
 
+        val client = TexasClient("http://localhost:${wireMockServer.port()}/token")
         client.hentMaskinTilMaskinToken(scope)
 
-        mockServer.verify()
+        wireMockServer.verify(
+            postRequestedFor(urlEqualTo("/token"))
+                .withRequestBody(equalToJson("""{"identity_provider":"entra_id","target":"$scope"}""")),
+        )
     }
 }
