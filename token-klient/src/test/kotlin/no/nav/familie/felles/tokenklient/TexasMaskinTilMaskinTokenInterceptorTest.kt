@@ -1,4 +1,4 @@
-package no.nav.familie.felles.texas
+package no.nav.familie.felles.tokenklient
 
 import io.mockk.every
 import io.mockk.mockk

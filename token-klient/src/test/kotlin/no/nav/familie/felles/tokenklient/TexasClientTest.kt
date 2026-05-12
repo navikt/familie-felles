@@ -1,4 +1,4 @@
-package no.nav.familie.felles.texas
+package no.nav.familie.felles.tokenklient
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse

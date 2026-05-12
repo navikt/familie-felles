@@ -1,4 +1,4 @@
-package no.nav.familie.felles.texas
+package no.nav.familie.felles.tokenklient
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals

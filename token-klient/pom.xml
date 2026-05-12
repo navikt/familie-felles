@@ -10,9 +10,9 @@
         <version>${revision}${sha1}${changelist}</version>
     </parent>
 
-    <artifactId>texas</artifactId>
+    <artifactId>token-klient</artifactId>
     <version>${revision}${sha1}${changelist}</version>
-    <name>Felles - Texas</name>
+    <name>Felles - Klienter for å generere token</name>
     <packaging>jar</packaging>
 
     <dependencies>

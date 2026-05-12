@@ -1,4 +1,4 @@
-package no.nav.familie.felles.texas
+package no.nav.familie.felles.tokenklient
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
