@@ -43,7 +43,7 @@
         <module>valutakurs-klient</module>
         <module>unleash</module>
         <module>metrikker</module>
-        <module>texas</module>
+        <module>token-klient</module>
         <module>tidslinje</module>
     </modules>
 
@@ -199,7 +199,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>texas</artifactId>
+                <artifactId>token-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
