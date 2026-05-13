@@ -1,4 +1,4 @@
-package no.nav.familie.felles.tokenklient.texas
+package no.nav.familie.felles.tokenklient.entraid
 
 import no.nav.familie.log.interceptor.ConsumerIdClientInterceptor
 import no.nav.familie.log.interceptor.MdcValuesPropagatingClientInterceptor
@@ -11,8 +11,8 @@ import org.springframework.web.client.RestClient
     ConsumerIdClientInterceptor::class,
     MdcValuesPropagatingClientInterceptor::class,
 )
-class TexasRestClientFactory(
-    private val texasClient: TexasClient,
+class EntraIDRestClientFactory(
+    private val entraIDClient: EntraIDClient,
     private val consumerIdClientInterceptor: ConsumerIdClientInterceptor,
     private val mdcValuesPropagatingClientInterceptor: MdcValuesPropagatingClientInterceptor,
 ) {
@@ -21,6 +21,6 @@ class TexasRestClientFactory(
             .builder()
             .requestInterceptor(consumerIdClientInterceptor)
             .requestInterceptor(mdcValuesPropagatingClientInterceptor)
-            .requestInterceptor(TexasMaskinTilMaskinTokenInterceptor(texasClient, target))
+            .requestInterceptor(MaskinTilMaskinTokenInterceptor(entraIDClient, target))
             .build()
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class TexasTokenResponseTest {
+class TokenResponseTest {
     private val objectMapper = ObjectMapper()
 
     @Test

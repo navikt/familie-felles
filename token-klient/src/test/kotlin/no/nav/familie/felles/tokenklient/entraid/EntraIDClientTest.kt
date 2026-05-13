@@ -1,27 +1,23 @@
-package no.nav.familie.felles.tokenklient
+package no.nav.familie.felles.tokenklient.entraid
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
-import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import no.nav.familie.felles.tokenklient.texas.TexasClient
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class TexasClientTest {
+class EntraIDClientTest {
     companion object {
         private lateinit var wireMockServer: WireMockServer
 
         @BeforeAll
         @JvmStatic
         fun initClass() {
-            wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().http2PlainDisabled(true))
+            wireMockServer =
+                WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().http2PlainDisabled(true))
             wireMockServer.start()
         }
 
@@ -40,18 +36,20 @@ class TexasClientTest {
     @Test
     fun `skal returnere access_token fra velykket respons`() {
         wireMockServer.stubFor(
-            post(urlEqualTo("/token"))
+            WireMock
+                .post(WireMock.urlEqualTo("/token"))
                 .willReturn(
-                    aResponse()
+                    WireMock
+                        .aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody("""{"access_token":"mitt-token","expires_in":3600,"token_type":"Bearer"}"""),
                 ),
         )
 
-        val client = TexasClient("http://localhost:${wireMockServer.port()}/token")
+        val client = EntraIDClient("http://localhost:${wireMockServer.port()}/token")
         val token = client.hentMaskinTilMaskinToken("api://min-tjeneste/.default")
 
-        assertEquals("mitt-token", token)
+        Assertions.assertEquals("mitt-token", token)
     }
 
     @Test
@@ -59,20 +57,23 @@ class TexasClientTest {
         val scope = "api://min-tjeneste/.default"
 
         wireMockServer.stubFor(
-            post(urlEqualTo("/token"))
+            WireMock
+                .post(WireMock.urlEqualTo("/token"))
                 .willReturn(
-                    aResponse()
+                    WireMock
+                        .aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody("""{"access_token":"token","expires_in":3600,"token_type":"Bearer"}"""),
                 ),
         )
 
-        val client = TexasClient("http://localhost:${wireMockServer.port()}/token")
+        val client = EntraIDClient("http://localhost:${wireMockServer.port()}/token")
         client.hentMaskinTilMaskinToken(scope)
 
         wireMockServer.verify(
-            postRequestedFor(urlEqualTo("/token"))
-                .withRequestBody(equalToJson("""{"identity_provider":"entra_id","target":"$scope"}""")),
+            WireMock
+                .postRequestedFor(WireMock.urlEqualTo("/token"))
+                .withRequestBody(WireMock.equalToJson("""{"identity_provider":"entra_id","target":"$scope"}""")),
         )
     }
 }
