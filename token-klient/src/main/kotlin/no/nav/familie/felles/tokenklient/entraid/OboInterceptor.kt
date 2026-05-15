@@ -5,7 +5,7 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 
-class OboTokenInterceptor(
+class OboInterceptor(
     private val entraIDClient: EntraIDClient,
     private val target: String,
     private val tokenSupplier: () -> String,

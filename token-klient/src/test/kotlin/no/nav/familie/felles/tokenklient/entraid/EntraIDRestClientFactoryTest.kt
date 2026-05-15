@@ -52,4 +52,21 @@ class EntraIDRestClientFactoryTest {
         Assertions.assertNotNull(client2)
         assertNotEquals(client1, client2, "Forventer at forskjellige targets gir forskjellige RestClient-instanser")
     }
+
+    @Test
+    fun `skal opprette en hybrid RestClient for gitt target`() {
+        val client = factory.lagHybridRestKlient("api://min-tjeneste/.default") { null }
+
+        Assertions.assertNotNull(client)
+    }
+
+    @Test
+    fun `skal opprette uavhengige hybrid RestClient-instanser per target`() {
+        val client1 = factory.lagHybridRestKlient("api://tjeneste-a/.default") { null }
+        val client2 = factory.lagHybridRestKlient("api://tjeneste-b/.default") { null }
+
+        Assertions.assertNotNull(client1)
+        Assertions.assertNotNull(client2)
+        assertNotEquals(client1, client2, "Forventer at forskjellige targets gir forskjellige RestClient-instanser")
+    }
 }

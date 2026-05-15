@@ -10,7 +10,7 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.mock.http.client.MockClientHttpRequest
 
-class OboTokenInterceptorTest {
+class OboInterceptorTest {
     private val entraIDClient = mockk<EntraIDClient>()
     private val execution = mockk<ClientHttpRequestExecution>()
     private val response = mockk<ClientHttpResponse>()
@@ -26,7 +26,7 @@ class OboTokenInterceptorTest {
         every { entraIDClient.hentOboToken(target, brukerToken) } returns oboToken
         every { execution.execute(request, body) } returns response
 
-        val interceptor = OboTokenInterceptor(entraIDClient, target) { brukerToken }
+        val interceptor = OboInterceptor(entraIDClient, target) { brukerToken }
         interceptor.intercept(request, body, execution)
 
         Assertions.assertEquals("Bearer $oboToken", request.headers.getFirst("Authorization"))
@@ -42,7 +42,7 @@ class OboTokenInterceptorTest {
         every { entraIDClient.hentOboToken(target, brukerToken) } returns "et-obo-token"
         every { execution.execute(request, body) } returns response
 
-        val interceptor = OboTokenInterceptor(entraIDClient, target) { brukerToken }
+        val interceptor = OboInterceptor(entraIDClient, target) { brukerToken }
         interceptor.intercept(request, body, execution)
 
         verify(exactly = 1) { entraIDClient.hentOboToken(target, brukerToken) }
@@ -57,7 +57,7 @@ class OboTokenInterceptorTest {
         every { entraIDClient.hentOboToken(target, "bruker-token") } returns "et-obo-token"
         every { execution.execute(request, body) } returns response
 
-        val interceptor = OboTokenInterceptor(entraIDClient, target) { "bruker-token" }
+        val interceptor = OboInterceptor(entraIDClient, target) { "bruker-token" }
         val result = interceptor.intercept(request, body, execution)
 
         verify(exactly = 1) { execution.execute(request, body) }
@@ -76,7 +76,7 @@ class OboTokenInterceptorTest {
         every { entraIDClient.hentOboToken(target, "token-2") } returns "obo-2"
         every { execution.execute(any(), body) } returns response
 
-        val interceptor = OboTokenInterceptor(entraIDClient, target) { if (++tokenKallTeller == 1) "token-1" else "token-2" }
+        val interceptor = OboInterceptor(entraIDClient, target) { if (++tokenKallTeller == 1) "token-1" else "token-2" }
         interceptor.intercept(request1, body, execution)
         interceptor.intercept(request2, body, execution)
 
