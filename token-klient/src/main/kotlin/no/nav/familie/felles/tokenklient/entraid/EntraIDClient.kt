@@ -19,4 +19,17 @@ class EntraIDClient(
             )
         return TokenHenter.hentToken(restClient, tokenEndpoint, body)
     }
+
+    fun hentOboToken(
+        scope: String,
+        brukerToken: String,
+    ): String {
+        val body =
+            mapOf(
+                "identity_provider" to "entra_id",
+                "target" to scope,
+                "user_token" to brukerToken,
+            )
+        return TokenHenter.hentToken(restClient, tokenEndpoint, body)
+    }
 }
