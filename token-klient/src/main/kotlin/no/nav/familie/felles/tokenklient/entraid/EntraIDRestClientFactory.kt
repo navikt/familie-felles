@@ -23,4 +23,26 @@ class EntraIDRestClientFactory(
             .requestInterceptor(mdcValuesPropagatingClientInterceptor)
             .requestInterceptor(MaskinTilMaskinTokenInterceptor(entraIDClient, target))
             .build()
+
+    fun lagOboRestKlient(
+        target: String,
+        tokenSupplier: () -> String,
+    ): RestClient =
+        RestClient
+            .builder()
+            .requestInterceptor(consumerIdClientInterceptor)
+            .requestInterceptor(mdcValuesPropagatingClientInterceptor)
+            .requestInterceptor(OboInterceptor(entraIDClient, target, tokenSupplier))
+            .build()
+
+    fun lagHybridRestKlient(
+        target: String,
+        tokenSupplier: () -> String?,
+    ): RestClient =
+        RestClient
+            .builder()
+            .requestInterceptor(consumerIdClientInterceptor)
+            .requestInterceptor(mdcValuesPropagatingClientInterceptor)
+            .requestInterceptor(MaskinTilMaskinEllerOboInterceptor(entraIDClient, target, tokenSupplier))
+            .build()
 }

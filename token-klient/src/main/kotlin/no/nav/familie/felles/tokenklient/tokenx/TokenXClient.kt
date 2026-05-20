@@ -13,13 +13,13 @@ class TokenXClient(
 
     fun hentToken(
         scope: String,
-        tokenValue: String,
+        brukerToken: String,
     ): String {
         val body =
             mapOf(
                 "identity_provider" to "tokenx",
                 "target" to scope,
-                "user_token" to tokenValue,
+                "user_token" to brukerToken,
             )
         return TokenHenter.hentToken(restClient, tokenEndpoint, body)
     }
