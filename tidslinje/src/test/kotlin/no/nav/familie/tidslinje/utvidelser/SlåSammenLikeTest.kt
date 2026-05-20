@@ -66,4 +66,43 @@ class SlåSammenLikeTest {
         Assertions.assertEquals(sisteDagIApril, perioder[1].tom)
         Assertions.assertEquals("b", perioder[1].verdi)
     }
+
+    @Test
+    fun `slåSammenLike - Skal slå sammen perioder som er like ifølge custom sammenligningsfunksjon`() {
+        val tidslinje =
+            listOf(Periode("A", førsteJanuar, sisteDagIMars), Periode("a", førsteApril, sisteDagIApril)).tilTidslinje()
+
+        val tidslinjeSlåttSammen =
+            tidslinje.slåSammenLikePerioder { verdi1, verdi2 ->
+                verdi1.equals(verdi2, ignoreCase = true)
+            }
+        val perioder = tidslinjeSlåttSammen.tilPerioder()
+
+        Assertions.assertEquals(1, perioder.size)
+
+        Assertions.assertEquals(førsteJanuar, perioder[0].fom)
+        Assertions.assertEquals(sisteDagIApril, perioder[0].tom)
+    }
+
+    @Test
+    fun `slåSammenLike - Skal ikke slå sammen perioder som er ulike ifølge custom sammenligningsfunksjon`() {
+        val tidslinje =
+            listOf(Periode("A", førsteJanuar, sisteDagIMars), Periode("b", førsteApril, sisteDagIApril)).tilTidslinje()
+
+        val tidslinjeSlåttSammen =
+            tidslinje.slåSammenLikePerioder { verdi1, verdi2 ->
+                verdi1.equals(verdi2, ignoreCase = true)
+            }
+        val perioder = tidslinjeSlåttSammen.tilPerioder()
+
+        Assertions.assertEquals(2, perioder.size)
+
+        Assertions.assertEquals(førsteJanuar, perioder[0].fom)
+        Assertions.assertEquals(sisteDagIMars, perioder[0].tom)
+        Assertions.assertEquals("A", perioder[0].verdi)
+
+        Assertions.assertEquals(førsteApril, perioder[1].fom)
+        Assertions.assertEquals(sisteDagIApril, perioder[1].tom)
+        Assertions.assertEquals("b", perioder[1].verdi)
+    }
 }

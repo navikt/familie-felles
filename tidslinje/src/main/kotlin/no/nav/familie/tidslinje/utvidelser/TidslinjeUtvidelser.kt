@@ -460,10 +460,12 @@ fun <T> Tidslinje<T>.tilPerioder(): List<Periode<T?>> = this.tilTidslinjePeriode
 
 fun <T> Tidslinje<T>.tilPerioderIkkeNull(): List<Periode<T & Any>> = this.tilPerioder().filtrerIkkeNull()
 
-fun <T> Tidslinje<T>.slåSammenLikePerioder(): Tidslinje<T> =
+fun <T> Tidslinje<T>.slåSammenLikePerioder(
+    sammenligningsfunksjon: (T?, T?) -> Boolean = { verdi1, verdi2 -> verdi1 == verdi2 },
+): Tidslinje<T> =
     Tidslinje(
         startsTidspunkt = this.startsTidspunkt,
-        perioder = this.innhold.slåSammenLike(),
+        perioder = this.innhold.slåSammenLike(sammenligningsfunksjon),
         tidsEnhet = this.tidsEnhet,
     )
 

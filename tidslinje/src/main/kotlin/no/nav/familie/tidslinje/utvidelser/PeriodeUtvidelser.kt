@@ -25,13 +25,15 @@ fun <A, B, C, RESULTAT> TidslinjePeriode<A>.biFunksjon(
 ): TidslinjePeriode<RESULTAT> =
     TidslinjePeriode(operator(this.periodeVerdi, operand1.periodeVerdi, operand2.periodeVerdi), lengde, erUendelig)
 
-fun <T> List<TidslinjePeriode<T>>.slåSammenLike(): List<TidslinjePeriode<T>> =
+fun <T> List<TidslinjePeriode<T>>.slåSammenLike(
+    sammenligningsfunksjon: (T?, T?) -> Boolean = { verdi1, verdi2 -> verdi1 == verdi2 },
+): List<TidslinjePeriode<T>> =
     this.fold(emptyList()) { acc, tidslinjePeriode ->
         val sisteElementIAcc = acc.lastOrNull()
 
         if (sisteElementIAcc == null) {
             listOf(tidslinjePeriode)
-        } else if (sisteElementIAcc.periodeVerdi == tidslinjePeriode.periodeVerdi) {
+        } else if (sammenligningsfunksjon(sisteElementIAcc.periodeVerdi.verdi, tidslinjePeriode.periodeVerdi.verdi)) {
             acc.dropLast(1) +
                 TidslinjePeriode(
                     periodeVerdi = sisteElementIAcc.periodeVerdi,
