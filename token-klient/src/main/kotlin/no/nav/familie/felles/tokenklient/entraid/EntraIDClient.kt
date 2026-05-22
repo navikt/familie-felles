@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClient
 @Component
 class EntraIDClient(
     @param:Value("\${NAIS_TOKEN_ENDPOINT}") private val tokenEndpoint: String,
+    @param:Value("\${NAIS_TOKEN_EXCHANGE_ENDPOINT}") private val tokenExchangeEndpoint: String,
 ) {
     private val restClient: RestClient = RestClient.create()
 
@@ -30,6 +31,6 @@ class EntraIDClient(
                 "target" to scope,
                 "user_token" to brukerToken,
             )
-        return TokenHenter.hentToken(restClient, tokenEndpoint, body)
+        return TokenHenter.hentToken(restClient, tokenExchangeEndpoint, body)
     }
 }

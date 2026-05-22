@@ -49,6 +49,7 @@ class EntraIDClientTest {
         val client =
             EntraIDClient(
                 tokenEndpoint = "http://localhost:${wireMockServer.port()}/token",
+                tokenExchangeEndpoint = "http://localhost:${wireMockServer.port()}/token",
             )
         val token = client.hentMaskinTilMaskinToken("api://min-tjeneste/.default")
 
@@ -73,6 +74,7 @@ class EntraIDClientTest {
         val client =
             EntraIDClient(
                 tokenEndpoint = "http://localhost:${wireMockServer.port()}/token",
+                tokenExchangeEndpoint = "http://localhost:${wireMockServer.port()}/token",
             )
         client.hentMaskinTilMaskinToken(scope)
 
@@ -99,6 +101,7 @@ class EntraIDClientTest {
         val client =
             EntraIDClient(
                 tokenEndpoint = "http://localhost:${wireMockServer.port()}/token",
+                tokenExchangeEndpoint = "http://localhost:${wireMockServer.port()}/token",
             )
         val token = client.hentOboToken("api://min-tjeneste/.default", "bruker-token")
 
@@ -124,6 +127,7 @@ class EntraIDClientTest {
         val client =
             EntraIDClient(
                 tokenEndpoint = "http://localhost:${wireMockServer.port()}/token",
+                tokenExchangeEndpoint = "http://localhost:${wireMockServer.port()}/token",
             )
         client.hentOboToken(scope, brukerToken)
 
