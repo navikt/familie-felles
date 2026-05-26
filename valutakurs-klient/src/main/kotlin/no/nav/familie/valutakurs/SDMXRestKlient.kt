@@ -1,5 +1,6 @@
 package no.nav.familie.valutakurs
 
+import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.ValutakursException
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
@@ -17,12 +18,15 @@ abstract class SDMXRestKlient(
                 .uri(url)
                 .accept(MediaType.parseMediaType(APPLICATION_CONTEXT_SDMX_XML_2_1_GENERIC_DATA))
                 .retrieve()
-                .body(T::class.java)!!
+                .body(T::class.java)
+                ?: throw IngenValutakursException("Fant ingen valutakurs for url $url", null)
         } catch (e: RestClientResponseException) {
             throw ValutakursException(
                 "Henting av valutakurs feiler med statuskode ${e.statusCode.value()}.",
                 e,
             )
+        } catch (e: IngenValutakursException) {
+            throw e
         } catch (e: Exception) {
             throw ValutakursException("Ukjent feil ved ved henting av valutakurs", e)
         }

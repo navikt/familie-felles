@@ -14,6 +14,7 @@ import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateValue
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesForCurrency
+import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.ValutakursClientException
 import no.nav.familie.valutakurs.exception.ValutakursTransformationException
 import org.junit.jupiter.api.AfterAll
@@ -178,15 +179,13 @@ class ValutakursRestClientTest {
                             .withBody(body),
                     ),
             )
-            val valutakursClientException =
-                assertThrows<ValutakursClientException> {
-                    ecbValutakursRestKlient.hentValutakurs(
-                        Frequency.Daily,
-                        listOf("NOK", "SEK"),
-                        valutakursDato,
-                    )
-                }
-            assertTrue(valutakursClientException.cause is NullPointerException)
+            assertThrows<IngenValutakursException> {
+                ecbValutakursRestKlient.hentValutakurs(
+                    Frequency.Daily,
+                    listOf("NOK", "SEK"),
+                    valutakursDato,
+                )
+            }
         }
 
         @Test

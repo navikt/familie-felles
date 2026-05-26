@@ -17,6 +17,7 @@ import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateValue
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesForCurrency
+import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.NorgesBankValutakursMappingException
 import no.nav.familie.valutakurs.exception.ValutakursClientException
 import org.junit.jupiter.api.AfterAll
@@ -126,15 +127,13 @@ class NorgesBankValutakursRestKlientTest {
                         .withBody(body),
                 ),
         )
-        val valutakursClientException =
-            assertThrows<ValutakursClientException> {
-                norgesBankValutakursRestKlient.hentValutakurs(
-                    Frekvens.VIRKEDAG,
-                    valuta,
-                    valutakursDato,
-                )
-            }
-        assertTrue(valutakursClientException.cause is NullPointerException)
+        assertThrows<IngenValutakursException> {
+            norgesBankValutakursRestKlient.hentValutakurs(
+                Frekvens.VIRKEDAG,
+                valuta,
+                valutakursDato,
+            )
+        }
     }
 
     @Test
