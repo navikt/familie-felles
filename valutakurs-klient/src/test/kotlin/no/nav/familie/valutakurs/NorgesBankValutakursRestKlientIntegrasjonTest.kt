@@ -16,7 +16,7 @@ class NorgesBankValutakursRestKlientIntegrasjonTest {
 
         val valutakurs =
             NorgesBankValutakursRestKlient(
-                restOperations = config.xmlRestTemplate(),
+                restClient = config.xmlRestClient(),
             ).hentValutakurs(
                 frekvens = Frekvens.VIRKEDAG,
                 valuta = "EUR",

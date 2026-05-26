@@ -36,13 +36,13 @@ import java.time.format.DateTimeParseException
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NorgesBankValutakursRestKlientTest {
     private val xmlMapper = SDMXValutakursRestKlientConfig().xmlMapper()
-    private val restTemplate = SDMXValutakursRestKlientConfig().xmlRestTemplate()
     private val norgesBankValutakursRestKlient: NorgesBankValutakursRestKlient
     private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
 
     init {
         wireMockServer.start()
-        norgesBankValutakursRestKlient = NorgesBankValutakursRestKlient(restTemplate, "http://localhost:${wireMockServer.port()}/")
+        val restClient = SDMXValutakursRestKlientConfig().xmlRestClient()
+        norgesBankValutakursRestKlient = NorgesBankValutakursRestKlient(restClient, "http://localhost:${wireMockServer.port()}/")
     }
 
     @AfterAll

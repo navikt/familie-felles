@@ -51,9 +51,9 @@ class ValutakursRestClientTest {
 
             val config = SDMXValutakursRestKlientConfig()
             xmlMapper = config.xmlMapper()
-            val restTemplate = config.xmlRestTemplate()
+            val restClient = config.xmlRestClient()
             ecbValutakursRestKlient =
-                ECBValutakursRestKlient(restTemplate, URI.create("http://localhost:${wireMockServer.port()}/").toString())
+                ECBValutakursRestKlient(restClient, URI.create("http://localhost:${wireMockServer.port()}/").toString())
         }
 
         @AfterAll

@@ -15,7 +15,7 @@ class ValutakursRestClientIntegrasjonTest {
 
         val kurser =
             ECBValutakursRestKlient(
-                restOperations = config.xmlRestTemplate(),
+                restClient = config.xmlRestClient(),
                 ecbApiUrl = "https://data-api.ecb.europa.eu/service/data/EXR/",
             ).hentValutakurs(
                 frequency = Frequency.Daily,

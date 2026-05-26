@@ -14,16 +14,16 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
 import java.net.URI
 import java.time.LocalDate
 
 @Component
 @Import(SDMXValutakursRestKlientConfig::class)
 class ECBValutakursRestKlient(
-    @Qualifier("sdmxXmlRestTemplate") restOperations: RestOperations,
+    @Qualifier("sdmxXmlRestClient") restClient: RestClient,
     @param:Value("\${ECB_API_URL}") private val ecbApiUrl: String = "https://data-api.ecb.europa.eu/service/data/EXR/",
-) : SDMXRestKlient(restOperations, "ecb") {
+) : SDMXRestKlient(restClient) {
     /**
      * Henter valutakurser fra ECB (European Central Bank) for *currencies*
      * @param frequency spesifiserer om valutakurser skal hentes for spesifikk dag eller for måned.

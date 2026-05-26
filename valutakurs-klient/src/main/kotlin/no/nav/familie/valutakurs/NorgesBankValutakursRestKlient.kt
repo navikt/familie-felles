@@ -14,16 +14,16 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestOperations
+import org.springframework.web.client.RestClient
 import java.net.URI
 import java.time.LocalDate
 
 @Component
 @Import(SDMXValutakursRestKlientConfig::class)
 class NorgesBankValutakursRestKlient(
-    @Qualifier("sdmxXmlRestTemplate") restOperations: RestOperations,
+    @Qualifier("sdmxXmlRestClient") restClient: RestClient,
     @param:Value("\${NORGES_BANK_API_URL}") private val norgesBankApiUrl: String = "https://data.norges-bank.no/api/data/EXR/",
-) : SDMXRestKlient(restOperations, "norges-bank") {
+) : SDMXRestKlient(restClient) {
     /**
      * Henter valutakurser fra ECB (European Central Bank) via Norges Bank for *valuta*
      * @param frekvens spesifiserer om valutakurs skal hentes for virkedag, måned eller år.
