@@ -34,8 +34,7 @@ class SDMXValutakursRestKlientConfig {
         return RestClient
             .builder()
             .requestFactory(SimpleClientHttpRequestFactory())
-            .messageConverters { converters ->
-                converters.add(0, converter)
-            }.build()
+            .configureMessageConverters { it.addCustomConverter(converter) }
+            .build()
     }
 }
