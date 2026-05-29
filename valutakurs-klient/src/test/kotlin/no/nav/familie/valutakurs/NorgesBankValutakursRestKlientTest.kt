@@ -17,6 +17,7 @@ import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateKey
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRateValue
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesDataSet
 import no.nav.familie.valutakurs.domene.sdmx.SDMXExchangeRatesForCurrency
+import no.nav.familie.valutakurs.exception.IngenValutakursException
 import no.nav.familie.valutakurs.exception.NorgesBankValutakursMappingException
 import no.nav.familie.valutakurs.exception.ValutakursClientException
 import org.junit.jupiter.api.AfterAll
@@ -36,13 +37,13 @@ import java.time.format.DateTimeParseException
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NorgesBankValutakursRestKlientTest {
     private val xmlMapper = SDMXValutakursRestKlientConfig().xmlMapper()
-    private val restTemplate = SDMXValutakursRestKlientConfig().xmlRestTemplate()
     private val norgesBankValutakursRestKlient: NorgesBankValutakursRestKlient
     private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
 
     init {
         wireMockServer.start()
-        norgesBankValutakursRestKlient = NorgesBankValutakursRestKlient(restTemplate, "http://localhost:${wireMockServer.port()}/")
+        val restClient = SDMXValutakursRestKlientConfig().xmlRestClient()
+        norgesBankValutakursRestKlient = NorgesBankValutakursRestKlient(restClient, "http://localhost:${wireMockServer.port()}/")
     }
 
     @AfterAll
@@ -126,15 +127,13 @@ class NorgesBankValutakursRestKlientTest {
                         .withBody(body),
                 ),
         )
-        val valutakursClientException =
-            assertThrows<ValutakursClientException> {
-                norgesBankValutakursRestKlient.hentValutakurs(
-                    Frekvens.VIRKEDAG,
-                    valuta,
-                    valutakursDato,
-                )
-            }
-        assertTrue(valutakursClientException.cause is NullPointerException)
+        assertThrows<IngenValutakursException> {
+            norgesBankValutakursRestKlient.hentValutakurs(
+                Frekvens.VIRKEDAG,
+                valuta,
+                valutakursDato,
+            )
+        }
     }
 
     @Test
