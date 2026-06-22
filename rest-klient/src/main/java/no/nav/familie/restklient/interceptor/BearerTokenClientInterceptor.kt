@@ -8,6 +8,8 @@ import no.nav.security.token.support.client.core.ClientProperties
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
@@ -108,6 +110,8 @@ class BearerTokenWithSTSFallbackClientInterceptor(
     private val clientConfigurationProperties: ClientConfigurationProperties,
     private val stsRestClient: StsRestClient,
 ) : ClientHttpRequestInterceptor {
+    private val log: Logger = LoggerFactory.getLogger(BearerTokenWithSTSFallbackClientInterceptor::class.java)
+
     override fun intercept(
         request: HttpRequest,
         body: ByteArray,
@@ -115,6 +119,7 @@ class BearerTokenWithSTSFallbackClientInterceptor(
     ): ClientHttpResponse {
         if (erSystembruker()) {
             request.headers.setBearerAuth(stsRestClient.systemOIDCToken)
+            log.info("STS brukes for å hente token for systembruker")
         } else {
             request.headers.setBearerAuth(
                 genererAccessToken(
