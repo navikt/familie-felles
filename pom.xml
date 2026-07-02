@@ -7,7 +7,7 @@
     <groupId>no.nav.familie.felles</groupId>
     <artifactId>felles</artifactId>
     <name>Felles - Root</name>
-    <version>${revision}${sha1}${changelist}</version>
+    <version>4.20260507122158_de46f16</version>
     <packaging>pom</packaging>
     <description>Shared components for family-related benefits</description>
     <url>https://github.com/navikt/familie-felles</url>
@@ -25,7 +25,7 @@
         <kontrakter.version>4.0_20260702124405_ce34af2</kontrakter.version>
         <kotest.version>6.2.1</kotest.version>
         <kotlin.version>2.4.0</kotlin.version>
-        <mockk.version>1.14.6</mockk.version>
+        <mockk.version>1.14.11</mockk.version>
         <nav.security.token.version>6.0.11</nav.security.token.version>
         <wiremock.version>3.13.2</wiremock.version>        
     </properties>
