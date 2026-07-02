@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.familie.kontrakter</groupId>
-            <artifactId>enslig-forsorger</artifactId>
+            <artifactId>felles</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

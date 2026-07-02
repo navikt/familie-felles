@@ -1,8 +1,8 @@
 package no.nav.familie.felles.tokenklient
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
 
 class TokenResponseTest {
     private val objectMapper = ObjectMapper()

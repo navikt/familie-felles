@@ -13,24 +13,27 @@ fun <T> Collection<Tidslinje<T>>.slåSammen(): Tidslinje<Collection<T>> {
     return this.fold(tomTidslinje(startsTidspunkt = minsteTidspunkt)) { sammenlagt, neste ->
         sammenlagt.biFunksjon(neste) { periodeVerdiFraSammenlagt, periodeVerdiFraNeste ->
             when (periodeVerdiFraSammenlagt) {
-                is Verdi ->
+                is Verdi -> {
                     when (periodeVerdiFraNeste) {
                         is Verdi -> Verdi(periodeVerdiFraSammenlagt.verdi + periodeVerdiFraNeste.verdi)
                         else -> periodeVerdiFraSammenlagt
                     }
+                }
 
-                is Null ->
+                is Null -> {
                     when (periodeVerdiFraNeste) {
                         is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
                         else -> Null()
                     }
+                }
 
-                is Udefinert ->
+                is Udefinert -> {
                     when (periodeVerdiFraNeste) {
                         is Verdi -> Verdi(listOf(periodeVerdiFraNeste.verdi))
                         is Null -> Null()
                         is Udefinert -> Udefinert()
                     }
+                }
             }
         }
     }
@@ -44,8 +47,13 @@ fun <I, R> Collection<Tidslinje<I>>.kombiner(listeKombinator: (Iterable<I>) -> R
                 if (resultat != null) Verdi(resultat) else Null()
             }
 
-            is Null -> Null()
-            is Udefinert -> Udefinert()
+            is Null -> {
+                Null()
+            }
+
+            is Udefinert -> {
+                Udefinert()
+            }
         }
     }
 
