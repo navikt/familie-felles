@@ -57,7 +57,7 @@
         <dependency>
             <groupId>no.nav.familie.kontrakter</groupId>
             <artifactId>felles</artifactId>
-            <version>4.0_20260203161501_d70fd23</version>
+            <version>4.0_20260702124405_ce34af2</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
