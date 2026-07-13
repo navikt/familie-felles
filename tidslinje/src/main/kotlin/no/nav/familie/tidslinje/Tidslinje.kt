@@ -1,9 +1,11 @@
 package no.nav.familie.tidslinje
 
 import no.nav.familie.tidslinje.utvidelser.klipp
+import no.nav.familie.tidslinje.utvidelser.kombinerUtenNullMed
 import no.nav.familie.tidslinje.utvidelser.map
 import no.nav.familie.tidslinje.utvidelser.mapper
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
+import no.nav.familie.tidslinje.utvidelser.trim
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -172,3 +174,10 @@ fun <T, R> Tidslinje<T>.mapVerdiMedUndefined(mapper: (T?) -> R?): Tidslinje<R> =
     this.map { periodeVerdi ->
         mapper(periodeVerdi.verdi)?.let { Verdi(it) } ?: Null()
     }
+
+fun <V> Tidslinje<V>.erIkkeTom() = !this.erTom()
+
+fun <V, H> Tidslinje<V>.harOverlappMed(tidslinje: Tidslinje<H>) =
+    this.kombinerUtenNullMed(tidslinje) { _, _ -> true }.trim(Null()).erIkkeTom()
+
+fun <V, H> Tidslinje<V>.harIkkeOverlappMed(tidslinje: Tidslinje<H>) = !this.harOverlappMed(tidslinje)
