@@ -1,22 +1,12 @@
 package no.nav.familie.tilgangsmaskin
 
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-/**
- * Klient mot Tilgangsmaskinen (populasjonstilgangskontroll).
- *
- * Bruker bulk-endepunktet med on-behalf-of-token, slik at NAV-identen til innlogget saksbehandler hentes
- * fra tokenet. Kallet kan derfor kun gjøres i saksbehandlerkontekst — i systemkontekst finnes det ingen
- * ansatt å sjekke tilgang for, og konsumenten må håndtere det selv før den kaller klienten.
- *
- * Konsumenten er ansvarlig for å sende inn en [RestClient] som legger på et OBO-token mot Tilgangsmaskinen
- * sitt scope. Klienten eier protokollen, ikke autentiseringen.
- */
 open class TilgangsmaskinKlient(
     tilgangsmaskinUri: URI,
     private val restClient: RestClient,
@@ -28,25 +18,12 @@ open class TilgangsmaskinKlient(
             .build()
             .toUri()
 
-    /**
-     * Sjekker tilgang til [personIdenter].
-     *
-     * Returnerer ett resultat per element i [personIdenter], i samme rekkefølge. Svarer ikke Tilgangsmaskinen
-     * for en ident, nektes tilgang — vi skal aldri gi tilgang basert på et ufullstendig svar.
-     *
-     * Tomme identer sendes ikke videre. Tilgangsmaskinen avviser hele forespørselen med 400 hvis én eneste
-     * brukerId er tom, og da ville én dårlig ident nektet tilgang til alle de andre i samme bolk.
-     *
-     * Kaster [TilgangsmaskinException] hvis kallet feiler. Da returneres ingen resultater i det hele tatt,
-     * og kalleren må behandle unntaket som manglende tilgang.
-     */
     open fun sjekkTilgangTilPersoner(
         personIdenter: List<String>,
         regeltype: Regeltype = Regeltype.KJERNE_REGELTYPE,
     ): List<TilgangsmaskinResultat> {
-        if (personIdenter.isEmpty()) return emptyList()
-
         val gyldigeIdenter = personIdenter.distinct().filter { it.isNotBlank() }
+        if (gyldigeIdenter.isEmpty()) return emptyList()
 
         val resultaterPerIdent =
             gyldigeIdenter
@@ -54,11 +31,7 @@ open class TilgangsmaskinKlient(
                 .flatMap { sjekkTilgangTilPersonerIBolk(it, regeltype) }
                 .associateBy { it.personIdent }
 
-        return personIdenter
-            .map { personIdent ->
-                resultaterPerIdent[personIdent]
-                    ?: if (personIdent.isBlank()) ugyldigIdent(personIdent) else manglendeSvar(personIdent)
-            }.also { loggAvvisninger(it) }
+        return gyldigeIdenter.map { resultaterPerIdent[it] ?: manglendeSvar(it) }
     }
 
     private fun sjekkTilgangTilPersonerIBolk(
@@ -70,17 +43,16 @@ open class TilgangsmaskinKlient(
                 restClient
                     .post()
                     .uri(bulkUri)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
                     .body(personIdenter.map { BrukerIdOgRegelsettDto(brukerId = it, type = regeltype) })
                     .retrieve()
                     .body<TilgangsmaskinBulkResponsDto>()
-                    ?: throw TilgangsmaskinException("Fikk tomt svar fra Tilgangsmaskinen")
-            } catch (tilgangsmaskinException: TilgangsmaskinException) {
-                throw tilgangsmaskinException
             } catch (exception: Exception) {
                 throw TilgangsmaskinException("Feil ved kall mot Tilgangsmaskinen: ${exception.message}", exception)
             }
 
-        return respons.resultater.map { it.tilResultat() }
+        return respons?.resultater?.map { it.tilResultat() } ?: throw TilgangsmaskinException("Fikk tomt svar fra Tilgangsmaskinen")
     }
 
     private fun manglendeSvar(personIdent: String) =
@@ -92,29 +64,9 @@ open class TilgangsmaskinKlient(
             begrunnelse = "Fikk ikke svar fra Tilgangsmaskinen for personen",
         )
 
-    private fun ugyldigIdent(personIdent: String) =
-        TilgangsmaskinResultat(
-            personIdent = personIdent,
-            harTilgang = false,
-            httpStatus = HttpStatus.BAD_REQUEST.value(),
-            avvisningskode = Avvisningskode.UKJENT,
-            begrunnelse = "Personidenten er tom og kan ikke sjekkes mot Tilgangsmaskinen",
-        )
-
-    private fun loggAvvisninger(resultater: List<TilgangsmaskinResultat>) {
-        val avviste = resultater.filterNot { it.harTilgang }
-        if (avviste.isEmpty()) return
-
-        logger.info(
-            "Tilgangsmaskinen avviste tilgang til {} person(er). Avvisningskoder: {}. TraceId: {}",
-            avviste.size,
-            avviste.mapNotNull { it.avvisningskode }.distinct(),
-            avviste.mapNotNull { it.traceId }.distinct(),
-        )
-    }
-
     private fun TilgangsmaskinBulkResultatDto.tilResultat(): TilgangsmaskinResultat {
         val harTilgang = status == HttpStatus.NO_CONTENT.value()
+
         return TilgangsmaskinResultat(
             personIdent = brukerId,
             harTilgang = harTilgang,
@@ -127,8 +79,6 @@ open class TilgangsmaskinKlient(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(TilgangsmaskinKlient::class.java)
-
         // Tilgangsmaskinen tillater maksimalt 1000 brukerId-er per bulk-forespørsel, og svarer 413 over det.
         const val MAKS_ANTALL_IDENTER_PER_KALL = 1000
     }

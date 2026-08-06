@@ -26,7 +26,7 @@ class TilgangsmaskinKlientTest {
 
     @BeforeEach
     fun setUp() {
-        wiremockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().http2PlainDisabled(true))
+        wiremockServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort())
         wiremockServer.start()
         tilgangsmaskinKlient =
             TilgangsmaskinKlient(
@@ -123,7 +123,7 @@ class TilgangsmaskinKlientTest {
     }
 
     @Test
-    fun `skal returnere ett resultat per etterspurt ident også når samme ident sendes inn flere ganger`() {
+    fun `skal returnere ett resultat per unike ident når samme ident sendes inn flere ganger`() {
         // Arrange
         stubBulk("""{ "ansattId": "Z999999", "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
 
@@ -131,8 +131,8 @@ class TilgangsmaskinKlientTest {
         val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910", "12345678910"))
 
         // Assert
-        assertThat(resultater).hasSize(2)
-        assertThat(resultater).allMatch { it.harTilgang }
+        assertThat(resultater).hasSize(1)
+        assertThat(resultater.single().harTilgang).isTrue()
     }
 
     @Test
@@ -201,19 +201,17 @@ class TilgangsmaskinKlientTest {
     }
 
     @Test
-    fun `skal ikke la en tom ident velte tilgangssjekken for de gyldige identene`() {
+    fun `skal filtrere bort tomme identer og fortsatt sjekke de gyldige`() {
         // Arrange
-        // Tilgangsmaskinen avviser hele forespørselen med 400 dersom én brukerId er tom.
+        // Tilgangsmaskinen avviser hele forespørselen med 400 dersom én eneste brukerId er tom.
         stubBulk("""{ "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
 
         // Act
         val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910", "  "))
 
         // Assert
-        assertThat(resultater).hasSize(2)
-        assertThat(resultater.first().harTilgang).isTrue()
-        assertThat(resultater.last().harTilgang).isFalse()
-        assertThat(resultater.last().httpStatus).isEqualTo(400)
+        assertThat(resultater).hasSize(1)
+        assertThat(resultater.single().harTilgang).isTrue()
         wiremockServer.verify(
             postRequestedFor(urlEqualTo(BULK_PATH))
                 .withRequestBody(equalToJson("""[ { "brukerId": "12345678910", "type": "KJERNE_REGELTYPE" } ]""")),
@@ -226,8 +224,7 @@ class TilgangsmaskinKlientTest {
         val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf(""))
 
         // Assert
-        assertThat(resultater).hasSize(1)
-        assertThat(resultater.single().harTilgang).isFalse()
+        assertThat(resultater).isEmpty()
         wiremockServer.verify(0, postRequestedFor(urlEqualTo(BULK_PATH)))
     }
 
