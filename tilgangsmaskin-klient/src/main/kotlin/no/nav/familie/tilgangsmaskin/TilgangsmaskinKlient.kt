@@ -3,6 +3,7 @@ package no.nav.familie.tilgangsmaskin
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
@@ -49,11 +50,19 @@ open class TilgangsmaskinKlient(
                     .retrieve()
                     .body<TilgangsmaskinBulkResponsDto>()
             } catch (exception: Exception) {
-                throw TilgangsmaskinException("Feil ved kall mot Tilgangsmaskinen: ${exception.message}", exception)
+                throw TilgangsmaskinException(feilmelding(exception), exception)
             }
 
         return respons?.resultater?.map { it.tilResultat() } ?: throw TilgangsmaskinException("Fikk tomt svar fra Tilgangsmaskinen")
     }
+
+    // Responsbodyen kan inneholde personidenter, og meldingen kan bli eksponert videre av konsumenten.
+    // Derfor tar vi kun med statuskoden her; detaljene ligger i cause.
+    private fun feilmelding(exception: Exception): String =
+        when (exception) {
+            is RestClientResponseException -> "Feil ved kall mot Tilgangsmaskinen: HTTP ${exception.statusCode.value()}"
+            else -> "Feil ved kall mot Tilgangsmaskinen: ${exception.javaClass.simpleName}"
+        }
 
     private fun manglendeSvar(personIdent: String) =
         TilgangsmaskinResultat(

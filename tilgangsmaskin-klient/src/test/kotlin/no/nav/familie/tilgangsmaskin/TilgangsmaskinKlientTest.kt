@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
+import org.springframework.web.client.RestClientResponseException
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 import java.net.URI
@@ -166,6 +167,25 @@ class TilgangsmaskinKlientTest {
         // Act & Assert
         assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")) }
             .isInstanceOf(TilgangsmaskinException::class.java)
+    }
+
+    @Test
+    fun `skal ikke ta med responsbodyen i exception-meldingen fordi den kan inneholde personidenter`() {
+        // Arrange
+        wiremockServer.stubFor(
+            post(urlEqualTo(BULK_PATH)).willReturn(
+                aResponse()
+                    .withStatus(400)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("""{ "detail": "Ugyldig brukerId 12345678910" }"""),
+            ),
+        )
+
+        // Act & Assert
+        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")) }
+            .isInstanceOf(TilgangsmaskinException::class.java)
+            .hasMessage("Feil ved kall mot Tilgangsmaskinen: HTTP 400")
+            .hasRootCauseInstanceOf(RestClientResponseException::class.java)
     }
 
     @Test
