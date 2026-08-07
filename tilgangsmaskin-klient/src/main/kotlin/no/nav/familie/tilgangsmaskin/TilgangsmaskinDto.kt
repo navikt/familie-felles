@@ -10,7 +10,9 @@ enum class Regeltype {
 data class BrukerIdOgRegelsettDto(
     val brukerId: String,
     val type: Regeltype,
-)
+) {
+    override fun toString(): String = "BrukerIdOgRegelsettDto(brukerId=${brukerId.maskerIdent()}, type=$type)"
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TilgangsmaskinBulkResponsDto(
@@ -23,7 +25,10 @@ data class TilgangsmaskinBulkResultatDto(
     val brukerId: String,
     val status: Int,
     val detaljer: TilgangsmaskinAvvisningDto? = null,
-)
+) {
+    override fun toString(): String =
+        "TilgangsmaskinBulkResultatDto(brukerId=${brukerId.maskerIdent()}, status=$status, detaljer=$detaljer)"
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TilgangsmaskinAvvisningDto(
@@ -62,7 +67,13 @@ data class TilgangsmaskinResultat(
     val begrunnelse: String? = null,
     val traceId: String? = null,
     val kanOverstyres: Boolean = false,
-)
+) {
+    override fun toString(): String =
+        "TilgangsmaskinResultat(personIdent=${personIdent.maskerIdent()}, harTilgang=$harTilgang, httpStatus=$httpStatus, " +
+            "avvisningskode=$avvisningskode, begrunnelse=$begrunnelse, traceId=$traceId, kanOverstyres=$kanOverstyres)"
+}
+
+private fun String.maskerIdent(): String = "*".repeat(length)
 
 class TilgangsmaskinException(
     message: String,
