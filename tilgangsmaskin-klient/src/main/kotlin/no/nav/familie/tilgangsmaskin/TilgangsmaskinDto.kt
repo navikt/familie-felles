@@ -1,10 +1,12 @@
 package no.nav.familie.tilgangsmaskin
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import org.slf4j.LoggerFactory
 
 enum class Regeltype {
     KJERNE_REGELTYPE,
     KOMPLETT_REGELTYPE,
+    OVERSTYRBAR_REGELTYPE,
 }
 
 data class BrukerIdOgRegelsettDto(
@@ -55,7 +57,15 @@ enum class Avvisningskode {
     ;
 
     companion object {
-        fun fraTitle(title: String?): Avvisningskode = entries.firstOrNull { it.name == title } ?: UKJENT
+        private val logger = LoggerFactory.getLogger(Avvisningskode::class.java)
+
+        fun fraTitle(title: String?): Avvisningskode {
+            val avvisningskode = entries.firstOrNull { it.name == title }
+            if (avvisningskode == null) {
+                logger.warn("Ukjent avvisningskode fra Tilgangsmaskinen: \"$title\"")
+            }
+            return avvisningskode ?: UKJENT
+        }
     }
 }
 
@@ -78,4 +88,6 @@ private fun String.maskerIdent(): String = "*".repeat(length)
 class TilgangsmaskinException(
     message: String,
     cause: Throwable? = null,
+    // Satt når feilen kom fra et HTTP-svar, slik at konsumenten kan skille klientfeil (4xx) fra serverfeil (5xx).
+    val httpStatus: Int? = null,
 ) : RuntimeException(message, cause)

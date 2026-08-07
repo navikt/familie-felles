@@ -20,10 +20,10 @@ open class TilgangsmaskinKlient(
             .toUri()
 
     open fun sjekkTilgangTilPersoner(
-        personIdenter: List<String>,
+        personIdenter: Set<String>,
         regeltype: Regeltype = Regeltype.KJERNE_REGELTYPE,
     ): List<TilgangsmaskinResultat> {
-        val gyldigeIdenter = personIdenter.distinct().filter { it.isNotBlank() }
+        val gyldigeIdenter = personIdenter.filter { it.isNotBlank() }
         if (gyldigeIdenter.isEmpty()) return emptyList()
 
         val resultaterPerIdent =
@@ -50,7 +50,11 @@ open class TilgangsmaskinKlient(
                     .retrieve()
                     .body<TilgangsmaskinBulkResponsDto>()
             } catch (exception: Exception) {
-                throw TilgangsmaskinException(feilmelding(exception), exception)
+                throw TilgangsmaskinException(
+                    message = feilmelding(exception),
+                    cause = exception,
+                    httpStatus = (exception as? RestClientResponseException)?.statusCode?.value(),
+                )
             }
 
         return respons?.resultater?.map { it.tilResultat() } ?: throw TilgangsmaskinException("Fikk tomt svar fra Tilgangsmaskinen")

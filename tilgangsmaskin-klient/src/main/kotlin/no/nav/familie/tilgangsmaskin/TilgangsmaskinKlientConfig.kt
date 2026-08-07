@@ -12,10 +12,10 @@ class TilgangsmaskinKlientConfig {
     @Bean
     fun tilgangsmaskinKlient(
         @Value("\${TILGANGSMASKIN_API_URL}") tilgangsmaskinUri: URI,
-        @Qualifier(TILGANGSMASKIN_REST_CLIENT) restClient: RestClient,
+        @Qualifier(TILGANGSMASKIN_OBO_REST_CLIENT) restClient: RestClient,
     ): TilgangsmaskinKlient = TilgangsmaskinKlient(tilgangsmaskinUri, restClient)
 
     companion object {
-        const val TILGANGSMASKIN_REST_CLIENT = "tilgangsmaskinRestClient"
+        const val TILGANGSMASKIN_OBO_REST_CLIENT = "tilgangsmaskinOboRestClient"
     }
 }

@@ -47,7 +47,7 @@ class TilgangsmaskinKlientTest {
         stubBulk("""{ "ansattId": "Z999999", "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
 
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910"))
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910"))
 
         // Assert
         assertThat(resultater).hasSize(1)
@@ -75,7 +75,7 @@ class TilgangsmaskinKlientTest {
         )
 
         // Act
-        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")).single()
+        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")).single()
 
         // Assert
         assertThat(resultat.harTilgang).isFalse()
@@ -99,7 +99,7 @@ class TilgangsmaskinKlientTest {
         )
 
         // Act
-        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")).single()
+        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")).single()
 
         // Assert
         assertThat(resultat.harTilgang).isFalse()
@@ -113,7 +113,7 @@ class TilgangsmaskinKlientTest {
         stubBulk("""{ "ansattId": "Z999999", "resultater": [ { "brukerId": "11111111111", "status": 204 } ] }""")
 
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("11111111111", "22222222222"))
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("11111111111", "22222222222"))
 
         // Assert
         assertThat(resultater).hasSize(2)
@@ -124,22 +124,9 @@ class TilgangsmaskinKlientTest {
     }
 
     @Test
-    fun `skal returnere ett resultat per unike ident når samme ident sendes inn flere ganger`() {
-        // Arrange
-        stubBulk("""{ "ansattId": "Z999999", "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
-
-        // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910", "12345678910"))
-
-        // Assert
-        assertThat(resultater).hasSize(1)
-        assertThat(resultater.single().harTilgang).isTrue()
-    }
-
-    @Test
     fun `skal dele opp i flere kall når det er flere enn maks antall identer`() {
         // Arrange
-        val identer = (1..TilgangsmaskinKlient.MAKS_ANTALL_IDENTER_PER_KALL + 1).map { it.toString().padStart(11, '0') }
+        val identer = (1..TilgangsmaskinKlient.MAKS_ANTALL_IDENTER_PER_KALL + 1).map { it.toString().padStart(11, '0') }.toSet()
         stubBulk("""{ "ansattId": "Z999999", "resultater": [] }""")
 
         // Act
@@ -152,7 +139,7 @@ class TilgangsmaskinKlientTest {
     @Test
     fun `skal ikke kalle Tilgangsmaskinen når det ikke er noen identer å sjekke`() {
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(emptyList())
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(emptySet())
 
         // Assert
         assertThat(resultater).isEmpty()
@@ -165,8 +152,20 @@ class TilgangsmaskinKlientTest {
         wiremockServer.stubFor(post(urlEqualTo(BULK_PATH)).willReturn(aResponse().withStatus(500)))
 
         // Act & Assert
-        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")) }
+        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")) }
             .isInstanceOf(TilgangsmaskinException::class.java)
+            .hasFieldOrPropertyWithValue("httpStatus", 500)
+    }
+
+    @Test
+    fun `skal ikke sette httpStatus når feilen ikke kommer fra et HTTP-svar`() {
+        // Arrange
+        wiremockServer.stop()
+
+        // Act & Assert
+        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")) }
+            .isInstanceOf(TilgangsmaskinException::class.java)
+            .hasFieldOrPropertyWithValue("httpStatus", null)
     }
 
     @Test
@@ -182,9 +181,10 @@ class TilgangsmaskinKlientTest {
         )
 
         // Act & Assert
-        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")) }
+        assertThatThrownBy { tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")) }
             .isInstanceOf(TilgangsmaskinException::class.java)
             .hasMessage("Feil ved kall mot Tilgangsmaskinen: HTTP 400")
+            .hasFieldOrPropertyWithValue("httpStatus", 400)
             .hasRootCauseInstanceOf(RestClientResponseException::class.java)
     }
 
@@ -195,7 +195,7 @@ class TilgangsmaskinKlientTest {
         stubBulk("""{ "resultater": [ { "brukerId": "12345678910", "status": 404 } ] }""")
 
         // Act
-        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")).single()
+        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")).single()
 
         // Assert
         assertThat(resultat.harTilgang).isFalse()
@@ -212,7 +212,7 @@ class TilgangsmaskinKlientTest {
         )
 
         // Act
-        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910")).single()
+        val resultat = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910")).single()
 
         // Assert
         assertThat(resultat.harTilgang).isFalse()
@@ -227,7 +227,7 @@ class TilgangsmaskinKlientTest {
         stubBulk("""{ "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
 
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910", "  "))
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910", "  "))
 
         // Assert
         assertThat(resultater).hasSize(1)
@@ -241,7 +241,7 @@ class TilgangsmaskinKlientTest {
     @Test
     fun `skal ikke kalle Tilgangsmaskinen når alle identene er tomme`() {
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf(""))
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf(""))
 
         // Assert
         assertThat(resultater).isEmpty()
@@ -254,7 +254,7 @@ class TilgangsmaskinKlientTest {
         stubBulk("""{ "ansattId": "Z999999", "resultater": [ { "brukerId": "12345678910", "status": 204 } ] }""")
 
         // Act
-        tilgangsmaskinKlient.sjekkTilgangTilPersoner(listOf("12345678910"), Regeltype.KOMPLETT_REGELTYPE)
+        tilgangsmaskinKlient.sjekkTilgangTilPersoner(setOf("12345678910"), Regeltype.KOMPLETT_REGELTYPE)
 
         // Assert
         wiremockServer.verify(
@@ -284,7 +284,7 @@ class TilgangsmaskinKlientTest {
         )
 
         // Act
-        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(forsteChunk + sisteIdent)
+        val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner((forsteChunk + sisteIdent).toSet())
 
         // Assert
         wiremockServer.verify(2, postRequestedFor(urlEqualTo(BULK_PATH)))
@@ -295,7 +295,7 @@ class TilgangsmaskinKlientTest {
     @Test
     fun `skal sende ett kall når det er nøyaktig maks antall identer`() {
         // Arrange
-        val identer = (1..TilgangsmaskinKlient.MAKS_ANTALL_IDENTER_PER_KALL).map { it.toString().padStart(11, '0') }
+        val identer = (1..TilgangsmaskinKlient.MAKS_ANTALL_IDENTER_PER_KALL).map { it.toString().padStart(11, '0') }.toSet()
         stubBulk("""{ "resultater": [] }""")
 
         // Act

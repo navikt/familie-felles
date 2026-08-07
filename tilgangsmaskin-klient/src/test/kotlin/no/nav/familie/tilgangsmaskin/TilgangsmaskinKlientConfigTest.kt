@@ -51,7 +51,7 @@ class TilgangsmaskinKlientConfigTest {
 
         // Act
         val klient = kontekst.getBean(TilgangsmaskinKlient::class.java)
-        val resultater = klient.sjekkTilgangTilPersoner(listOf("12345678910"))
+        val resultater = klient.sjekkTilgangTilPersoner(setOf("12345678910"))
 
         // Assert
         assertThat(resultater.single().harTilgang).isTrue()
@@ -66,8 +66,8 @@ class TilgangsmaskinKlientConfigTest {
 
     @Configuration
     class RestClientTestConfig {
-        @Bean("tilgangsmaskinRestClient")
-        fun tilgangsmaskinRestClient(): RestClient =
+        @Bean("tilgangsmaskinOboRestClient")
+        fun tilgangsmaskinOboRestClient(): RestClient =
             RestClient
                 .builder()
                 .defaultHeader(KLIENT_HEADER, "tilgangsmaskin")

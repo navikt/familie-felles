@@ -42,14 +42,16 @@ Body er en liste med `brukerId` og ønsket regeltype:
 
 ### Regeltyper
 
-| Regeltype            | Regler som kjøres                                                                       |
-|----------------------|------------------------------------------------------------------------------------------|
-| `KJERNE_REGELTYPE`   | Adressebeskyttelse (fortrolig/strengt fortrolig), skjerming (egen ansatt) og habilitet    |
-| `KOMPLETT_REGELTYPE` | Kjernereglene **pluss** geografisk tilgang, vergemål, avdød, utenlandsk/ukjent bosted     |
+| Regeltype               | Regler som kjøres                                                                       |
+|-------------------------|------------------------------------------------------------------------------------------|
+| `KJERNE_REGELTYPE`      | Adressebeskyttelse (fortrolig/strengt fortrolig), skjerming (egen ansatt) og habilitet    |
+| `OVERSTYRBAR_REGELTYPE` | Kun de overstyrbare reglene: geografisk tilgang, vergemål, avdød, utenlandsk/ukjent bosted |
+| `KOMPLETT_REGELTYPE`    | Kjernereglene **pluss** de overstyrbare reglene                                           |
 
 Klienten bruker `KJERNE_REGELTYPE` som default. Merk at avvisningskodene `AVVIST_GEOGRAFISK`,
 `AVVIST_VERGEMÅL`, `AVVIST_AVDØD`, `AVVIST_PERSON_UTLAND` og `AVVIST_UKJENT_BOSTED` **kun kan
-forekomme med `KOMPLETT_REGELTYPE`**. Velg regeltype bevisst i konsumenten.
+forekomme med `KOMPLETT_REGELTYPE` eller `OVERSTYRBAR_REGELTYPE`**. Velg regeltype bevisst i
+konsumenten.
 
 ### Respons
 
@@ -96,11 +98,11 @@ class ApplicationConfig
 Konfigurasjonen krever:
 
 * Miljøvariabelen `TILGANGSMASKIN_API_URL`, f.eks. `http://populasjonstilgangskontroll.tilgangsmaskin`
-* En `RestClient`-bønne kvalifisert med navnet i `TilgangsmaskinKlientConfig.TILGANGSMASKIN_REST_CLIENT`
+* En `RestClient`-bønne kvalifisert med navnet i `TilgangsmaskinKlientConfig.TILGANGSMASKIN_OBO_REST_CLIENT`.
 
 ```kotlin
-@Bean(TilgangsmaskinKlientConfig.TILGANGSMASKIN_REST_CLIENT)
-fun tilgangsmaskinRestClient(
+@Bean(TilgangsmaskinKlientConfig.TILGANGSMASKIN_OBO_REST_CLIENT)
+fun tilgangsmaskinOboRestClient(
     @Value("\${TILGANGSMASKIN_SCOPE}") scope: String,
 ): RestClient = entraIDRestClientFactory.lagOboRestKlient(scope) { SikkerhetContext.hentJwt()?.tokenValue }
 ```
@@ -125,14 +127,17 @@ val resultater = tilgangsmaskinKlient.sjekkTilgangTilPersoner(personIdenter)
 
 * **Chunking.** Tilgangsmaskinen svarer `413` på mer enn 1000 brukerId-er per kall
   (`MAKS_ANTALL_IDENTER_PER_KALL`). Klienten deler opp og slår sammen resultatene.
-* **Validering.** Duplikate identer fjernes, og blanke identer filtreres bort — tjenesten svarer `400`
-  på blank `brukerId`. Tom liste gir tom liste tilbake uten kall.
+* **Validering.** Identene sendes inn som `Set`, så duplikater er utelukket allerede i signaturen.
+  Blanke identer filtreres bort — tjenesten svarer `400` på blank `brukerId`. Tomt sett gir tom
+  liste tilbake uten kall.
 * **Fail-closed.** Svarer ikke Tilgangsmaskinen for en ident, returneres et resultat med
   `harTilgang = false` framfor at identen mangler i svaret. Konsumenten får alltid ett resultat per
   gyldig ident, og kan ikke ved et uhell tolke manglende svar som tilgang.
 * **Feil.** Alle feil pakkes i `TilgangsmaskinException`. Meldingen inneholder **kun** statuskode eller
   exception-type, fordi responsbodyen kan inneholde personidenter og ofte blir eksponert videre av
-  konsumenten. Detaljene ligger i `cause`.
+  konsumenten. Detaljene ligger i `cause`, og `httpStatus` er satt når feilen kom fra et HTTP-svar,
+  slik at konsumenten kan skille klientfeil (4xx) fra serverfeil (5xx).
 
-Klienten logger ikke selv — den vet ikke om konsumenten har secureLog. Konsumenten er ansvarlig for å
+Klienten logger ikke selv — den vet ikke om konsumenten har secureLog. Eneste unntak er en `WARN` ved
+ukjent avvisningskode; den inneholder kun koden, aldri personidenter. Konsumenten er ansvarlig for å
 logge avvisninger, og bør ta med `traceId`.
