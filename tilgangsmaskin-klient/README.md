@@ -1,6 +1,6 @@
 # tilgangsmaskin-klient
 
-Klient for å sjekke om en saksbehandler har tilgang til én eller flere personer i Tilgangsmaskinen
+Klient for å sjekke om en saksbehandler har tilgang til én eller flere personer gjennom Tilgangsmaskinen
 (applikasjonen `populasjonstilgangskontroll` i namespacet `tilgangsmaskin`).
 
 Tilgangsmaskinen er tiltenkt å erstatte tilgangssjekken som tidligere lå i `familie-integrasjoner`
