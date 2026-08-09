@@ -27,6 +27,20 @@
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
             <version>12.2.3</version>
+            <exclusions>
+                <!-- unleash-client-java sin transitive okhttp-eventsource drar inn okhttp 4.x,
+                     som kolliderer med okhttp-jvm 5.x fra mock-oauth2-server 6.x hos konsumenter
+                     (NoSuchMethodError i okhttp3.internal.concurrent.TaskRunner). -->
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-jvm</artifactId>
+            <version>5.4.0</version>
         </dependency>
     </dependencies>
 
