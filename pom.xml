@@ -7,7 +7,7 @@
     <groupId>no.nav.familie.felles</groupId>
     <artifactId>felles</artifactId>
     <name>Felles - Root</name>
-    <version>${revision}${sha1}${changelist}</version>
+    <version>4.20260507122158_de46f16</version>
     <packaging>pom</packaging>
     <description>Shared components for family-related benefits</description>
     <url>https://github.com/navikt/familie-felles</url>
@@ -22,10 +22,10 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kontrakter.version>4.0_20260702124405_ce34af2</kontrakter.version>
-        <kotest.version>6.2.1</kotest.version>
-        <kotlin.version>2.4.0</kotlin.version>
-        <mockk.version>1.14.6</mockk.version>
+        <kontrakter.version>4.0_20260730124851_08988e0</kontrakter.version>
+        <kotest.version>6.2.3</kotest.version>
+        <kotlin.version>2.4.10</kotlin.version>
+        <mockk.version>1.14.11</mockk.version>
         <nav.security.token.version>6.0.11</nav.security.token.version>
         <wiremock.version>3.13.2</wiremock.version>        
     </properties>
@@ -90,7 +90,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
-                <version>5.6.2</version>
+                <version>5.6.3</version>
             </dependency>
             <dependency>
                 <groupId>io.mockk</groupId>
@@ -101,7 +101,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.37.2</version>
+                <version>11.38.2</version>
             </dependency>
 
             <dependency>
@@ -285,7 +285,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.7.3</version>
+                    <version>1.8.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
