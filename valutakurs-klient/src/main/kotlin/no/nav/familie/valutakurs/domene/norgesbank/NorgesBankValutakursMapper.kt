@@ -96,7 +96,7 @@ object NorgesBankValutakursMapper {
      * Vi må derfor hente ut enhets-multiplikatoren med id *UNIT_MULT* og bruke denne for å kalkulere enhetsverdien.
      * Kursen kalkuleres ved (kurs / 10^UNIT_MULT). Altså vil det bli henholdsvis kurs/1, kurs/10, kurs/100 osv basert på verdien til *UNIT_MULT*.
      * Eksempelvis leveres kursen for DKK som verdien av 100 DKK og ikke 1 DKK. I dette tilfellet er *UNIT_MULT* satt til 2, og vi finner enhetsverdien ved ta kurs/100.
-     * Runder av kursen til 4 desimaler da det er dette vi tidligere fikk direkte fra ECB.
+     * Benytter presisjon på 10 desimaler for å unngå at desimaler forsvinner ved deling på henholdsvis 1, 10, 100 osv. Tallet 1.2345 ville blitt til tallet 0.1234 med en avrunding på 4 desimaler, men med 10 er vi trygge på at vi ikke mister viktig presisjon.
      */
     private fun NorgesBankValutakursData.tilKalkulertKurs(): BigDecimal {
         val enhetMultiplikator: Double =
@@ -106,6 +106,10 @@ object NorgesBankValutakursMapper {
 
         val kurs: BigDecimal = this.dataSet.series.hentKurs()
 
-        return kurs.divide(BigDecimal.valueOf(10.0.pow(enhetMultiplikator)), 4, RoundingMode.HALF_UP)
+        return kurs
+            .divide(BigDecimal.valueOf(10.0.pow(enhetMultiplikator)), 10, RoundingMode.HALF_UP)
+            .stripTrailingZeros()
+            // Passer på at scale ikke blir negativ, da dette kan føre til at 100.00 blir til 1E+2, som ikke er ønskelig.
+            .let { if (it.scale() < 0) it.setScale(0) else it }
     }
 }
