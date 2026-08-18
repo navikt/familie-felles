@@ -33,7 +33,61 @@ class NorgesBankValutakursMapperTest {
 
             // Assert
             assertEquals(valuta, valutakurs.valuta)
-            assertEquals(BigDecimal("10.0000"), valutakurs.kurs)
+            assertEquals(BigDecimal("10"), valutakurs.kurs)
+            assertEquals(kursDato, valutakurs.kursDato)
+        }
+
+        @Test
+        fun `Skal returnere korrekt valutakurs for gyldig data med 4 desimaler`() {
+            // Arrange
+            val valuta = "PLN"
+            val frekvens = VIRKEDAG
+            val kursDato = LocalDate.of(2023, 1, 1)
+            val kurs = BigDecimal("10.1234")
+            val data = mockNorgesBankValutakursData(valuta, frekvens, kursDato, kurs)
+
+            // Act
+            val valutakurs = data.tilValutakurs(valuta, frekvens, kursDato)
+
+            // Assert
+            assertEquals(valuta, valutakurs.valuta)
+            assertEquals(BigDecimal("10.1234"), valutakurs.kurs)
+            assertEquals(kursDato, valutakurs.kursDato)
+        }
+
+        @Test
+        fun `Skal returnere korrekt valutakurs for gyldig data med 8 desimaler`() {
+            // Arrange
+            val valuta = "PLN"
+            val frekvens = VIRKEDAG
+            val kursDato = LocalDate.of(2023, 1, 1)
+            val kurs = BigDecimal("10.12345678")
+            val data = mockNorgesBankValutakursData(valuta, frekvens, kursDato, kurs)
+
+            // Act
+            val valutakurs = data.tilValutakurs(valuta, frekvens, kursDato)
+
+            // Assert
+            assertEquals(valuta, valutakurs.valuta)
+            assertEquals(BigDecimal("10.12345678"), valutakurs.kurs)
+            assertEquals(kursDato, valutakurs.kursDato)
+        }
+
+        @Test
+        fun `Skal returnere korrekt valutakurs for gyldig data med UNIT_MULT 2 og 4 desimaler`() {
+            // Arrange
+            val valuta = "HUF"
+            val frekvens = VIRKEDAG
+            val kursDato = LocalDate.of(2026, 8, 18)
+            val kurs = BigDecimal("0.1234")
+            val data = mockNorgesBankValutakursData(valuta, frekvens, kursDato, kurs, unitMult = "2")
+
+            // Act
+            val valutakurs = data.tilValutakurs(valuta, frekvens, kursDato)
+
+            // Assert
+            assertEquals(valuta, valutakurs.valuta)
+            assertEquals(BigDecimal("0.001234"), valutakurs.kurs)
             assertEquals(kursDato, valutakurs.kursDato)
         }
 
@@ -132,7 +186,7 @@ class NorgesBankValutakursMapperTest {
             val valutakurs = data.tilValutakurs("PLN", VIRKEDAG, LocalDate.of(2023, 1, 1))
 
             // Assert
-            assertEquals(BigDecimal("1.0000"), valutakurs.kurs)
+            assertEquals(BigDecimal("1"), valutakurs.kurs)
         }
 
         @Test
