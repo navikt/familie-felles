@@ -26,7 +26,7 @@
         <dependency>
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
-            <version>12.2.3</version>
+            <version>12.3.0</version>
             <exclusions>
                 <!-- unleash-client-java sin transitive okhttp-eventsource drar inn okhttp 4.x,
                      som kolliderer med okhttp-jvm 5.x fra mock-oauth2-server 6.x hos konsumenter
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp-jvm</artifactId>
-            <version>5.4.0</version>
+            <version>5.5.0</version>
         </dependency>
     </dependencies>
 
