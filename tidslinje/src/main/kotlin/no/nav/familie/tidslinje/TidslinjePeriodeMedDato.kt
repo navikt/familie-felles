@@ -34,9 +34,10 @@ data class TidslinjePeriodeMedDato<T>(
 }
 
 fun <T> List<TidslinjePeriodeMedDato<T>>.tilTidslinje(): Tidslinje<T> {
-    val perioder = this.tilTidslinjePerioder()
+    val sortertePerioder = this.sortedBy { it.fom }
+    val perioder = sortertePerioder.tilTidslinjePerioder()
     return Tidslinje(
-        startsTidspunkt = this.firstOrNull()?.fom?.tilDatoEllerPraktiskTidligsteDag() ?: PRAKTISK_TIDLIGSTE_DAG,
+        startsTidspunkt = sortertePerioder.firstOrNull()?.fom?.tilDatoEllerPraktiskTidligsteDag() ?: PRAKTISK_TIDLIGSTE_DAG,
         perioder = perioder,
     )
 }

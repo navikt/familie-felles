@@ -136,4 +136,19 @@ class TidslinjePeriodeMedDatoTest {
 
         Assertions.assertEquals(0, tidslinjePerioderMedDato.tilTidslinje().tilTidslinjePerioderMedDato().size)
     }
+
+    @Test
+    fun `tilTidslinje - Skal bruke tidligste fom som starttidspunkt når periodene ikke er sortert`() {
+        val tidslinje =
+            listOf(
+                TidslinjePeriodeMedDato("b", førsteMars, sisteDagIMars),
+                TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar),
+            ).tilTidslinje()
+
+        val perioder = tidslinje.tilTidslinjePerioderMedDato()
+
+        Assertions.assertEquals(førsteJanuar, tidslinje.startsTidspunkt)
+        Assertions.assertEquals(førsteJanuar, perioder.first().fom.tilLocalDateEllerNull())
+        Assertions.assertEquals(sisteDagIMars, perioder.last().tom.tilLocalDateEllerNull())
+    }
 }
