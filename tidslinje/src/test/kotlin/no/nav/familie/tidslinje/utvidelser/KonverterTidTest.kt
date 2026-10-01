@@ -661,12 +661,8 @@ class KonverterTidTest {
 
         val dagTidslinje = månedTidslinje.konverterTilDag()
 
-        val faktiskLengde = dagTidslinje.innhold.sumOf { it.lengde }
-
-        val månedTidslinjeStart = månedTidslinje.startsTidspunkt
-        val månedTidslinjeSlutt = månedTidslinje.kalkulerSluttTidspunkt()
-        val forventetLengde = månedTidslinjeStart.until(månedTidslinjeSlutt, ChronoUnit.DAYS) + 1
-
-        assertEquals(forventetLengde, faktiskLengde)
+        assertTrue(dagTidslinje.innhold.last().erUendelig)
+        assertEquals(månedTidslinje.startsTidspunkt, dagTidslinje.startsTidspunkt)
+        assertEquals(månedTidslinje.kalkulerSluttTidspunkt(), dagTidslinje.kalkulerSluttTidspunkt())
     }
 }

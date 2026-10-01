@@ -1,6 +1,10 @@
 package no.nav.familie.tidslinje.utvidelser
 
+import no.nav.familie.tidslinje.INF
+import no.nav.familie.tidslinje.PRAKTISK_SENESTE_DAG
 import no.nav.familie.tidslinje.Periode
+import no.nav.familie.tidslinje.Tidslinje
+import no.nav.familie.tidslinje.TidslinjePeriode
 import no.nav.familie.tidslinje.tilTidslinje
 import no.nav.familie.tidslinje.tomTidslinje
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -98,5 +102,24 @@ class BeskjærTidslinjerTest {
         val resultat = tidslinje.forlengFremtidTilUendelig(des)
 
         assertEquals(jun, resultat.tilPerioderIkkeNull().single().tom)
+    }
+
+    @Test
+    fun `kalkulerSluttTidspunkt gir praktisk seneste dag for uendelig tidslinje uansett hvordan den er laget`() {
+        val fraPeriode = Periode("a", LocalDate.of(2020, 1, 1), null).tilTidslinje()
+        val fraLengde = Tidslinje(LocalDate.of(2019, 1, 1), listOf(TidslinjePeriode("b", INF, true)))
+
+        assertEquals(PRAKTISK_SENESTE_DAG, fraPeriode.kalkulerSluttTidspunkt())
+        assertEquals(PRAKTISK_SENESTE_DAG, fraLengde.kalkulerSluttTidspunkt())
+    }
+
+    @Test
+    fun `beskjærTilOgMedEtter mot uendelig tidslinje beholder uendelighet`() {
+        val tidslinje = Periode("a", LocalDate.of(2020, 1, 1), null).tilTidslinje()
+        val uendelig = Tidslinje(LocalDate.of(2019, 1, 1), listOf(TidslinjePeriode("b", INF, true)))
+
+        val resultat = tidslinje.beskjærTilOgMedEtter(uendelig).tilPerioder()
+
+        assertEquals(listOf(Periode("a", LocalDate.of(2020, 1, 1), null)), resultat)
     }
 }

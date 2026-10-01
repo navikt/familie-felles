@@ -53,10 +53,12 @@ open class Tidslinje<T>(
 
     /**
      * Kalkulerer slutttidspunkt som en LocalDate.
-     * Funksjonen returnerer den siste dagen som er med i tidslinja
-     * Om tidslinja er uendelig, kastes det et unntak
+     * Funksjonen returnerer den siste dagen som er med i tidslinja.
+     * Om tidslinja er uendelig, returneres [PRAKTISK_SENESTE_DAG], uavhengig av starttidspunkt og tidsenhet.
      */
     fun kalkulerSluttTidspunkt(): LocalDate {
+        if (innhold.lastOrNull()?.erUendelig == true) return PRAKTISK_SENESTE_DAG
+
         val antallTidsEnheter = this.innhold.sumOf { it.lengde }
         val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter - 1, mapper[this.tidsEnhet])
 
