@@ -12,10 +12,12 @@ import no.nav.familie.tidslinje.TidslinjePeriodeMedDato
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.filtrerIkkeNull
 import no.nav.familie.tidslinje.omfatter
+import no.nav.familie.tidslinje.tilChronoUnit
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-val mapper =
+@Deprecated("Bruk ikke. Blir fjernet i en senere versjon.")
+val mapper: Map<TidsEnhet, ChronoUnit> =
     mapOf(
         TidsEnhet.ÅR to ChronoUnit.YEARS,
         TidsEnhet.MÅNED to ChronoUnit.MONTHS,
@@ -84,7 +86,7 @@ fun <T> Tidslinje<T>.trim(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> 
 
 fun <T> Tidslinje<T>.trimVenstre(vararg periodeVerdier: PeriodeVerdi<T>): Tidslinje<T> {
     val antallTidsenheterÅForskyve = this.innhold.takeWhile { it.periodeVerdi in periodeVerdier }.sumOf { it.lengde }
-    val nyttStartsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, mapper[this.tidsEnhet])
+    val nyttStartsTidspunkt = this.startsTidspunkt.plus(antallTidsenheterÅForskyve, this.tidsEnhet.tilChronoUnit())
 
     val perioder = this.innhold.dropWhile { it.periodeVerdi in periodeVerdier }
 
@@ -158,7 +160,7 @@ fun <T> Tidslinje<T>.konverterTilMåned(
  * Shifter en tidslinje [antall] tidsenheter (enten DAG eller MÅNED) mot høyre.
  */
 fun <T> Tidslinje<T>.høyreShift(antall: Int = 1): Tidslinje<T> =
-    Tidslinje(this.startsTidspunkt.plus(antall.toLong(), mapper[this.tidsEnhet]), this.innhold, this.tidsEnhet)
+    Tidslinje(this.startsTidspunkt.plus(antall.toLong(), this.tidsEnhet.tilChronoUnit()), this.innhold, this.tidsEnhet)
         .medTittel(this.tittel)
 
 /**
@@ -258,7 +260,7 @@ fun <T> Tidslinje<T>.klipp(
                         listOf(
                             TidslinjePeriode(
                                 periodeVerdi = true,
-                                lengde = justertStartTidspunkt.until(justertSluttTidspunkt, mapper[this.tidsEnhet]),
+                                lengde = justertStartTidspunkt.until(justertSluttTidspunkt, this.tidsEnhet.tilChronoUnit()),
                                 erUendelig = erUendelig,
                             ),
                         ),

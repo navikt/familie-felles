@@ -3,11 +3,11 @@ package no.nav.familie.tidslinje
 import no.nav.familie.tidslinje.utvidelser.klipp
 import no.nav.familie.tidslinje.utvidelser.kombinerUtenNullMed
 import no.nav.familie.tidslinje.utvidelser.map
-import no.nav.familie.tidslinje.utvidelser.mapper
 import no.nav.familie.tidslinje.utvidelser.tilPerioder
 import no.nav.familie.tidslinje.utvidelser.trim
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
 enum class TidsEnhet {
@@ -16,6 +16,14 @@ enum class TidsEnhet {
     MÅNED,
     ÅR,
 }
+
+internal fun TidsEnhet.tilChronoUnit(): ChronoUnit =
+    when (this) {
+        TidsEnhet.DAG -> ChronoUnit.DAYS
+        TidsEnhet.UKE -> ChronoUnit.WEEKS
+        TidsEnhet.MÅNED -> ChronoUnit.MONTHS
+        TidsEnhet.ÅR -> ChronoUnit.YEARS
+    }
 
 /**
  * En tidslinje består av ulike verdier over tid. Det vil si at en tidslinje kan ha en verdi
@@ -60,7 +68,7 @@ open class Tidslinje<T>(
         if (innhold.lastOrNull()?.erUendelig == true) return PRAKTISK_SENESTE_DAG
 
         val antallTidsEnheter = this.innhold.sumOf { it.lengde }
-        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter - 1, mapper[this.tidsEnhet])
+        val sluttTidspunkt = this.startsTidspunkt.plus(antallTidsEnheter - 1, this.tidsEnhet.tilChronoUnit())
 
         return when (this.tidsEnhet) {
             TidsEnhet.ÅR -> sluttTidspunkt.with(TemporalAdjusters.lastDayOfYear())
@@ -97,13 +105,13 @@ open class Tidslinje<T>(
                     ", fom: " +
                     startsTidspunkt.plus(
                         innhold.take(indeks).sumOf { it.lengde }.toLong(),
-                        mapper[this.tidsEnhet],
+                        this.tidsEnhet.tilChronoUnit(),
                     ) +
                     ", tom:" +
                     kalkulerSluttTidspunkt(
                         startsTidspunkt.plus(
                             innhold.take(indeks).sumOf { it.lengde }.toLong() + it.lengde - 1,
-                            mapper[this.tidsEnhet],
+                            this.tidsEnhet.tilChronoUnit(),
                         ),
                     ) +
                     ")"

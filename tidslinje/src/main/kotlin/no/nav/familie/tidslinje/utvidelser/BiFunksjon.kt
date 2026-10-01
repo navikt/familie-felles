@@ -5,6 +5,7 @@ import no.nav.familie.tidslinje.PeriodeVerdi
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.TidslinjePeriode
 import no.nav.familie.tidslinje.Udefinert
+import no.nav.familie.tidslinje.tilChronoUnit
 import java.time.LocalDate
 
 /**
@@ -247,7 +248,7 @@ private fun <T> settSlutttidspunkt(
                 INF
             } else {
                 sluttTidspunkt
-                    .until(senesteSluttTidspunkt.plusDays(1), mapper[tidslinje.tidsEnhet])
+                    .until(senesteSluttTidspunkt.plusDays(1), tidslinje.tidsEnhet.tilChronoUnit())
             }
         tidslinje.innhold += listOf(TidslinjePeriode(Udefinert(), lengde, erUendelig))
     }
@@ -259,7 +260,7 @@ private fun <T> settStarttidspunkt(
 ) {
     if (tidslinje.startsTidspunkt > tidligsteStartTidspunkt) {
         val diffFraTidligsteStartTidspunkt =
-            tidligsteStartTidspunkt.until(tidslinje.startsTidspunkt, mapper[tidslinje.tidsEnhet])
+            tidligsteStartTidspunkt.until(tidslinje.startsTidspunkt, tidslinje.tidsEnhet.tilChronoUnit())
         tidslinje.innhold =
             listOf(TidslinjePeriode(Udefinert<T>(), diffFraTidligsteStartTidspunkt, false)) + tidslinje.innhold
         tidslinje.startsTidspunkt = tidligsteStartTidspunkt
