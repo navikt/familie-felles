@@ -129,6 +129,8 @@ fun <T> Tidslinje<T>.konverterTilMåned(
     antallMndFremoverITid: Int = 0,
     operator: (dato: LocalDate, månedListe: List<List<TidslinjePeriode<T>>>) -> PeriodeVerdi<T>,
 ): Tidslinje<T> {
+    require(this.tidsEnhet == TidsEnhet.DAG) { "konverterTilMåned krever tidsenhet DAG, men var ${this.tidsEnhet}" }
+
     val listeAvMåneder: MutableList<List<TidslinjePeriode<T>>> = this.splittPåMåned()
 
     if (listeAvMåneder.size < antallMndBakoverITid + antallMndFremoverITid) {

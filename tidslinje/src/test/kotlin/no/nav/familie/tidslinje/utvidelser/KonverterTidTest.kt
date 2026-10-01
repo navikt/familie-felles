@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -664,5 +665,19 @@ class KonverterTidTest {
         assertTrue(dagTidslinje.innhold.last().erUendelig)
         assertEquals(månedTidslinje.startsTidspunkt, dagTidslinje.startsTidspunkt)
         assertEquals(månedTidslinje.kalkulerSluttTidspunkt(), dagTidslinje.kalkulerSluttTidspunkt())
+    }
+
+    @Test
+    fun `konverterTilMåned skal kaste feil når tidslinjen ikke har tidsenhet DAG`() {
+        val månedTidslinje =
+            Tidslinje(
+                LocalDate.of(2022, 1, 1),
+                listOf(TidslinjePeriode("a", 2), TidslinjePeriode("b", 1)),
+                TidsEnhet.MÅNED,
+            )
+
+        assertThrows<IllegalArgumentException> {
+            månedTidslinje.konverterTilMåned { _, månedListe -> månedListe.single().last().periodeVerdi }
+        }
     }
 }
