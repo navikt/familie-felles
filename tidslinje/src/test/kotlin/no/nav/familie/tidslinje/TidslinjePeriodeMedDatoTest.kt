@@ -151,4 +151,13 @@ class TidslinjePeriodeMedDatoTest {
         Assertions.assertEquals(førsteJanuar, perioder.first().fom.tilLocalDateEllerNull())
         Assertions.assertEquals(sisteDagIMars, perioder.last().tom.tilLocalDateEllerNull())
     }
+
+    @Test
+    fun `equals - To perioder med samme verdi og datoer skal være like`() {
+        val periode1 = TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar)
+        val periode2 = TidslinjePeriodeMedDato("a", førsteJanuar, sisteDagIJanuar)
+
+        Assertions.assertEquals(periode1, periode2)
+        Assertions.assertEquals(periode1.hashCode(), periode2.hashCode())
+    }
 }

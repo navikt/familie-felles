@@ -17,7 +17,7 @@ data class TidslinjePeriodeMedDato<T>(
         tom = Dato(tom ?: PRAKTISK_SENESTE_DAG),
     )
 
-    class Dato(
+    data class Dato(
         private val dato: LocalDate,
     ) : Comparable<Dato> {
         fun tilLocalDateEllerNull(): LocalDate? =
