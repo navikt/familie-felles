@@ -1,10 +1,13 @@
 package no.nav.familie.tidslinje.utvidelser
 
 import no.nav.familie.tidslinje.INF
+import no.nav.familie.tidslinje.Periode
 import no.nav.familie.tidslinje.Tidslinje
 import no.nav.familie.tidslinje.TidslinjePeriode
 import no.nav.familie.tidslinje.Udefinert
 import no.nav.familie.tidslinje.Verdi
+import no.nav.familie.tidslinje.tilTidslinje
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -120,5 +123,20 @@ class TidslinjeUendlighetTest {
 
         assertTrue { t3.innhold.size == 2 }
         assertTrue { t3.innhold.last().erUendelig }
+    }
+
+    @Test
+    fun `uendelig periode skal alltid ha lengde INF`() {
+        assertEquals(INF, TidslinjePeriode("a", INF * 2).lengde)
+        assertEquals(INF, TidslinjePeriode("a", 1, erUendelig = true).lengde)
+    }
+
+    @Test
+    fun `uendelig tidslinje laget fra dato og fra INF skal være like`() {
+        val start = LocalDate.of(2020, 1, 1)
+        val fraDato = Periode("a", start, null).tilTidslinje()
+        val fraLengde = Tidslinje(start, listOf(TidslinjePeriode("a", INF, true)))
+
+        assertEquals(fraLengde, fraDato)
     }
 }

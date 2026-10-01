@@ -49,15 +49,11 @@ data class TidslinjePeriode<T>(
     var erUendelig: Boolean = false,
 ) {
     init {
-        if (lengde >= INF) {
+        if (erUendelig || lengde >= INF) {
             erUendelig = true
-        }
-        if (erUendelig && lengde < INF) {
             lengde = INF
         }
-        if (lengde <= 0) {
-            throw java.lang.IllegalArgumentException("lengde må være større enn null.")
-        }
+        require(lengde > 0) { "lengde må være større enn null." }
     }
 
     constructor(periodeVerdi: T?, lengde: Long, erUendelig: Boolean = false) : this(
