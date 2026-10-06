@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -51,5 +53,40 @@ class PeriodeUtilsTest {
 
         assertTrue(uendelig.erMinst12MånederMedNullTomSomUendelig())
         assertFalse(kort.erMinst12MånederMedNullTomSomUendelig())
+    }
+
+    @Test
+    fun `splittPerMåned med tom null splitter til og med tilOgMedMåned`() {
+        val resultat = Periode("a", LocalDate.of(2022, 11, 20), null).splittPerMåned(YearMonth.of(2023, 1))
+
+        assertEquals(listOf(YearMonth.of(2022, 11), YearMonth.of(2022, 12), YearMonth.of(2023, 1)), resultat.map { YearMonth.from(it.fom) })
+    }
+
+    @Test
+    fun `splittPerMåned gir tom liste når perioden starter etter tilOgMedMåned`() {
+        assertEquals(emptyList<Periode<String>>(), Periode("a", LocalDate.of(2022, 3, 1), null).splittPerMåned(YearMonth.of(2022, 2)))
+    }
+
+    @ParameterizedTest(name = "{0} – {1}: 12 måneder {2}, 6 måneder {3}")
+    @CsvSource(
+        value = [
+            "2021-01-01, 2022-01-01, true,  true",
+            "2021-01-01, 2021-12-31, false, true",
+            "2021-01-31, 2022-01-30, false, true",
+            "2021-01-01, 2021-07-01, false, true",
+            "2021-01-01, 2021-06-30, false, false",
+        ],
+    )
+    fun `erMinst12Måneder og erMinst6Måneder regner hele måneder mellom fom og tom`(
+        fom: LocalDate,
+        tom: LocalDate,
+        minst12: Boolean,
+        minst6: Boolean,
+    ) {
+        val periode = Periode("a", fom, tom)
+
+        assertEquals(minst12, periode.erMinst12Måneder(), "erMinst12Måneder")
+        assertEquals(minst12, periode.erMinst12MånederMedNullTomSomUendelig(), "erMinst12MånederMedNullTomSomUendelig")
+        assertEquals(minst6, periode.erMinst6Måneder(), "erMinst6Måneder")
     }
 }
