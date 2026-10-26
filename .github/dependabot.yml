@@ -9,6 +9,8 @@ registries:
 updates:
   - package-ecosystem: maven
     directory: "/"
+    ignore:
+      - dependency-name: "no.nav.familie.felles:*"
     schedule:
       interval: weekly
       day: "sunday"
