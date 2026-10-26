@@ -9,6 +9,11 @@ registries:
 updates:
   - package-ecosystem: maven
     directory: "/"
+    ignore:
+      - dependency-name: "no.nav.familie.felles:*"
+      - dependency-name: "org.apache.maven.plugins:maven-surefire-plugin"
+        versions:
+          - "3.6.0"
     schedule:
       interval: weekly
       day: "sunday"
