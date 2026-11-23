@@ -3,79 +3,77 @@ package no.nav.familie.pdl.config
 import jakarta.validation.Validation
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.time.Duration
 
 class PdlKlientPropertiesTest {
     private val validator = Validation.buildDefaultValidatorFactory().validator
 
-    @Test
-    fun `blankt behandlingsnummer er ugyldig`() {
-        listOf("", " ").forEach { blank ->
-            val ugyldig = validator.validate(gyldigeProperties(behandlingsnummer = blank))
-            assertThat(ugyldig.map { it.propertyPath.toString() }).containsExactly("behandlingsnummer")
-        }
+    @ParameterizedTest
+    @ValueSource(strings = ["", " "])
+    fun `blankt behandlingsnummer er ugyldig`(blanktBehandlingsnummer: String) {
+        val ugyldigeProperties = validator.validate(gyldigeProperties(behandlingsnummer = blanktBehandlingsnummer))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).containsExactly("behandlingsnummer")
     }
 
     @Test
     fun `behandlingsnummer er valgfritt`() {
-        assertThat(validator.validate(gyldigeProperties(behandlingsnummer = null))).isEmpty()
+        val ugyldigeProperties = validator.validate(gyldigeProperties(behandlingsnummer = null))
+        assertThat(ugyldigeProperties).isEmpty()
     }
 
     @Test
     fun `scope med feil format er ugyldig`() {
-        val properties = gyldigeProperties(scope = "pdl/.default")
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("scope")
+        val ugyldigeProperties = validator.validate(gyldigeProperties(scope = "pdl/.default"))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("scope")
     }
 
     @Test
     fun `url uten https er ugyldig`() {
-        val properties = gyldigeProperties(url = "http://pdl.test")
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("url")
+        val ugyldigeProperties = validator.validate(gyldigeProperties(url = "http://pdl.test"))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("url")
     }
 
     @Test
     fun `negative timeouts er ugyldige`() {
-        val properties =
-            gyldigeProperties(
-                connectTimeout = Duration.ofSeconds(-1),
-                readTimeout = Duration.ofSeconds(-1),
+        val ugyldigeProperties =
+            validator.validate(
+                gyldigeProperties(
+                    connectTimeout = Duration.ofSeconds(-1),
+                    readTimeout = Duration.ofSeconds(-1),
+                ),
             )
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("connectTimeout", "readTimeout")
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("connectTimeout", "readTimeout")
     }
 
-    @Test
-    fun `timeouts under en millisekund er ugyldige`() {
-        listOf(Duration.ZERO, Duration.ofNanos(1), Duration.ofNanos(999_999)).forEach { timeout ->
-            val properties = gyldigeProperties(connectTimeout = timeout, readTimeout = timeout)
-
-            assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-                .contains("connectTimeout", "readTimeout")
-        }
+    @ParameterizedTest
+    @ValueSource(longs = [0, 1, 999_999])
+    fun `timeouts under en millisekund er ugyldige`(nanosekunder: Long) {
+        val timeout = Duration.ofNanos(nanosekunder)
+        val ugyldigeProperties = validator.validate(gyldigeProperties(connectTimeout = timeout, readTimeout = timeout))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("connectTimeout", "readTimeout")
     }
 
-    @Test
-    fun `timeouts innenfor int-millisekundomraadet er gyldige`() {
-        val maksimum = Duration.ofMillis(Int.MAX_VALUE.toLong())
-        listOf(Duration.ofMillis(1), maksimum).forEach { timeout ->
-            val properties = gyldigeProperties(connectTimeout = timeout, readTimeout = timeout)
-
-            assertThat(validator.validate(properties)).isEmpty()
-        }
+    @ParameterizedTest
+    @ValueSource(longs = [1, Int.MAX_VALUE.toLong()])
+    fun `timeouts innenfor int-millisekundomraadet er gyldige`(millisekunder: Long) {
+        val timeout = Duration.ofMillis(millisekunder)
+        val ugyldigeProperties = validator.validate(gyldigeProperties(connectTimeout = timeout, readTimeout = timeout))
+        assertThat(ugyldigeProperties).isEmpty()
     }
 
     @Test
     fun `timeouts over int-millisekundomraadet er ugyldige`() {
         val overMaksimum = Duration.ofMillis(Int.MAX_VALUE.toLong() + 1)
-        val properties = gyldigeProperties(connectTimeout = overMaksimum, readTimeout = overMaksimum)
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("connectTimeout", "readTimeout")
+        val ugyldigeProperties =
+            validator.validate(
+                gyldigeProperties(
+                    connectTimeout = overMaksimum,
+                    readTimeout = overMaksimum,
+                ),
+            )
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("connectTimeout", "readTimeout")
     }
 
     @Test
@@ -89,18 +87,14 @@ class PdlKlientPropertiesTest {
 
     @Test
     fun `blank url og scope er ugyldige`() {
-        val properties = gyldigeProperties(url = " ", scope = " ")
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("url", "scope")
+        val ugyldigeProperties = validator.validate(gyldigeProperties(url = " ", scope = " "))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("url", "scope")
     }
 
     @Test
     fun `tom url er ugyldig`() {
-        val properties = gyldigeProperties(url = "")
-
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("url")
+        val ugyldigeProperties = validator.validate(gyldigeProperties(url = ""))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("url")
     }
 
     private fun gyldigeProperties(
