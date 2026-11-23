@@ -9,11 +9,11 @@ class PdlKlientPropertiesTest {
     private val validator = Validation.buildDefaultValidatorFactory().validator
 
     @Test
-    fun `blank tema og behandlingsnummer er ugyldig`() {
-        val properties = gyldigeProperties(tema = " ", behandlingsnummer = "")
+    fun `blankt behandlingsnummer er ugyldig`() {
+        val properties = gyldigeProperties(behandlingsnummer = "")
 
         assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("tema", "behandlingsnummer")
+            .contains("behandlingsnummer")
     }
 
     @Test
@@ -101,9 +101,8 @@ class PdlKlientPropertiesTest {
     private fun gyldigeProperties(
         url: String = "https://pdl.test",
         scope: String = "api://pdl.test.app/.default",
-        tema: String = "BAR",
         behandlingsnummer: String = "B123",
         connectTimeout: Duration = Duration.ofSeconds(2),
         readTimeout: Duration = Duration.ofSeconds(10),
-    ) = PdlKlientProperties(url, scope, tema, behandlingsnummer, connectTimeout, readTimeout)
+    ) = PdlKlientProperties(url, scope, behandlingsnummer, connectTimeout, readTimeout)
 }

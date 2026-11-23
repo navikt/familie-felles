@@ -78,7 +78,6 @@ class PdlKlientAutoConfiguration(
                     setConnectTimeout(pdlKlientProperties.connectTimeout)
                     setReadTimeout(pdlKlientProperties.readTimeout)
                 },
-            ).defaultHeader("Tema", pdlKlientProperties.tema)
-            .defaultHeader("behandlingsnummer", pdlKlientProperties.behandlingsnummer)
+            ).defaultHeader("behandlingsnummer", pdlKlientProperties.behandlingsnummer)
             .build()
 }

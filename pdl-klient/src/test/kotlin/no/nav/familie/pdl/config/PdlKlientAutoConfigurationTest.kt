@@ -123,7 +123,6 @@ class PdlKlientAutoConfigurationTest {
                         .expect(requestTo("https://pdl.test/graphql"))
                         .andExpect(method(HttpMethod.POST))
                         .andExpect(header(HttpHeaders.AUTHORIZATION, authorization))
-                        .andExpect(header("Tema", "BAR"))
                         .andExpect(header("Behandlingsnummer", "B123"))
                         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                         .andExpect(content().json(forventetBody, true))
@@ -488,7 +487,6 @@ class PdlKlientAutoConfigurationTest {
         val grunnleggendeProperties =
             arrayOf(
                 "familie.felles.klient.pdl.enabled=true",
-                "familie.felles.klient.pdl.tema=BAR",
                 "familie.felles.klient.pdl.behandlingsnummer=B123",
             )
         val gyldigeProperties =
@@ -496,7 +494,6 @@ class PdlKlientAutoConfigurationTest {
                 "familie.felles.klient.pdl.enabled=true",
                 "familie.felles.klient.pdl.url=https://pdl.test",
                 "familie.felles.klient.pdl.scope=api://pdl.test.app/.default",
-                "familie.felles.klient.pdl.tema=BAR",
                 "familie.felles.klient.pdl.behandlingsnummer=B123",
             )
     }

@@ -22,7 +22,7 @@ Legg til avhengigheten:
 </dependency>
 ```
 
-Modulen slås på når avhengigheten legges til. Sett miljø, tema og behandlingsnummer:
+Modulen slås på når avhengigheten legges til. Sett miljø og behandlingsnummer:
 
 ```yaml
 familie:
@@ -30,7 +30,6 @@ familie:
     klient:
       miljo: preprod # eller prod
       pdl:
-        tema: <behandlingstema>
         behandlingsnummer: <behandlingsnummer>
 ```
 
@@ -38,7 +37,6 @@ familie:
 |-----------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------------------------|
 | `familie.felles.klient.miljo`                 | Ja, med mindre `url` og `scope` er satt | `preprod` eller `prod`. Velger URL og scope for PDL.                                             |
 | `familie.felles.klient.pdl.enabled`           | Nei                                     | Sett til `false` for å slå av modulen. Standard er `true`.                                       |
-| `familie.felles.klient.pdl.tema`              | Ja                                      | Sendes som headeren `Tema`.                                                                      |
 | `familie.felles.klient.pdl.behandlingsnummer` | Ja                                      | Sendes som headeren `behandlingsnummer`. Behandlingsnummeret må være registrert for appen i PDL. |
 | `familie.felles.klient.pdl.url`               | Nei                                     | Overstyrer URL-en fra `miljo`. Må bruke HTTPS.                                                   |
 | `familie.felles.klient.pdl.scope`             | Nei                                     | Overstyrer scope fra `miljo`, på formen `api://<cluster>.<namespace>.<app>/.default`.            |
