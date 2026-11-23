@@ -37,6 +37,7 @@ class PdlKlientAutoConfiguration(
     fun pdlOboKlient(klientTokenProvider: KlientTokenProvider): PdlOboKlient =
         PdlOboKlient(
             url = url(),
+            behandlingsnummer = pdlKlientProperties.behandlingsnummer,
             restClient =
                 konfigurerRestClient(
                     entraIDRestClientFactory.lagOboRestKlient(scope()) {
@@ -52,6 +53,7 @@ class PdlKlientAutoConfiguration(
     fun pdlHybridKlient(klientTokenProvider: KlientTokenProvider): PdlHybridKlient =
         PdlHybridKlient(
             url = url(),
+            behandlingsnummer = pdlKlientProperties.behandlingsnummer,
             restClient =
                 konfigurerRestClient(
                     entraIDRestClientFactory.lagHybridRestKlient(scope()) { klientTokenProvider.hentToken() },
@@ -63,6 +65,7 @@ class PdlKlientAutoConfiguration(
     fun pdlMaskinKlient(): PdlMaskinKlient =
         PdlMaskinKlient(
             url = url(),
+            behandlingsnummer = pdlKlientProperties.behandlingsnummer,
             restClient = konfigurerRestClient(entraIDRestClientFactory.lagMaskinTilMaskinRestKlient(scope())),
         )
 
@@ -78,6 +81,5 @@ class PdlKlientAutoConfiguration(
                     setConnectTimeout(pdlKlientProperties.connectTimeout)
                     setReadTimeout(pdlKlientProperties.readTimeout)
                 },
-            ).defaultHeader("behandlingsnummer", pdlKlientProperties.behandlingsnummer)
-            .build()
+            ).build()
 }

@@ -22,7 +22,8 @@ Legg til avhengigheten:
 </dependency>
 ```
 
-Modulen slås på når avhengigheten legges til. Sett miljø og behandlingsnummer:
+Modulen slås på når avhengigheten legges til. Sett miljø og, hvis appen alltid bruker samme behandlingsnummer,
+behandlingsnummer:
 
 ```yaml
 familie:
@@ -33,15 +34,15 @@ familie:
         behandlingsnummer: <behandlingsnummer>
 ```
 
-| Property                                      | Påkrevd                                 | Beskrivelse                                                                                      |
-|-----------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------------------------|
-| `familie.felles.klient.miljo`                 | Ja, med mindre `url` og `scope` er satt | `preprod` eller `prod`. Velger URL og scope for PDL.                                             |
-| `familie.felles.klient.pdl.enabled`           | Nei                                     | Sett til `false` for å slå av modulen. Standard er `true`.                                       |
-| `familie.felles.klient.pdl.behandlingsnummer` | Ja                                      | Sendes som headeren `behandlingsnummer`. Behandlingsnummeret må være registrert for appen i PDL. |
-| `familie.felles.klient.pdl.url`               | Nei                                     | Overstyrer URL-en fra `miljo`. Må bruke HTTPS.                                                   |
-| `familie.felles.klient.pdl.scope`             | Nei                                     | Overstyrer scope fra `miljo`, på formen `api://<cluster>.<namespace>.<app>/.default`.            |
-| `familie.felles.klient.pdl.connect-timeout`   | Nei                                     | Standard 2 sekunder. Mellom 1 ms og `Int.MAX_VALUE` ms.                                          |
-| `familie.felles.klient.pdl.read-timeout`      | Nei                                     | Standard 10 sekunder. Mellom 1 ms og `Int.MAX_VALUE` ms.                                         |
+| Property                                      | Påkrevd                                         | Beskrivelse                                                                                      |
+|-----------------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `familie.felles.klient.miljo`                 | Ja, med mindre `url` og `scope` er satt         | `preprod` eller `prod`. Velger URL og scope for PDL.                                             |
+| `familie.felles.klient.pdl.enabled`           | Nei                                             | Sett til `false` for å slå av modulen. Standard er `true`.                                       |
+| `familie.felles.klient.pdl.behandlingsnummer` | Nei, se [Behandlingsnummer](#behandlingsnummer) | Sendes som headeren `behandlingsnummer`. Behandlingsnummeret må være registrert for appen i PDL. |
+| `familie.felles.klient.pdl.url`               | Nei                                             | Overstyrer URL-en fra `miljo`. Må bruke HTTPS.                                                   |
+| `familie.felles.klient.pdl.scope`             | Nei                                             | Overstyrer scope fra `miljo`, på formen `api://<cluster>.<namespace>.<app>/.default`.            |
+| `familie.felles.klient.pdl.connect-timeout`   | Nei                                             | Standard 2 sekunder. Mellom 1 ms og `Int.MAX_VALUE` ms.                                          |
+| `familie.felles.klient.pdl.read-timeout`      | Nei                                             | Standard 10 sekunder. Mellom 1 ms og `Int.MAX_VALUE` ms.                                         |
 
 Klienten henter token gjennom `token-klient`. Appen trenger derfor miljøvariablene `NAIS_TOKEN_ENDPOINT` og
 `NAIS_TOKEN_EXCHANGE_ENDPOINT`, som Nais setter når Entra ID er aktivert.
@@ -142,7 +143,8 @@ class PersonKlient(
 
 Feltnavnet i DTO-en må stemme med navnet i svaret. Spørringen bruker derfor aliaset `person: hentPerson(ident: $ident)`.
 
-Send spørringen uendret. Ikke fjern linjeskift. GraphQL ignorerer dem uansett, og uten linjeskift kan ord på hver sin linje bli slått sammen, eller en `#`-kommentar kommentere ut resten av spørringen.
+Send spørringen uendret. Ikke fjern linjeskift. GraphQL ignorerer dem uansett, og uten linjeskift kan ord på hver sin
+linje bli slått sammen, eller en `#`-kommentar kommentere ut resten av spørringen.
 
 `hent` returnerer innholdet i `data` som typen du ber om. Generiske typer som `List<PdlPerson>` og
 `Map<String, List<PdlPerson>>` støttes.
@@ -153,9 +155,28 @@ lesingen av svaret. Da får du `Svar fra PDL kunne ikke leses: [data.person]` i 
 
 Klienten validerer ikke enkeltfelt i `data`. Appen avgjør selv om for eksempel `person` eller navn kan mangle.
 
+### Behandlingsnummer
+
+Hvert kall sender headeren `behandlingsnummer`. Apper med fast behandlingsnummer setter
+`familie.felles.klient.pdl.behandlingsnummer`. Apper der behandlingsnummeret varierer, sender det med i kallet:
+
+```kotlin
+pdlKlient.hent<PdlHentPersonRespons>(
+    query = query,
+    variabler = mapOf("ident" to personident),
+    behandlingsnummer = "B123",
+)
+```
+
+Et behandlingsnummer i kallet overstyrer property-en for det ene kallet. Parameteren kan ikke være `null`, så en
+verdi som mangler i appen faller ikke stille tilbake til property-en. Kaller appen `hent` uten behandlingsnummer og
+property-en ikke er satt, kaster `hent` `IllegalStateException` før kallet sendes. Et blankt behandlingsnummer i kallet
+gir `IllegalArgumentException`.
+Dette er programmeringsfeil, så de kastes ikke som `PdlException`.
+
 ## Feil
 
-Alle feil kastes som `PdlException`:
+Feil fra kallet mot PDL kastes som `PdlException`:
 
 | Situasjon                                           | `message`                                                     | `errors`             | `httpStatus` | `cause`                               |
 |-----------------------------------------------------|---------------------------------------------------------------|----------------------|--------------|---------------------------------------|

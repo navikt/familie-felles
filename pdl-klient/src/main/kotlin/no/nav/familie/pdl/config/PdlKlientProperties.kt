@@ -1,6 +1,5 @@
 package no.nav.familie.pdl.config
 
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import no.nav.familie.felles.klient.KlientMiljo
 import no.nav.familie.felles.klient.KlientMiljo.PREPROD
@@ -20,8 +19,8 @@ class PdlKlientProperties(
     val url: String? = null,
     @field:Pattern(regexp = "api://[a-z0-9-]+\\.[a-z0-9-]+\\.[a-z0-9-]+/\\.default")
     val scope: String? = null,
-    @field:NotBlank
-    val behandlingsnummer: String,
+    @field:Pattern(regexp = ".*\\S.*")
+    val behandlingsnummer: String? = null,
     @field:DurationMin(millis = 1)
     @field:DurationMax(millis = Int.MAX_VALUE.toLong())
     val connectTimeout: Duration = Duration.ofSeconds(2),

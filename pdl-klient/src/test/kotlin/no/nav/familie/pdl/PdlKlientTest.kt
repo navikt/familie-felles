@@ -22,6 +22,7 @@ import org.springframework.web.client.RestClientResponseException
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
+import java.net.URI.create
 import java.time.LocalDate
 
 class PdlKlientTest {
@@ -43,6 +44,7 @@ class PdlKlientTest {
                 .expect(once(), requestTo("https://pdl.test/graphql"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(header("Behandlingsnummer", BEHANDLINGSNUMMER))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(forventetJson, true))
                 .andRespond(
@@ -53,11 +55,60 @@ class PdlKlientTest {
                 )
         }
 
-        val klient = PdlMaskinKlient(URI.create("https://pdl.test/"), restClient)
+        val klient =
+            PdlMaskinKlient(URI.create("https://pdl.test/"), restClient, BEHANDLINGSNUMMER)
         assertThat(klient.hent<TestSvar>(graphql, variabler))
             .isEqualTo(TestSvar("syntetisk-svar", TestPerson("syntetisk-navn")))
         val svar: TestSvar = klient.hent(graphql, variabler)
         assertThat(svar).isEqualTo(TestSvar("syntetisk-svar", TestPerson("syntetisk-navn")))
+        server.verify()
+    }
+
+    @Test
+    fun `behandlingsnummer i kallet overstyrer konfigurert behandlingsnummer`() {
+        val (restClient, server) = klientoppsett()
+        server
+            .expect(once(), requestTo("https://pdl.test/graphql"))
+            .andExpect(header("Behandlingsnummer", "B999"))
+            .andRespond(withSuccess("""{"data":"syntetisk-svar"}""", MediaType.APPLICATION_JSON))
+        server
+            .expect(once(), requestTo("https://pdl.test/graphql"))
+            .andExpect(header("Behandlingsnummer", BEHANDLINGSNUMMER))
+            .andRespond(withSuccess("""{"data":"syntetisk-svar"}""", MediaType.APPLICATION_JSON))
+        val klient = PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER)
+
+        assertThat(klient.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = "B999")).isEqualTo("syntetisk-svar")
+        assertThat(klient.hent<String>(GRAPHQL, emptyMap())).isEqualTo("syntetisk-svar")
+        server.verify()
+    }
+
+    @Test
+    fun `behandlingsnummer i kallet brukes når klienten mangler behandlingsnummer`() {
+        val (restClient, server) = klientoppsett()
+        server
+            .expect(once(), requestTo("https://pdl.test/graphql"))
+            .andExpect(header("Behandlingsnummer", "B999"))
+            .andRespond(withSuccess("""{"data":"syntetisk-svar"}""", MediaType.APPLICATION_JSON))
+        val klient = PdlMaskinKlient(URI.create("https://pdl.test"), restClient)
+
+        assertThat(klient.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = "B999")).isEqualTo("syntetisk-svar")
+        server.verify()
+    }
+
+    @Test
+    fun `manglende eller blankt behandlingsnummer stopper før kall mot PDL`() {
+        val (restClient, server) = klientoppsett()
+        val utenNummer = PdlMaskinKlient(URI.create("https://pdl.test"), restClient)
+        val medNummer = PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER)
+
+        assertThat(catchThrowable { utenNummer.hent<String>(GRAPHQL, emptyMap()) })
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessageContaining("familie.felles.klient.pdl.behandlingsnummer")
+        assertThat(catchThrowable { medNummer.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = " ") })
+            .isInstanceOf(IllegalArgumentException::class.java)
+        val blankKlient = PdlMaskinKlient(URI.create("https://pdl.test"), restClient, "")
+        assertThat(catchThrowable { blankKlient.hent<String>(GRAPHQL, emptyMap()) })
+            .isInstanceOf(IllegalArgumentException::class.java)
         server.verify()
     }
 
@@ -75,7 +126,7 @@ class PdlKlientTest {
                     MediaType.APPLICATION_JSON,
                 ),
             )
-        val klient = PdlMaskinKlient(URI.create("https://pdl.test"), restClient)
+        val klient = PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER)
 
         val liste: List<TestPerson> = klient.hent(GRAPHQL, emptyMap())
         val nestet: Map<String, List<TestPerson>> = klient.hent(GRAPHQL, emptyMap())
@@ -93,7 +144,7 @@ class PdlKlientTest {
             .andRespond(withSuccess("""{"data":{"hentPerson":null}}""", MediaType.APPLICATION_JSON))
 
         val svar: TestSvarMedPerson =
-            PdlMaskinKlient(URI.create("https://pdl.test"), restClient).hent(GRAPHQL, emptyMap())
+            PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER).hent(GRAPHQL, emptyMap())
 
         assertThat(svar).isEqualTo(TestSvarMedPerson(null))
         server.verify()
@@ -431,7 +482,7 @@ class PdlKlientTest {
 
         val (restClient, server) = klientoppsett()
         server.expect(once(), requestTo("https://pdl.test/graphql")).andRespond(withStatus(HttpStatus.NO_CONTENT))
-        val feil = hentFeil(PdlMaskinKlient(URI.create("https://pdl.test"), restClient))
+        val feil = hentFeil(PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER))
         assertThat(feil).isInstanceOf(PdlException::class.java)
         assertThat(feil.message).isEqualTo("Svar fra PDL mangler body")
         assertThat((feil as PdlException).httpStatus).isNull()
@@ -496,7 +547,7 @@ class PdlKlientTest {
             .expect(once(), requestTo("https://pdl.test/graphql"))
             .andRespond(withSuccess("<html>fnr-sentinel</html>", MediaType.TEXT_HTML))
 
-        val feil = hentFeil(PdlMaskinKlient(URI.create("https://pdl.test"), restClient))
+        val feil = hentFeil(PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER))
 
         assertThat(feil.message).isEqualTo("Svar fra PDL kunne ikke leses")
         assertThat(feil.cause).isNull()
@@ -518,7 +569,10 @@ class PdlKlientTest {
 
         val feil =
             catchThrowable {
-                PdlMaskinKlient(URI.create("https://pdl.test"), restClient).hent<TestPersoner>(GRAPHQL, emptyMap())
+                PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER).hent<TestPersoner>(
+                    GRAPHQL,
+                    emptyMap(),
+                )
             } as PdlException
 
         assertThat(feil.message).isEqualTo("Svar fra PDL kunne ikke leses: [data.personer.[0].dato]")
@@ -547,7 +601,10 @@ class PdlKlientTest {
 
         val feil =
             catchThrowable {
-                PdlMaskinKlient(URI.create("https://pdl.test"), restClient).hent<TestSvarMedPerson>(GRAPHQL, emptyMap())
+                PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER).hent<TestSvarMedPerson>(
+                    GRAPHQL,
+                    emptyMap(),
+                )
             } as PdlException
 
         assertThat(feil.message).isEqualTo("Svar fra PDL inneholder feil")
@@ -575,7 +632,11 @@ class PdlKlientTest {
 
         val feil =
             catchThrowable {
-                PdlMaskinKlient(URI.create("https://pdl.test"), restClient).hent<TestSvarMedPåkrevdPerson>(
+                PdlMaskinKlient(
+                    create("https://pdl.test"),
+                    restClient,
+                    BEHANDLINGSNUMMER,
+                ).hent<TestSvarMedPåkrevdPerson>(
                     GRAPHQL,
                     emptyMap(),
                 )
@@ -597,7 +658,7 @@ class PdlKlientTest {
                 .requestInterceptor { _, _, _ -> throw originalFeil }
                 .build()
 
-        val feil = hentFeil(PdlMaskinKlient(URI.create("https://pdl.test"), restClient))
+        val feil = hentFeil(PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER))
 
         assertThat(feil.message).isEqualTo("Kall mot PDL feilet")
         assertThat(feil.cause).isSameAs(originalFeil)
@@ -634,7 +695,7 @@ class PdlKlientTest {
         server
             .expect(once(), requestTo("https://pdl.test/graphql"))
             .andRespond { _ -> mockRespons(body, HttpStatus.OK, MediaType.APPLICATION_JSON_VALUE) }
-        val feil = hentFeil(PdlMaskinKlient(URI.create("https://pdl.test"), restClient))
+        val feil = hentFeil(PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER))
         assertThat(feil.httpStatus).isEqualTo(forventetStatus)
         assertThat(feil.suppressed).isEmpty()
         skjulteVerdier.filter(String::isNotEmpty).forEach { assertThat(feil.stackTraceToString()).doesNotContain(it) }
@@ -661,7 +722,7 @@ class PdlKlientTest {
     ): PdlException {
         val (restClient, server) = klientoppsett()
         server.expect(once(), requestTo("https://pdl.test/graphql")).andRespond { respons }
-        val feil = hentFeil(PdlMaskinKlient(URI.create("https://pdl.test"), restClient))
+        val feil = hentFeil(PdlMaskinKlient(create("https://pdl.test"), restClient, BEHANDLINGSNUMMER))
         assertThat(feil.httpStatus).isEqualTo(forventetStatus)
         skjulteVerdier.filter(String::isNotEmpty).forEach { assertThat(feil.toString()).doesNotContain(it) }
         server.verify()
@@ -725,5 +786,6 @@ class PdlKlientTest {
 
     private companion object {
         const val GRAPHQL = "query SyntetiskOperasjon { ping }"
+        const val BEHANDLINGSNUMMER = "B123"
     }
 }

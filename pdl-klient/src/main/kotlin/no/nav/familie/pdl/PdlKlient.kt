@@ -13,14 +13,24 @@ import java.net.URI
 sealed class PdlKlient(
     url: URI,
     @PublishedApi internal val restClient: RestClient,
+    @PublishedApi internal val behandlingsnummer: String?,
 ) {
     @PublishedApi
     internal val graphqlUrl = URI.create(url.toString().trimEnd('/') + "/graphql")
 
+    /**
+     * Sender [query] med [variabler] til PDL og returnerer `data` som [T].
+     *
+     * Uten [behandlingsnummer] brukes `familie.felles.klient.pdl.behandlingsnummer`. Er den ikke satt, feiler
+     * kallet med [IllegalStateException] før noe sendes til PDL. Et blankt [behandlingsnummer] gir
+     * [IllegalArgumentException].
+     */
     inline fun <reified T> hent(
         query: String,
         variabler: Map<String, Any?>,
+        behandlingsnummer: String = konfigurertBehandlingsnummer(),
     ): T {
+        require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være blankt" }
         val respons =
             try {
                 restClient
@@ -28,6 +38,7 @@ sealed class PdlKlient(
                     .uri(graphqlUrl)
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("Behandlingsnummer", behandlingsnummer)
                     .body(PdlRequest(query = query, variables = variabler))
                     .retrieve()
                     .body<PdlRespons<T>>()
@@ -54,6 +65,14 @@ sealed class PdlKlient(
     }
 
     @PublishedApi
+    internal fun konfigurertBehandlingsnummer(): String =
+        behandlingsnummer
+            ?: throw IllegalStateException(
+                "Behandlingsnummer mangler. Send det med i kallet eller sett " +
+                    "familie.felles.klient.pdl.behandlingsnummer",
+            )
+
+    @PublishedApi
     internal fun lesefeil(feil: Throwable): PdlException {
         val stier =
             generateSequence(feil) { it.cause }
@@ -70,14 +89,17 @@ sealed class PdlKlient(
 class PdlOboKlient(
     url: URI,
     restClient: RestClient,
-) : PdlKlient(url, restClient)
+    behandlingsnummer: String? = null,
+) : PdlKlient(url, restClient, behandlingsnummer)
 
 class PdlHybridKlient(
     url: URI,
     restClient: RestClient,
-) : PdlKlient(url, restClient)
+    behandlingsnummer: String? = null,
+) : PdlKlient(url, restClient, behandlingsnummer)
 
 class PdlMaskinKlient(
     url: URI,
     restClient: RestClient,
-) : PdlKlient(url, restClient)
+    behandlingsnummer: String? = null,
+) : PdlKlient(url, restClient, behandlingsnummer)

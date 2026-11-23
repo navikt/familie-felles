@@ -10,10 +10,15 @@ class PdlKlientPropertiesTest {
 
     @Test
     fun `blankt behandlingsnummer er ugyldig`() {
-        val properties = gyldigeProperties(behandlingsnummer = "")
+        listOf("", " ").forEach { blank ->
+            val ugyldig = validator.validate(gyldigeProperties(behandlingsnummer = blank))
+            assertThat(ugyldig.map { it.propertyPath.toString() }).containsExactly("behandlingsnummer")
+        }
+    }
 
-        assertThat(validator.validate(properties).map { it.propertyPath.toString() })
-            .contains("behandlingsnummer")
+    @Test
+    fun `behandlingsnummer er valgfritt`() {
+        assertThat(validator.validate(gyldigeProperties(behandlingsnummer = null))).isEmpty()
     }
 
     @Test
@@ -101,7 +106,7 @@ class PdlKlientPropertiesTest {
     private fun gyldigeProperties(
         url: String = "https://pdl.test",
         scope: String = "api://pdl.test.app/.default",
-        behandlingsnummer: String = "B123",
+        behandlingsnummer: String? = "B123",
         connectTimeout: Duration = Duration.ofSeconds(2),
         readTimeout: Duration = Duration.ofSeconds(10),
     ) = PdlKlientProperties(url, scope, behandlingsnummer, connectTimeout, readTimeout)

@@ -128,7 +128,8 @@ class PdlKlientAutoConfigurationTest {
                         .andExpect(content().json(forventetBody, true))
                         .andRespond(withSuccess("""{"data":"syntetisk-svar"}""", MediaType.APPLICATION_JSON))
 
-                    val testKlient = PdlMaskinKlient(URI.create("https://pdl.test"), builder.build())
+                    val testKlient =
+                        PdlMaskinKlient(URI.create("https://pdl.test"), builder.build(), klient.behandlingsnummer)
                     assertThat(testKlient.hent<String>(query, mapOf("ident" to "syntetisk-ident")))
                         .isEqualTo("syntetisk-svar")
                     server.verify()
@@ -169,6 +170,34 @@ class PdlKlientAutoConfigurationTest {
         assertConfigurationFails(
             *gyldigeProperties,
             "familie.felles.klient.pdl.read-timeout=2147483648ms",
+        )
+    }
+
+    @Test
+    fun `behandlingsnummer er valgfritt og sendes til alle tre klientene`() {
+        runner(*gyldigeProperties)
+            .withBean(EntraIDRestClientFactory::class.java, { testFactory() })
+            .run { context ->
+                assertThat(context.startupFailure).isNull()
+                assertThat(context.getBeansOfType(PdlKlient::class.java).values.map { it.behandlingsnummer })
+                    .containsOnly("B123")
+            }
+
+        runner(*gyldigeProperties.filterNot { it.contains(".behandlingsnummer=") }.toTypedArray())
+            .withBean(EntraIDRestClientFactory::class.java, { testFactory() })
+            .run { context ->
+                assertThat(context.startupFailure).isNull()
+                assertThat(context.getBeansOfType(PdlKlient::class.java).values.map { it.behandlingsnummer })
+                    .hasSize(3)
+                    .containsOnlyNulls()
+            }
+    }
+
+    @Test
+    fun `blankt behandlingsnummer avviser oppstart`() {
+        assertConfigurationFails(
+            *gyldigeProperties.filterNot { it.contains(".behandlingsnummer=") }.toTypedArray(),
+            "familie.felles.klient.pdl.behandlingsnummer= ",
         )
     }
 
