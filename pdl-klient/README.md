@@ -199,6 +199,11 @@ catch(feil: PdlException) {
 `PdlFeil` inneholder `message`, `locations`, `path` og `extensions` med `code`, `details` og `classification`. Ukjente
 felt ignoreres. `feilmelding` setter sammen `message` og alle meldingene fra PDL.
 
+`PdlRespons` leser også advarsler fra `extensions.warnings` inn i `PdlAdvarsel` med `query`, `id`, `code`, `message`
+og `details`. `hent` returnerer bare `data`, så appen får ikke advarslene ennå. PDL bruker advarsler blant annet når
+behandlingsnummeret ikke gir tilgang til alle opplysningene i spørringen. Da kan opplysningene mangle i `data` uten at
+svaret har `errors`.
+
 `<sti>` er feltstien til verdien som ikke kunne leses, for eksempel `data.hentPerson.foedselsdato.[0].foedselsdato`.
 Selve verdien tas ikke med, og den opprinnelige feilen legges ikke ved som `cause`, fordi den kan inneholde verdier fra
 svaret.
@@ -210,7 +215,7 @@ Klienten logger ikke selv. Appen har ansvaret for hva som logges.
 - `PdlFeil.message` inneholder ifølge PDL ikke personopplysninger og kan logges.
 - `cause` ved HTTP-feil inneholder svarbodyen fra PDL. Ved nettverks- og tokenfeil inneholder den den opprinnelige
   feilen. Vurder hva som skal i vanlig logg og hva som skal i secureLogs.
-- `data` inneholder personopplysninger. `PdlRespons`, `PdlFeil` og `PdlFeilExtensions` er data-klasser uten skjult
+- `data` inneholder personopplysninger. `PdlRespons`, `PdlFeil`, `PdlFeilExtensions` og `PdlAdvarsel` er data-klasser uten skjult
   `toString()`, og appens egne DTO-er bør skjule personopplysninger i `toString()`.
 - Spørringen og variablene, som ofte inneholder en personident, sendes aldri med i feilene.
 

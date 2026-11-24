@@ -25,6 +25,8 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers.method
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientResponseException
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
@@ -184,6 +186,67 @@ class PdlKlientTest {
 
         // Assert
         assertThat(svar).isEqualTo(TestSvarMedPerson(null))
+    }
+
+    @Test
+    fun `leser advarsler fra extensions`() {
+        // Arrange
+        val json =
+            """
+            {
+              "data": "svar",
+              "extensions": {
+                "warnings": [
+                  {
+                    "query": "hentPerson",
+                    "id": "tilgangsstyring",
+                    "code": "mangler_opplysninger_i_katalog",
+                    "message": "Behandling mangler opplysningstyper",
+                    "details": {"missing": ["FALSK_ID_V1"]}
+                  }
+                ]
+              }
+            }
+            """.trimIndent()
+
+        // Act
+        val respons = jacksonObjectMapper().readValue<PdlRespons<String>>(json)
+
+        // Assert
+        assertThat(respons.extensions?.warnings)
+            .containsExactly(
+                PdlAdvarsel(
+                    query = "hentPerson",
+                    id = "tilgangsstyring",
+                    code = "mangler_opplysninger_i_katalog",
+                    message = "Behandling mangler opplysningstyper",
+                    details = mapOf("missing" to listOf("FALSK_ID_V1")),
+                ),
+            )
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            """{"data":"svar"}""",
+            """{"data":"svar","extensions":null}""",
+            """{"data":"svar","extensions":{}}""",
+            """{"data":"svar","extensions":{"warnings":null}}""",
+            """{"data":"svar","extensions":{"warnings":[{"code":"ukjent","details":"tekst"}]}}""",
+            """{"data":"svar","extensions":{"warnings":[{"details":null,"fremtidig":"felt"}],"annet":"felt"}}""",
+        ],
+    )
+    fun `svar med eller uten advarsler gir data`(body: String) {
+        // Arrange
+        server
+            .expect(once(), requestTo(GRAPHQL_URL))
+            .andRespond { mockRespons(body) }
+
+        // Act
+        val svar = klient.hent<String>(GRAPHQL, emptyMap())
+
+        // Assert
+        assertThat(svar).isEqualTo("svar")
     }
 
     @Test
