@@ -249,6 +249,19 @@ class PdlKlientTest {
         assertThat(svar).isEqualTo("svar")
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["https://pdl.test", "https://pdl.test/"])
+    fun `graphqlUrl er url-en med graphql på slutten`(url: String) {
+        // Arrange
+        val klient = PdlMaskinKlient(URI.create(url), builder.build(), BEHANDLINGSNUMMER)
+
+        // Act
+        val graphqlUrl = klient.graphqlUrl
+
+        // Assert
+        assertThat(graphqlUrl).isEqualTo(URI.create("https://pdl.test/graphql"))
+    }
+
     @Test
     fun `graphql request skjuler verdier i toString`() {
         // Arrange

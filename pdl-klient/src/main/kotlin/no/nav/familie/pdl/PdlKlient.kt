@@ -15,8 +15,8 @@ sealed class PdlKlient(
     @PublishedApi internal val restClient: RestClient,
     @PublishedApi internal val behandlingsnummer: String?,
 ) {
-    @PublishedApi
-    internal val graphqlUrl = URI.create(url.toString().trimEnd('/') + "/graphql")
+    /** Adressen klienten sender GraphQL-spørringene til. */
+    val graphqlUrl: URI = URI.create(url.toString().trimEnd('/') + "/graphql")
 
     /**
      * Sender [query] med [variabler] til PDL og returnerer `data` som [T].

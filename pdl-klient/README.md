@@ -146,6 +146,8 @@ Feltnavnet i DTO-en må stemme med navnet i svaret. Spørringen bruker derfor al
 Send spørringen uendret. Ikke fjern linjeskift. GraphQL ignorerer dem uansett, og uten linjeskift kan ord på hver sin
 linje bli slått sammen, eller en `#`-kommentar kommentere ut resten av spørringen.
 
+`graphqlUrl` på klienten gir adressen kallene går til, for eksempel til logging.
+
 `hent` returnerer innholdet i `data` som typen du ber om. Generiske typer som `List<PdlPerson>` og
 `Map<String, List<PdlPerson>>` støttes.
 
