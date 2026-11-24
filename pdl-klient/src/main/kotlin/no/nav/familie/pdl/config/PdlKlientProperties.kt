@@ -1,9 +1,9 @@
 package no.nav.familie.pdl.config
 
 import jakarta.validation.constraints.Pattern
-import no.nav.familie.felles.klient.KlientMiljo
-import no.nav.familie.felles.klient.KlientMiljo.PREPROD
-import no.nav.familie.felles.klient.KlientMiljo.PROD
+import no.nav.familie.felles.klient.KlientMiljø
+import no.nav.familie.felles.klient.KlientMiljø.PREPROD
+import no.nav.familie.felles.klient.KlientMiljø.PROD
 import org.hibernate.validator.constraints.URL
 import org.hibernate.validator.constraints.time.DurationMax
 import org.hibernate.validator.constraints.time.DurationMin
@@ -28,9 +28,9 @@ class PdlKlientProperties(
     @field:DurationMax(millis = Int.MAX_VALUE.toLong())
     val readTimeout: Duration = Duration.ofSeconds(10),
 ) {
-    internal fun hentUrl(miljo: KlientMiljo?): String =
+    internal fun hentUrl(miljø: KlientMiljø?): String =
         url
-            ?: when (miljo) {
+            ?: when (miljø) {
                 PREPROD -> "https://pdl-api.dev-fss-pub.nais.io"
 
                 PROD -> "https://pdl-api.prod-fss-pub.nais.io"
@@ -40,9 +40,9 @@ class PdlKlientProperties(
                 )
             }
 
-    internal fun hentScope(miljo: KlientMiljo?): String =
+    internal fun hentScope(miljø: KlientMiljø?): String =
         scope
-            ?: when (miljo) {
+            ?: when (miljø) {
                 PREPROD -> "api://dev-fss.pdl.pdl-api/.default"
 
                 PROD -> "api://prod-fss.pdl.pdl-api/.default"
