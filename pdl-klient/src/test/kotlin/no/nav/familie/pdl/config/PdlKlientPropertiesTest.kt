@@ -29,10 +29,18 @@ class PdlKlientPropertiesTest {
         assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("scope")
     }
 
-    @Test
-    fun `url uten https er ugyldig`() {
-        val ugyldigeProperties = validator.validate(gyldigeProperties(url = "http://pdl.test"))
-        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("url")
+    @ParameterizedTest
+    @ValueSource(strings = ["https://pdl.test", "http://pdl.test", "http://localhost:1337/rest/api/pdl"])
+    fun `url med http eller https er gyldig`(url: String) {
+        val ugyldigeProperties = validator.validate(gyldigeProperties(url = url))
+        assertThat(ugyldigeProperties).isEmpty()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["ftp://pdl.test", "pdl.test", "dummy"])
+    fun `url uten http eller https er ugyldig`(url: String) {
+        val ugyldigeProperties = validator.validate(gyldigeProperties(url = url))
+        assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).containsExactly("url")
     }
 
     @Test

@@ -296,7 +296,7 @@ class PdlKlientAutoConfigurationTest {
 
     @Test
     fun `ugyldig url eller scope over miljodefault feiler validering`() {
-        assertConfigurationFails(*miljoProperties("preprod"), "familie.felles.klient.pdl.url=http://pdl.test")
+        assertConfigurationFails(*miljoProperties("preprod"), "familie.felles.klient.pdl.url=ftp://pdl.test")
         assertConfigurationFails(*miljoProperties("preprod"), "familie.felles.klient.pdl.scope=ugyldig")
     }
 

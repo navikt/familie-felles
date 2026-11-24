@@ -15,7 +15,7 @@ import java.time.Duration
 @ConfigurationProperties("familie.felles.klient.pdl")
 class PdlKlientProperties(
     @field:Pattern(regexp = ".*\\S.*")
-    @field:URL(protocol = "https")
+    @field:URL(regexp = "^https?://.*")
     val url: String? = null,
     @field:Pattern(regexp = "api://[a-z0-9-]+\\.[a-z0-9-]+\\.[a-z0-9-]+/\\.default")
     val scope: String? = null,
