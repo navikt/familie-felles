@@ -42,6 +42,8 @@
         <module>kafka</module>
         <module>valutakurs-klient</module>
         <module>tilgangsmaskin-klient</module>
+        <module>klient-felles</module>
+        <module>pdl-klient</module>
         <module>unleash</module>
         <module>metrikker</module>
         <module>token-klient</module>
@@ -191,6 +193,16 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>tilgangsmaskin-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>klient-felles</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pdl-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

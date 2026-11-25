@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClient
 
 @Component
 @Import(
+    EntraIDClient::class,
     ConsumerIdClientInterceptor::class,
     MdcValuesPropagatingClientInterceptor::class,
 )
