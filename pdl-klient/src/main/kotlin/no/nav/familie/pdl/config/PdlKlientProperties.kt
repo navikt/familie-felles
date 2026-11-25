@@ -1,9 +1,11 @@
 package no.nav.familie.pdl.config
 
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Pattern
 import no.nav.familie.felles.klient.KlientMiljø
 import no.nav.familie.felles.klient.KlientMiljø.PREPROD
 import no.nav.familie.felles.klient.KlientMiljø.PROD
+import no.nav.familie.felles.klient.retry.KlientRetryProperties
 import org.hibernate.validator.constraints.URL
 import org.hibernate.validator.constraints.time.DurationMax
 import org.hibernate.validator.constraints.time.DurationMin
@@ -27,6 +29,8 @@ class PdlKlientProperties(
     @field:DurationMin(millis = 1)
     @field:DurationMax(millis = Int.MAX_VALUE.toLong())
     val readTimeout: Duration = Duration.ofSeconds(10),
+    @field:Valid
+    val retry: KlientRetryProperties = KlientRetryProperties(),
 ) {
     internal fun hentUrl(miljø: KlientMiljø?): String =
         url

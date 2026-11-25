@@ -38,6 +38,7 @@ class PdlKlientAutoConfiguration(
         PdlOboKlient(
             url = url(),
             behandlingsnummer = pdlKlientProperties.behandlingsnummer,
+            retry = pdlKlientProperties.retry,
             restClient =
                 konfigurerRestClient(
                     entraIDRestClientFactory.lagOboRestKlient(scope()) {
@@ -54,6 +55,7 @@ class PdlKlientAutoConfiguration(
         PdlHybridKlient(
             url = url(),
             behandlingsnummer = pdlKlientProperties.behandlingsnummer,
+            retry = pdlKlientProperties.retry,
             restClient =
                 konfigurerRestClient(
                     entraIDRestClientFactory.lagHybridRestKlient(scope()) { klientTokenProvider.hentToken() },
@@ -66,6 +68,7 @@ class PdlKlientAutoConfiguration(
         PdlMaskinKlient(
             url = url(),
             behandlingsnummer = pdlKlientProperties.behandlingsnummer,
+            retry = pdlKlientProperties.retry,
             restClient = konfigurerRestClient(entraIDRestClientFactory.lagMaskinTilMaskinRestKlient(scope())),
         )
 

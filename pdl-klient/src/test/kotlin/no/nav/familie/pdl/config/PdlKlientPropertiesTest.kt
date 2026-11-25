@@ -1,6 +1,7 @@
 package no.nav.familie.pdl.config
 
 import jakarta.validation.Validation
+import no.nav.familie.felles.klient.retry.KlientRetryProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -94,6 +95,14 @@ class PdlKlientPropertiesTest {
     }
 
     @Test
+    fun `retry valideres som del av PDL-propertyene`() {
+        assertThat(validator.validate(gyldigeProperties())).isEmpty()
+
+        val ugyldig = gyldigeProperties(retry = KlientRetryProperties(maxRetries = 6))
+        assertThat(validator.validate(ugyldig).map { it.propertyPath.toString() }).containsExactly("retry.maxRetries")
+    }
+
+    @Test
     fun `blank url og scope er ugyldige`() {
         val ugyldigeProperties = validator.validate(gyldigeProperties(url = " ", scope = " "))
         assertThat(ugyldigeProperties.map { it.propertyPath.toString() }).contains("url", "scope")
@@ -111,5 +120,6 @@ class PdlKlientPropertiesTest {
         behandlingsnummer: String? = "B123",
         connectTimeout: Duration = Duration.ofSeconds(2),
         readTimeout: Duration = Duration.ofSeconds(10),
-    ) = PdlKlientProperties(url, scope, behandlingsnummer, connectTimeout, readTimeout)
+        retry: KlientRetryProperties = KlientRetryProperties(),
+    ) = PdlKlientProperties(url, scope, behandlingsnummer, connectTimeout, readTimeout, retry)
 }

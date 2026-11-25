@@ -19,13 +19,18 @@ import no.nav.familie.pdl.PdlOboKlient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.mock.http.client.MockClientHttpResponse
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.content
 import org.springframework.test.web.client.match.MockRestRequestMatchers.header
@@ -34,6 +39,8 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers.request
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.RestClient
 import java.net.URI
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
 class PdlKlientAutoConfigurationTest {
     @Test
@@ -90,7 +97,7 @@ class PdlKlientAutoConfigurationTest {
     }
 
     @Test
-    fun `klientene bruker faktisk http-oppsett og riktig tokenflyt`() {
+    fun `tokenflyt og headere brukes på klientenes restClient`() {
         val entraIDClient = mockk<EntraIDClient>()
         val brukertoken =
             PlainJWT(
@@ -130,7 +137,7 @@ class PdlKlientAutoConfigurationTest {
                         .andRespond(withSuccess("""{"data":"svar"}""", MediaType.APPLICATION_JSON))
 
                     val testKlient =
-                        PdlMaskinKlient(URI.create("https://pdl.test"), builder.build(), klient.behandlingsnummer)
+                        PdlMaskinKlient(URI.create("https://pdl.test"), builder.build(), behandlingsnummer = klient.behandlingsnummer)
                     assertThat(testKlient.hent<String>(query, mapOf("ident" to "ident")))
                         .isEqualTo("svar")
                     server.verify()
@@ -139,6 +146,39 @@ class PdlKlientAutoConfigurationTest {
                 verify(exactly = 2) { provider.hentToken() }
                 verify(exactly = 2) { entraIDClient.hentOboToken("api://pdl.test.app/.default", brukertoken) }
                 verify(exactly = 1) { entraIDClient.hentMaskinTilMaskinToken("api://pdl.test.app/.default") }
+            }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `retry properties styrer forsøkene gjennom autokonfigurert klient`(retryAktivert: Boolean) {
+        val antallKall = AtomicInteger()
+        val restClient =
+            RestClient
+                .builder()
+                .requestInterceptor { _, _, _ ->
+                    antallKall.incrementAndGet()
+                    MockClientHttpResponse("""{"data":"svar"}""".toByteArray(), HttpStatus.SERVICE_UNAVAILABLE)
+                        .apply { headers.contentType = MediaType.APPLICATION_JSON }
+                }.build()
+        val factory = testFactory()
+        every { factory.lagMaskinTilMaskinRestKlient(any()) } returns restClient
+
+        runnerUtenProvider(
+            *gyldigeProperties,
+            "familie.felles.klient.pdl.retry.enabled=$retryAktivert",
+            "familie.felles.klient.pdl.retry.max-retries=1",
+            "familie.felles.klient.pdl.retry.delay=1ms",
+        ).withBean(EntraIDRestClientFactory::class.java, { factory })
+            .run { context ->
+                assertThat(context.startupFailure).isNull()
+                val feil =
+                    assertThrows<PdlException> {
+                        context.getBean<PdlMaskinKlient>().hent<String>("query { ping }", emptyMap())
+                    }
+
+                assertThat(feil.httpStatus).isEqualTo(503)
+                assertThat(antallKall.get()).isEqualTo(if (retryAktivert) 2 else 1)
             }
     }
 
@@ -172,6 +212,26 @@ class PdlKlientAutoConfigurationTest {
             *gyldigeProperties,
             "familie.felles.klient.pdl.read-timeout=2147483648ms",
         )
+    }
+
+    @Test
+    fun `retryverdier bindes og valideres ved oppstart`() {
+        runner(
+            *gyldigeProperties,
+            "familie.felles.klient.pdl.retry.enabled=false",
+            "familie.felles.klient.pdl.retry.max-retries=1",
+            "familie.felles.klient.pdl.retry.delay=250ms",
+        ).withBean(EntraIDRestClientFactory::class.java, { testFactory() })
+            .run { context ->
+                assertThat(context.startupFailure).isNull()
+                val retry = context.getBean<PdlKlientProperties>().retry
+                assertThat(retry.enabled).isFalse()
+                assertThat(retry.maxRetries).isEqualTo(1L)
+                assertThat(retry.delay).isEqualTo(Duration.ofMillis(250))
+            }
+
+        assertConfigurationFails(*gyldigeProperties, "familie.felles.klient.pdl.retry.max-retries=6")
+        assertConfigurationFails(*gyldigeProperties, "familie.felles.klient.pdl.retry.delay=2s")
     }
 
     @Test
@@ -231,6 +291,8 @@ class PdlKlientAutoConfigurationTest {
                 val miljo = context.getBean<KlientProperties>().miljo
                 assertThat(properties.hentUrl(miljo)).isEqualTo("https://pdl.overstyrt.test")
                 assertThat(properties.hentScope(miljo)).isEqualTo("api://dev-fss.pdl.pdl-api/.default")
+                val graphqlUrl = context.getBeansOfType(PdlKlient::class.java).values.map { it.graphqlUrl }
+                assertThat(graphqlUrl).containsOnly(URI.create("https://pdl.overstyrt.test/graphql"))
                 verifiserScope(factory, "api://dev-fss.pdl.pdl-api/.default")
             }
     }
@@ -246,6 +308,8 @@ class PdlKlientAutoConfigurationTest {
                 val miljo = context.getBean<KlientProperties>().miljo
                 assertThat(properties.hentUrl(miljo)).isEqualTo("https://pdl-api.prod-fss-pub.nais.io")
                 assertThat(properties.hentScope(miljo)).isEqualTo("api://override.test.app/.default")
+                val graphqlUrl = context.getBeansOfType(PdlKlient::class.java).values.map { it.graphqlUrl }
+                assertThat(graphqlUrl).containsOnly(URI.create("https://pdl-api.prod-fss-pub.nais.io/graphql"))
                 verifiserScope(factory, "api://override.test.app/.default")
             }
     }
@@ -260,6 +324,8 @@ class PdlKlientAutoConfigurationTest {
                 val properties = context.getBean<PdlKlientProperties>()
                 assertThat(properties.hentUrl(null)).isEqualTo("https://pdl.test")
                 assertThat(properties.hentScope(null)).isEqualTo("api://pdl.test.app/.default")
+                val graphqlUrl = context.getBeansOfType(PdlKlient::class.java).values.map { it.graphqlUrl }
+                assertThat(graphqlUrl).containsOnly(URI.create("https://pdl.test/graphql"))
                 verifiserScope(factory, "api://pdl.test.app/.default")
             }
     }
@@ -330,61 +396,54 @@ class PdlKlientAutoConfigurationTest {
             }
     }
 
-    @Test
-    fun `egen oboklient erstatter bare oboklienten`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["obo", "hybrid", "maskin"])
+    fun `egen klient erstatter tilsvarende autokonfigurert klient`(variant: String) {
         val factory = testFactory()
-        val egenKlient = PdlOboKlient(URI.create("https://pdl.test"), RestClient.builder().build())
-
-        runner(*gyldigeProperties)
-            .withBean(EntraIDRestClientFactory::class.java, { factory })
-            .withBean("egenOboKlient", PdlOboKlient::class.java, { egenKlient })
-            .run { context ->
-                assertThat(context.startupFailure).isNull()
-                assertThat(context.getBean<PdlOboKlient>()).isSameAs(egenKlient)
-                assertThat(context.getBeansOfType(PdlKlient::class.java).keys)
-                    .containsExactlyInAnyOrder("egenOboKlient", "pdlHybridKlient", "pdlMaskinKlient")
-                verify(exactly = 0) { factory.lagOboRestKlient(any(), any()) }
-                verify(exactly = 1) { factory.lagHybridRestKlient(any(), any()) }
-                verify(exactly = 1) { factory.lagMaskinTilMaskinRestKlient(any()) }
+        val egenKlient: PdlKlient =
+            when (variant) {
+                "obo" -> PdlOboKlient(URI.create("https://pdl.test"), RestClient.builder().build())
+                "hybrid" -> PdlHybridKlient(URI.create("https://pdl.test"), RestClient.builder().build())
+                else -> PdlMaskinKlient(URI.create("https://pdl.test"), RestClient.builder().build())
             }
-    }
+        val beanNavn = "egen${variant.replaceFirstChar(Char::uppercase)}Klient"
+        val testRunner =
+            when (variant) {
+                "obo" -> {
+                    runner(*gyldigeProperties).withBean(
+                        beanNavn,
+                        PdlOboKlient::class.java,
+                        { egenKlient as PdlOboKlient },
+                    )
+                }
 
-    @Test
-    fun `egen hybridklient erstatter bare hybridklienten`() {
-        val factory = testFactory()
-        val egenKlient = PdlHybridKlient(URI.create("https://pdl.test"), RestClient.builder().build())
+                "hybrid" -> {
+                    runner(*gyldigeProperties).withBean(
+                        beanNavn,
+                        PdlHybridKlient::class.java,
+                        { egenKlient as PdlHybridKlient },
+                    )
+                }
 
-        runner(*gyldigeProperties)
-            .withBean(EntraIDRestClientFactory::class.java, { factory })
-            .withBean("egenHybridKlient", PdlHybridKlient::class.java, { egenKlient })
-            .run { context ->
-                assertThat(context.startupFailure).isNull()
-                assertThat(context.getBean<PdlHybridKlient>()).isSameAs(egenKlient)
-                assertThat(context.getBeansOfType(PdlKlient::class.java).keys)
-                    .containsExactlyInAnyOrder("pdlOboKlient", "egenHybridKlient", "pdlMaskinKlient")
-                verify(exactly = 1) { factory.lagOboRestKlient(any(), any()) }
-                verify(exactly = 0) { factory.lagHybridRestKlient(any(), any()) }
-                verify(exactly = 1) { factory.lagMaskinTilMaskinRestKlient(any()) }
-            }
-    }
+                else -> {
+                    runner(*gyldigeProperties).withBean(
+                        beanNavn,
+                        PdlMaskinKlient::class.java,
+                        { egenKlient as PdlMaskinKlient },
+                    )
+                }
+            }.withBean(EntraIDRestClientFactory::class.java, { factory })
 
-    @Test
-    fun `egen maskinklient erstatter bare maskinklienten`() {
-        val factory = testFactory()
-        val egenKlient = PdlMaskinKlient(URI.create("https://pdl.test"), RestClient.builder().build())
-
-        runner(*gyldigeProperties)
-            .withBean(EntraIDRestClientFactory::class.java, { factory })
-            .withBean("egenMaskinKlient", PdlMaskinKlient::class.java, { egenKlient })
-            .run { context ->
-                assertThat(context.startupFailure).isNull()
-                assertThat(context.getBean<PdlMaskinKlient>()).isSameAs(egenKlient)
-                assertThat(context.getBeansOfType(PdlKlient::class.java).keys)
-                    .containsExactlyInAnyOrder("pdlOboKlient", "pdlHybridKlient", "egenMaskinKlient")
-                verify(exactly = 1) { factory.lagOboRestKlient(any(), any()) }
-                verify(exactly = 1) { factory.lagHybridRestKlient(any(), any()) }
-                verify(exactly = 0) { factory.lagMaskinTilMaskinRestKlient(any()) }
-            }
+        testRunner.run { context ->
+            assertThat(context.startupFailure).isNull()
+            assertThat(context.getBeansOfType(PdlKlient::class.java).keys)
+                .contains(beanNavn)
+                .hasSize(3)
+            assertThat(context.getBeansOfType(PdlKlient::class.java).values).contains(egenKlient)
+            verify(exactly = if (variant == "obo") 0 else 1) { factory.lagOboRestKlient(any(), any()) }
+            verify(exactly = if (variant == "hybrid") 0 else 1) { factory.lagHybridRestKlient(any(), any()) }
+            verify(exactly = if (variant == "maskin") 0 else 1) { factory.lagMaskinTilMaskinRestKlient(any()) }
+        }
     }
 
     @Test
@@ -501,6 +560,8 @@ class PdlKlientAutoConfigurationTest {
                 val klientMiljo = context.getBean<KlientProperties>().miljo
                 assertThat(properties.hentUrl(klientMiljo)).isEqualTo(forventetUrl)
                 assertThat(properties.hentScope(klientMiljo)).isEqualTo(forventetScope)
+                val graphqlUrl = context.getBeansOfType(PdlKlient::class.java).values.map { it.graphqlUrl }
+                assertThat(graphqlUrl).containsOnly(URI.create("$forventetUrl/graphql"))
                 verifiserScope(factory, forventetScope)
             }
     }

@@ -217,8 +217,45 @@ Klienten logger ikke selv. Appen har ansvaret for hva som logges.
 - `PdlFeil.message` inneholder ifølge PDL ikke personopplysninger og kan logges.
 - `cause` ved HTTP-feil inneholder svarbodyen fra PDL. Ved nettverks- og tokenfeil inneholder den den opprinnelige
   feilen. Vurder hva som skal i vanlig logg og hva som skal i secureLogs.
-- `data` inneholder personopplysninger. `PdlRespons`, `PdlFeil`, `PdlFeilExtensions` og `PdlAdvarsel` er data-klasser uten skjult
-  `toString()`, og appens egne DTO-er bør skjule personopplysninger i `toString()`.
+- `data` inneholder personopplysninger. `PdlRespons`, `PdlFeil`, `PdlFeilExtensions` og `PdlAdvarsel` er data-klasser
+  uten skjult `toString()`, og appens egne DTO-er bør skjule personopplysninger i `toString()`.
 - Spørringen og variablene, som ofte inneholder en personident, sendes aldri med i feilene.
 
-Klienten forsøker ikke å kalle PDL på nytt ved feil.
+## Retry
+
+Klienten prøver på nytt ved midlertidige feil. Retry er på som standard og gjelder alle tre klientvariantene.
+Bruk klienten bare til GraphQL-queries som leser data, ikke mutations. Mekanismen er `KlientRetry` fra
+`klient-felles`, som bygger på Spring `RetryTemplate` og `RetryPolicy`. Den krever ingen Spring-proxy og virker
+også når klienten opprettes med en konstruktør.
+
+Følgende properties finnes under `familie.felles.klient.pdl.retry`:
+
+| Property      | Standard | Tillatte verdier                                        |
+|---------------|----------|---------------------------------------------------------|
+| `enabled`     | `true`   | `true` eller `false`                                    |
+| `max-retries` | `2`      | 1–5 nye forsøk etter første kall, altså 2–6 kall totalt |
+| `delay`       | `100ms`  | Mellom 1 ms og 1 sekund                                 |
+
+Innstillingene bindes og valideres ved oppstart. Ventetiden mellom forsøkene er konstant `delay`, med jitter på inntil
+`delay / 2`. Jitter legges bare til, aldri trukket fra. Med standardoppsettet venter klienten 100–150 ms før hvert nye
+forsøk. Bruk `enabled=false` for å slå av retry. Har appen egen retry rundt `hent`, multipliseres antall kall. Svarer
+PDL tregt med 502, 503 eller 504, kan samlet ventetid med standardoppsettet bli over 30 sekunder med standard
+read-timeout på 10 sekunder.
+
+Klienten gjentar hele kallet ved HTTP 502, 503 og 504, uansett om feilen kommer fra PDL eller fra tokenhentingen.
+Statuskodene er ikke konfigurerbare. Klienten vurderer bare feilen på toppnivå. Transportfeil, andre HTTP-statuser,
+GraphQL-feil, deserialiseringsfeil og feil under body-lesing etter HTTP 200 gjentas ikke.
+
+Hvert nytt forsøk går gjennom alle interceptorene på `RestClient` på nytt, også tokenhentingen. Interceptorene må
+derfor tåle å bli kjørt flere ganger. Tokenklienten beholder sin egen retry med to forsøk ved 5xx og transportfeil.
+Ved vedvarende 502, 503 eller 504 fra token-endpointet blir det derfor opptil seks tokenkall med standardoppsettet.
+Når feilen kommer fra tokenhentingen, får `PdlException` likevel meldingen «Kall mot PDL feilet med HTTP-status …»
+og token-endpointets status i `httpStatus`.
+
+Etter siste forsøk kastes `PdlException` med samme feilkontrakt som ved ett forsøk.
+Trådavbrudd (interrupt) under ventetiden stopper nye forsøk. Klienten kaster da siste feil, og interrupt-status
+forblir satt. En pågående socket-lesing avbrytes ikke nødvendigvis.
+Tidligere forsøk legges ikke til som suppressed exceptions i feilen som returneres til konsumenten.
+Spring `RetryTemplate` logger hvert mislykkede forsøk med exception og stacktrace på DEBUG-nivå. For HTTP-feil kan
+meldingen inneholde responsbodyen fra PDL eller token-endpointet. Ikke slå på DEBUG for `org.springframework.core.retry`
+i produksjon.

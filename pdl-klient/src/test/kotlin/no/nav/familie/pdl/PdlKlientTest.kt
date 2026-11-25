@@ -35,7 +35,7 @@ import java.time.LocalDate
 class PdlKlientTest {
     private val builder = RestClient.builder()
     private val server = MockRestServiceServer.bindTo(builder).build()
-    private val klient = PdlMaskinKlient(URI.create(PDL_URL), builder.build(), BEHANDLINGSNUMMER)
+    private val klient = PdlMaskinKlient(URI.create(PDL_URL), builder.build(), behandlingsnummer = BEHANDLINGSNUMMER)
 
     @AfterEach
     fun verifiserKall() {
@@ -73,84 +73,57 @@ class PdlKlientTest {
         assertThat(medTypeinferens).isEqualTo(TestSvarMedPerson(TestPerson("navn")))
     }
 
-    @Test
-    fun `behandlingsnummer i kallet overstyrer konfigurert behandlingsnummer`() {
-        // Arrange
+    @ParameterizedTest
+    @MethodSource("behandlingsnummerSomSendes")
+    fun `behandlingsnummer fra konfigurasjon eller kall sendes til PDL`(
+        konfigurertBehandlingsnummer: String?,
+        behandlingsnummerIKallet: String?,
+        forventetBehandlingsnummer: String,
+    ) {
+        val klientMedNummer =
+            PdlMaskinKlient(URI.create(PDL_URL), builder.build(), behandlingsnummer = konfigurertBehandlingsnummer)
         server
             .expect(once(), requestTo(GRAPHQL_URL))
-            .andExpect(header("Behandlingsnummer", "B999"))
+            .andExpect(header("Behandlingsnummer", forventetBehandlingsnummer))
             .andRespond { mockRespons("""{"data":"svar"}""") }
 
-        server
-            .expect(once(), requestTo(GRAPHQL_URL))
-            .andExpect(header("Behandlingsnummer", BEHANDLINGSNUMMER))
-            .andRespond { mockRespons("""{"data":"svar"}""") }
+        val svar =
+            if (behandlingsnummerIKallet == null) {
+                klientMedNummer.hent<String>(GRAPHQL, emptyMap())
+            } else {
+                klientMedNummer.hent<String>(GRAPHQL, emptyMap(), behandlingsnummerIKallet)
+            }
 
-        // Act
-        val medNummerIKallet = klient.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = "B999")
-        val medKonfigurertNummer = klient.hent<String>(GRAPHQL, emptyMap())
-
-        // Assert
-        assertThat(medNummerIKallet).isEqualTo("svar")
-        assertThat(medKonfigurertNummer).isEqualTo("svar")
-    }
-
-    @Test
-    fun `behandlingsnummer i kallet brukes når klienten mangler behandlingsnummer`() {
-        // Arrange
-        server
-            .expect(once(), requestTo(GRAPHQL_URL))
-            .andExpect(header("Behandlingsnummer", "B999"))
-            .andRespond { mockRespons("""{"data":"svar"}""") }
-
-        val klientUtenBehandlingsnummer = PdlMaskinKlient(URI.create(PDL_URL), builder.build())
-
-        // Act
-        val svar = klientUtenBehandlingsnummer.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = "B999")
-
-        // Assert
         assertThat(svar).isEqualTo("svar")
     }
 
     @Test
-    fun `manglende behandlingsnummer stopper før kall mot PDL`() {
-        // Arrange
-        val klientUtenBehandlingsnummer = PdlMaskinKlient(URI.create(PDL_URL), builder.build())
+    fun `manglende behandlingsnummer i både konfigurasjon og kall gir IllegalStateException`() {
+        val klientUtenNummer = PdlMaskinKlient(URI.create(PDL_URL), builder.build())
 
-        // Act
-        val feil = assertThrows<IllegalStateException> { klientUtenBehandlingsnummer.hent<String>(GRAPHQL, emptyMap()) }
+        val feil = assertThrows<IllegalStateException> { klientUtenNummer.hent<String>(GRAPHQL, emptyMap()) }
 
-        // Assert
         assertThat(feil).hasMessageContaining("familie.felles.klient.pdl.behandlingsnummer")
     }
 
-    @Test
-    fun `blankt behandlingsnummer i kallet stopper før kall mot PDL`() {
-        // Act
+    @ParameterizedTest
+    @MethodSource("blankeBehandlingsnummer")
+    fun `blankt behandlingsnummer gir IllegalArgumentException`(
+        konfigurertBehandlingsnummer: String?,
+        behandlingsnummerIKallet: String?,
+    ) {
+        val klientMedNummer =
+            PdlMaskinKlient(URI.create(PDL_URL), builder.build(), behandlingsnummer = konfigurertBehandlingsnummer)
+
         val feil =
             assertThrows<IllegalArgumentException> {
-                klient.hent<String>(GRAPHQL, emptyMap(), behandlingsnummer = " ")
+                if (behandlingsnummerIKallet == null) {
+                    klientMedNummer.hent<String>(GRAPHQL, emptyMap())
+                } else {
+                    klientMedNummer.hent<String>(GRAPHQL, emptyMap(), behandlingsnummerIKallet)
+                }
             }
 
-        // Assert
-        assertThat(feil).hasMessage("Behandlingsnummer kan ikke være blankt")
-    }
-
-    @Test
-    fun `blankt konfigurert behandlingsnummer stopper før kall mot PDL`() {
-        // Arrange
-        val klientMedBlanktBehandlingsnummer = PdlMaskinKlient(URI.create(PDL_URL), builder.build(), "")
-
-        // Act
-        val feil =
-            assertThrows<IllegalArgumentException> {
-                klientMedBlanktBehandlingsnummer.hent<String>(
-                    GRAPHQL,
-                    emptyMap(),
-                )
-            }
-
-        // Assert
         assertThat(feil).hasMessage("Behandlingsnummer kan ikke være blankt")
     }
 
@@ -253,7 +226,7 @@ class PdlKlientTest {
     @ValueSource(strings = ["https://pdl.test", "https://pdl.test/"])
     fun `graphqlUrl er url-en med graphql på slutten`(url: String) {
         // Arrange
-        val klient = PdlMaskinKlient(URI.create(url), builder.build(), BEHANDLINGSNUMMER)
+        val klient = PdlMaskinKlient(URI.create(url), builder.build(), behandlingsnummer = BEHANDLINGSNUMMER)
 
         // Act
         val graphqlUrl = klient.graphqlUrl
@@ -296,9 +269,7 @@ class PdlKlientTest {
         assertThat(feil.httpStatus).isNull()
         assertThat(feil.cause).isNull()
         assertThat(feil.suppressed).isEmpty()
-        arrayOf("persondata")
-            .filter(String::isNotEmpty)
-            .forEach { assertThat(feil.stackTraceToString()).doesNotContain(it) }
+        assertThat(feil.stackTraceToString()).doesNotContain("persondata")
     }
 
     @ParameterizedTest
@@ -434,45 +405,6 @@ class PdlKlientTest {
         val extensions = feil.errors.single().extensions
         assertThat(extensions?.details).isNull()
         assertThat(extensions?.classification).isNull()
-    }
-
-    @Test
-    fun `HTTP error-body beholdes som cause uten parsing av graphql-errors`() {
-        // Arrange
-        val body = """{"errors":[{"message":"http-feil","extensions":{"code":"not_found"}}]}"""
-
-        server
-            .expect(once(), requestTo(GRAPHQL_URL))
-            .andRespond { mockRespons(body, HttpStatus.NOT_FOUND) }
-
-        // Act
-        val feil = assertThrows<PdlException> { klient.hent<String>(GRAPHQL, emptyMap()) }
-
-        // Assert
-        assertThat(feil).isExactlyInstanceOf(PdlException::class.java)
-        assertThat(feil.message).isEqualTo("Kall mot PDL feilet med HTTP-status 404")
-        assertThat(feil.httpStatus).isEqualTo(404)
-        assertThat(feil.errors).isEmpty()
-        assertThat(feil.cause).isInstanceOf(RestClientResponseException::class.java)
-        val opprinneligFeil = feil.cause as RestClientResponseException
-        assertThat(opprinneligFeil.statusCode.value()).isEqualTo(404)
-        assertThat(opprinneligFeil.responseBodyAsString).isEqualTo(body)
-    }
-
-    @Test
-    fun `HTTP-feil uten body gir ingen graphql-feil`() {
-        // Arrange
-        server
-            .expect(once(), requestTo(GRAPHQL_URL))
-            .andRespond { mockRespons("", HttpStatus.NOT_FOUND) }
-
-        // Act
-        val feil = assertThrows<PdlException> { klient.hent<String>(GRAPHQL, emptyMap()) }
-
-        // Assert
-        assertThat(feil).isExactlyInstanceOf(PdlException::class.java)
-        assertThat(feil.httpStatus).isEqualTo(404)
-        assertThat(feil.errors).isEmpty()
     }
 
     @Test
@@ -677,45 +609,27 @@ class PdlKlientTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = [400, 401, 403, 404, 429, 500])
-    fun `HTTP-feil beholder status og fast wrappermelding`(status: Int) {
-        // Arrange
-        server.expect(once(), requestTo(GRAPHQL_URL)).andRespond {
-            mockRespons(
-                """{"errors":[{"message":"Ikke tilgang","extensions":{"code":"unauthorized"}}]}""",
-                HttpStatusCode.valueOf(status),
-            )
-        }
+    @MethodSource("httpFeilsvar")
+    fun `HTTP-feil beholder status og body i cause uten graphql-feil`(
+        body: String,
+        status: Int,
+        contentType: String?,
+    ) {
+        server
+            .expect(once(), requestTo(GRAPHQL_URL))
+            .andRespond { mockRespons(body, HttpStatusCode.valueOf(status), contentType) }
 
-        // Act
         val feil = assertThrows<PdlException> { klient.hent<String>(GRAPHQL, emptyMap()) }
 
-        // Assert
+        assertThat(feil).isExactlyInstanceOf(PdlException::class.java)
         assertThat(feil.message).isEqualTo("Kall mot PDL feilet med HTTP-status $status")
         assertThat(feil.httpStatus).isEqualTo(status)
         assertThat(feil.errors).isEmpty()
         assertThat(feil.cause).isInstanceOf(RestClientResponseException::class.java)
-    }
-
-    @ParameterizedTest
-    @MethodSource("uleseligeHttpFeilsvar")
-    fun `HTTP-feil med HTML tom eller ugyldig body bruker fast melding med cause`(
-        body: String,
-        contentType: String,
-    ) {
-        // Arrange
-        server
-            .expect(once(), requestTo(GRAPHQL_URL))
-            .andRespond { mockRespons(body, HttpStatus.INTERNAL_SERVER_ERROR, contentType) }
-
-        // Act
-        val feil = assertThrows<PdlException> { klient.hent<String>(GRAPHQL, emptyMap()) }
-
-        // Assert
-        assertThat(feil.message).isEqualTo("Kall mot PDL feilet med HTTP-status 500")
-        assertThat(feil.httpStatus).isEqualTo(500)
-        assertThat(feil.cause).isInstanceOf(RestClientResponseException::class.java)
-        arrayOf(body).filter(String::isNotEmpty).forEach { assertThat(feil.toString()).doesNotContain(it) }
+        val opprinneligFeil = feil.cause as RestClientResponseException
+        assertThat(opprinneligFeil.statusCode.value()).isEqualTo(status)
+        assertThat(opprinneligFeil.responseBodyAsString).isEqualTo(body)
+        if (body.isNotEmpty()) assertThat(feil.toString()).doesNotContain(body)
     }
 
     @Test
@@ -859,7 +773,7 @@ class PdlKlientTest {
                 .builder()
                 .requestInterceptor { _, _, _ -> throw originalFeil }
                 .build()
-        val klientMedTransportfeil = PdlMaskinKlient(URI.create(PDL_URL), restClient, BEHANDLINGSNUMMER)
+        val klientMedTransportfeil = PdlMaskinKlient(URI.create(PDL_URL), restClient, behandlingsnummer = BEHANDLINGSNUMMER)
 
         // Act
         val feil = assertThrows<PdlException> { klientMedTransportfeil.hent<String>(GRAPHQL, emptyMap()) }
@@ -867,6 +781,17 @@ class PdlKlientTest {
         // Assert
         assertThat(feil.message).isEqualTo("Kall mot PDL feilet")
         assertThat(feil.cause).isSameAs(originalFeil)
+    }
+
+    @Test
+    fun `Error fra interceptor kastes uendret gjennom hent`() {
+        val originalFeil = AssertionError("testfeil")
+        val restClient = RestClient.builder().requestInterceptor { _, _, _ -> throw originalFeil }.build()
+        val klientMedFeil = PdlMaskinKlient(URI.create(PDL_URL), restClient, behandlingsnummer = BEHANDLINGSNUMMER)
+
+        val feil = assertThrows<AssertionError> { klientMedFeil.hent<String>(GRAPHQL, emptyMap()) }
+
+        assertThat(feil).isSameAs(originalFeil)
     }
 
     @Test
@@ -940,6 +865,21 @@ class PdlKlientTest {
             )
 
         @JvmStatic
+        fun behandlingsnummerSomSendes(): List<Arguments> =
+            listOf(
+                arguments(BEHANDLINGSNUMMER, "B999", "B999"),
+                arguments(BEHANDLINGSNUMMER, null, BEHANDLINGSNUMMER),
+                arguments(null, "B999", "B999"),
+            )
+
+        @JvmStatic
+        fun blankeBehandlingsnummer(): List<Arguments> =
+            listOf(
+                arguments(BEHANDLINGSNUMMER, " "),
+                arguments("", null),
+            )
+
+        @JvmStatic
         fun feilkoder(): List<Arguments> =
             listOf(
                 arguments(
@@ -989,11 +929,25 @@ class PdlKlientTest {
             )
 
         @JvmStatic
-        fun uleseligeHttpFeilsvar(): List<Arguments> =
+        fun httpFeilsvar(): List<Arguments> =
             listOf(
-                arguments("<html>feilside</html>", MediaType.TEXT_HTML_VALUE),
-                arguments("", MediaType.APPLICATION_JSON_VALUE),
-                arguments("{", MediaType.APPLICATION_JSON_VALUE),
+                arguments(
+                    """{"errors":[{"message":"http-feil","extensions":{"code":"not_found"}}]}""",
+                    404,
+                    MediaType.APPLICATION_JSON_VALUE,
+                ),
+                arguments("", 404, MediaType.APPLICATION_JSON_VALUE),
+                *listOf(400, 401, 403, 404, 429, 500)
+                    .map {
+                        arguments(
+                            """{"errors":[{"message":"Ikke tilgang","extensions":{"code":"unauthorized"}}]}""",
+                            it,
+                            MediaType.APPLICATION_JSON_VALUE,
+                        )
+                    }.toTypedArray(),
+                arguments("<html>feilside</html>", 500, MediaType.TEXT_HTML_VALUE),
+                arguments("", 500, MediaType.APPLICATION_JSON_VALUE),
+                arguments("{", 500, MediaType.APPLICATION_JSON_VALUE),
             )
     }
 }

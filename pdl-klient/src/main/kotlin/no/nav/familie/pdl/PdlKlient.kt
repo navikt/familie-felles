@@ -1,6 +1,8 @@
 package no.nav.familie.pdl
 
-import org.springframework.http.MediaType
+import no.nav.familie.felles.klient.retry.KlientRetry
+import no.nav.familie.felles.klient.retry.KlientRetryProperties
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
@@ -13,8 +15,12 @@ import java.net.URI
 sealed class PdlKlient(
     url: URI,
     @PublishedApi internal val restClient: RestClient,
-    @PublishedApi internal val behandlingsnummer: String?,
+    internal val behandlingsnummer: String?,
+    retryKonfig: KlientRetryProperties,
 ) {
+    @PublishedApi
+    internal val retry = KlientRetry(retryKonfig)
+
     /** Adressen klienten sender GraphQL-spørringene til. */
     val graphqlUrl: URI = URI.create(url.toString().trimEnd('/') + "/graphql")
 
@@ -31,38 +37,30 @@ sealed class PdlKlient(
         behandlingsnummer: String = konfigurertBehandlingsnummer(),
     ): T {
         require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være blankt" }
-        val respons =
-            try {
-                restClient
-                    .post()
-                    .uri(graphqlUrl)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Behandlingsnummer", behandlingsnummer)
-                    .body(PdlRequest(query = query, variables = variabler))
-                    .retrieve()
-                    .body<PdlRespons<T>>()
-            } catch (feil: RestClientResponseException) {
-                throw PdlException(
-                    message = "Kall mot PDL feilet med HTTP-status ${feil.statusCode.value()}",
-                    httpStatus = feil.statusCode.value(),
-                    cause = feil,
-                )
-            } catch (feil: RestClientException) {
-                if (feil is UnknownContentTypeException || feil.cause is HttpMessageConversionException) {
-                    throw lesefeil(feil)
-                }
-                throw PdlException(cause = feil)
-            } catch (feil: Exception) {
-                throw PdlException(cause = feil)
-            }
-
-        val pdlRespons = respons ?: throw PdlException("Svar fra PDL mangler body")
-        if (pdlRespons.errors.isNotEmpty()) {
-            throw PdlException("Svar fra PDL inneholder feil", pdlRespons.errors)
-        }
-        return pdlRespons.data ?: throw PdlException("Svar fra PDL mangler data")
+        return runCatching { hentRespons<T>(query, variabler, behandlingsnummer) }
+            .fold(
+                onSuccess = ::pakkUtData,
+                onFailure = ::håndterThrowable,
+            )
     }
+
+    @PublishedApi
+    internal inline fun <reified T> hentRespons(
+        query: String,
+        variabler: Map<String, Any?>,
+        behandlingsnummer: String,
+    ): PdlRespons<T>? =
+        retry.utfør {
+            restClient
+                .post()
+                .uri(graphqlUrl)
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .header("Behandlingsnummer", behandlingsnummer)
+                .body(PdlRequest(query, variabler))
+                .retrieve()
+                .body<PdlRespons<T>>()
+        }
 
     @PublishedApi
     internal fun konfigurertBehandlingsnummer(): String =
@@ -73,7 +71,44 @@ sealed class PdlKlient(
             )
 
     @PublishedApi
-    internal fun lesefeil(feil: Throwable): PdlException {
+    internal fun <T> pakkUtData(respons: PdlRespons<T>?): T =
+        when {
+            respons == null -> throw PdlException("Svar fra PDL mangler body")
+            respons.errors.isNotEmpty() -> throw PdlException("Svar fra PDL inneholder feil", respons.errors)
+            respons.data == null -> throw PdlException("Svar fra PDL mangler data")
+            else -> respons.data
+        }
+
+    @PublishedApi
+    internal fun håndterThrowable(feil: Throwable): Nothing =
+        throw when (feil) {
+            is RestClientResponseException -> {
+                PdlException(
+                    message = "Kall mot PDL feilet med HTTP-status ${feil.statusCode.value()}",
+                    httpStatus = feil.statusCode.value(),
+                    cause = feil,
+                )
+            }
+
+            is UnknownContentTypeException -> {
+                lesefeil(feil)
+            }
+
+            is RestClientException if feil.cause is HttpMessageConversionException -> {
+                lesefeil(feil)
+            }
+
+            is Exception -> {
+                PdlException(cause = feil)
+            }
+
+            // Error pakkes bevisst ikke inn, men kastes videre uendret.
+            else -> {
+                feil
+            }
+        }
+
+    private fun lesefeil(feil: Throwable): PdlException {
         val stier =
             generateSequence(feil) { it.cause }
                 .filterIsInstance<JacksonException>()
@@ -90,16 +125,19 @@ class PdlOboKlient(
     url: URI,
     restClient: RestClient,
     behandlingsnummer: String? = null,
-) : PdlKlient(url, restClient, behandlingsnummer)
+    retry: KlientRetryProperties = KlientRetryProperties(),
+) : PdlKlient(url, restClient, behandlingsnummer, retry)
 
 class PdlHybridKlient(
     url: URI,
     restClient: RestClient,
     behandlingsnummer: String? = null,
-) : PdlKlient(url, restClient, behandlingsnummer)
+    retry: KlientRetryProperties = KlientRetryProperties(),
+) : PdlKlient(url, restClient, behandlingsnummer, retry)
 
 class PdlMaskinKlient(
     url: URI,
     restClient: RestClient,
     behandlingsnummer: String? = null,
-) : PdlKlient(url, restClient, behandlingsnummer)
+    retry: KlientRetryProperties = KlientRetryProperties(),
+) : PdlKlient(url, restClient, behandlingsnummer, retry)
