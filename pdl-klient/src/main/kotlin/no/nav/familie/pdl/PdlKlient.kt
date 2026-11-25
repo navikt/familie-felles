@@ -2,24 +2,23 @@ package no.nav.familie.pdl
 
 import no.nav.familie.felles.klient.retry.KlientRetry
 import no.nav.familie.felles.klient.retry.KlientRetryProperties
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.UnknownContentTypeException
-import org.springframework.web.client.body
 import tools.jackson.core.JacksonException
 import java.net.URI
 
 sealed class PdlKlient(
     url: URI,
-    @PublishedApi internal val restClient: RestClient,
+    internal val restClient: RestClient,
     internal val behandlingsnummer: String?,
     retryKonfig: KlientRetryProperties,
 ) {
-    @PublishedApi
-    internal val retry = KlientRetry(retryKonfig)
+    private val retry = KlientRetry(retryKonfig)
 
     /** Adressen klienten sender GraphQL-spørringene til. */
     val graphqlUrl: URI = URI.create(url.toString().trimEnd('/') + "/graphql")
@@ -35,20 +34,29 @@ sealed class PdlKlient(
         query: String,
         variabler: Map<String, Any?>,
         behandlingsnummer: String = konfigurertBehandlingsnummer(),
+    ): T = hent(query, variabler, behandlingsnummer, object : ParameterizedTypeReference<PdlRespons<T>>() {})
+
+    /** Som `hent` med reified type, men tar inn [responstype]. */
+    @PublishedApi
+    internal fun <T> hent(
+        query: String,
+        variabler: Map<String, Any?>,
+        behandlingsnummer: String,
+        responstype: ParameterizedTypeReference<PdlRespons<T>>,
     ): T {
         require(behandlingsnummer.isNotBlank()) { "Behandlingsnummer kan ikke være blankt" }
-        return runCatching { hentRespons<T>(query, variabler, behandlingsnummer) }
+        return runCatching { hentRespons(query, variabler, behandlingsnummer, responstype) }
             .fold(
                 onSuccess = ::pakkUtData,
                 onFailure = ::håndterThrowable,
             )
     }
 
-    @PublishedApi
-    internal inline fun <reified T> hentRespons(
+    private fun <T> hentRespons(
         query: String,
         variabler: Map<String, Any?>,
         behandlingsnummer: String,
+        responstype: ParameterizedTypeReference<PdlRespons<T>>,
     ): PdlRespons<T>? =
         retry.utfør {
             restClient
@@ -59,7 +67,7 @@ sealed class PdlKlient(
                 .header("Behandlingsnummer", behandlingsnummer)
                 .body(PdlRequest(query, variabler))
                 .retrieve()
-                .body<PdlRespons<T>>()
+                .body(responstype)
         }
 
     @PublishedApi
@@ -70,8 +78,7 @@ sealed class PdlKlient(
                     "familie.felles.klient.pdl.behandlingsnummer",
             )
 
-    @PublishedApi
-    internal fun <T> pakkUtData(respons: PdlRespons<T>?): T =
+    private fun <T> pakkUtData(respons: PdlRespons<T>?): T =
         when {
             respons == null -> throw PdlException("Svar fra PDL mangler body")
             respons.errors.isNotEmpty() -> throw PdlException("Svar fra PDL inneholder feil", respons.errors)
@@ -79,8 +86,7 @@ sealed class PdlKlient(
             else -> respons.data
         }
 
-    @PublishedApi
-    internal fun håndterThrowable(feil: Throwable): Nothing =
+    private fun håndterThrowable(feil: Throwable): Nothing =
         throw when (feil) {
             is RestClientResponseException -> {
                 PdlException(

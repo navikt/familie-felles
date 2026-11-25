@@ -773,7 +773,8 @@ class PdlKlientTest {
                 .builder()
                 .requestInterceptor { _, _, _ -> throw originalFeil }
                 .build()
-        val klientMedTransportfeil = PdlMaskinKlient(URI.create(PDL_URL), restClient, behandlingsnummer = BEHANDLINGSNUMMER)
+        val klientMedTransportfeil =
+            PdlMaskinKlient(URI.create(PDL_URL), restClient, behandlingsnummer = BEHANDLINGSNUMMER)
 
         // Act
         val feil = assertThrows<PdlException> { klientMedTransportfeil.hent<String>(GRAPHQL, emptyMap()) }
