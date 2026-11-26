@@ -47,6 +47,7 @@
         <module>unleash</module>
         <module>metrikker</module>
         <module>token-klient</module>
+        <module>saf-klient</module>
         <module>tidslinje</module>
     </modules>
 
@@ -218,6 +219,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>token-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>saf-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
