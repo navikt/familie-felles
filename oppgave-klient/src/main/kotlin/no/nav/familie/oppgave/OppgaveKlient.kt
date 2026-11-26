@@ -20,7 +20,7 @@ import java.net.URI
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-internal class OppgaveKlient(
+sealed class OppgaveKlient(
     private val url: URI,
     private val restClient: RestClient,
 ) {
@@ -225,101 +225,14 @@ internal class OppgaveKlient(
 class OppgaveOboKlient(
     url: URI,
     restClient: RestClient,
-) {
-    private val oppgaveKlient = OppgaveKlient(url, restClient)
-
-    fun finnOppgaver(
-        request: FinnOppgaverRequest,
-        korrelasjonsId: String? = null,
-    ): SokOppgaverResponse = oppgaveKlient.finnOppgaver(request, korrelasjonsId)
-
-    /**
-     * Oppretter en oppgave, eller henter den eksisterende oppgaven ved UUID-duplikat (HTTP 409 med oppgaveId).
-     * Konsumenten må gjenbruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
-     * Serveren sammenligner bare UUID, ikke requestinnhold. En gjenfunnet oppgave returneres i sin nåværende tilstand.
-     * Klienten gjentar ikke POST automatisk. Feil ved gjenfinning sendes videre som feil fra GET-kallet.
-     */
-    fun opprettOppgave(
-        request: OpprettOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.opprettOppgave(request, korrelasjonsId)
-
-    fun hentOppgave(
-        id: Long,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.hentOppgave(id, korrelasjonsId)
-
-    fun patchOppgave(
-        id: Long,
-        request: PatchOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.patchOppgave(id, request, korrelasjonsId)
-}
+) : OppgaveKlient(url, restClient)
 
 class OppgaveHybridKlient(
     url: URI,
     restClient: RestClient,
-) {
-    private val oppgaveKlient = OppgaveKlient(url, restClient)
-
-    fun finnOppgaver(
-        request: FinnOppgaverRequest,
-        korrelasjonsId: String? = null,
-    ): SokOppgaverResponse = oppgaveKlient.finnOppgaver(request, korrelasjonsId)
-
-    /**
-     * Oppretter en oppgave, eller henter den eksisterende oppgaven ved UUID-duplikat (HTTP 409 med oppgaveId).
-     * Konsumenten må gjenbruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
-     * Serveren sammenligner bare UUID, ikke requestinnhold. En gjenfunnet oppgave returneres i sin nåværende tilstand.
-     * Klienten gjentar ikke POST automatisk. Feil ved gjenfinning sendes videre som feil fra GET-kallet.
-     */
-    fun opprettOppgave(
-        request: OpprettOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.opprettOppgave(request, korrelasjonsId)
-
-    fun hentOppgave(
-        id: Long,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.hentOppgave(id, korrelasjonsId)
-
-    fun patchOppgave(
-        id: Long,
-        request: PatchOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.patchOppgave(id, request, korrelasjonsId)
-}
+) : OppgaveKlient(url, restClient)
 
 class OppgaveMaskinKlient(
     url: URI,
     restClient: RestClient,
-) {
-    private val oppgaveKlient = OppgaveKlient(url, restClient)
-
-    fun finnOppgaver(
-        request: FinnOppgaverRequest,
-        korrelasjonsId: String? = null,
-    ): SokOppgaverResponse = oppgaveKlient.finnOppgaver(request, korrelasjonsId)
-
-    /**
-     * Oppretter en oppgave, eller henter den eksisterende oppgaven ved UUID-duplikat (HTTP 409 med oppgaveId).
-     * Konsumenten må gjenbruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
-     * Serveren sammenligner bare UUID, ikke requestinnhold. En gjenfunnet oppgave returneres i sin nåværende tilstand.
-     * Klienten gjentar ikke POST automatisk. Feil ved gjenfinning sendes videre som feil fra GET-kallet.
-     */
-    fun opprettOppgave(
-        request: OpprettOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.opprettOppgave(request, korrelasjonsId)
-
-    fun hentOppgave(
-        id: Long,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.hentOppgave(id, korrelasjonsId)
-
-    fun patchOppgave(
-        id: Long,
-        request: PatchOppgaveRequest,
-        korrelasjonsId: String? = null,
-    ): Oppgave = oppgaveKlient.patchOppgave(id, request, korrelasjonsId)
-}
+) : OppgaveKlient(url, restClient)

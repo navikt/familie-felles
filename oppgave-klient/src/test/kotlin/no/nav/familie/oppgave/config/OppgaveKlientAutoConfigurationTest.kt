@@ -44,7 +44,8 @@ class OppgaveKlientAutoConfigurationTest {
             .run { context ->
                 // Assert
                 assertThat(context.startupFailure).isNull()
-                assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+                assertThat(context.getBeansOfType(OppgaveKlient::class.java).keys)
+                    .containsExactlyInAnyOrder("oppgaveOboKlient", "oppgaveHybridKlient", "oppgaveMaskinKlient")
                 assertThat(context.getBeansOfType(OppgaveOboKlient::class.java).keys).containsExactly("oppgaveOboKlient")
                 assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java).keys).containsExactly("oppgaveHybridKlient")
                 assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
@@ -65,7 +66,7 @@ class OppgaveKlientAutoConfigurationTest {
         applicationContextRunner().run { context ->
             // Assert
             assertThat(context.startupFailure).isNull()
-            assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
             assertThat(context.getBeansOfType(OppgaveOboKlient::class.java)).isEmpty()
             assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java)).isEmpty()
             assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
@@ -88,13 +89,9 @@ class OppgaveKlientAutoConfigurationTest {
             // Assert
             assertThat(context.startupFailure).isNull()
             val konsument = context.getBean(OppgaveKlientKonsument::class.java)
-            assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
             assertThat(konsument.oboKlient).isSameAs(context.getBean(OppgaveOboKlient::class.java))
             assertThat(konsument.hybridKlient).isSameAs(context.getBean(OppgaveHybridKlient::class.java))
             assertThat(konsument.maskinKlient).isSameAs(context.getBean(OppgaveMaskinKlient::class.java))
-            assertThat(OppgaveOboKlient::class.java.superclass).isEqualTo(Any::class.java)
-            assertThat(OppgaveHybridKlient::class.java.superclass).isEqualTo(Any::class.java)
-            assertThat(OppgaveMaskinKlient::class.java.superclass).isEqualTo(Any::class.java)
         }
     }
 
@@ -136,7 +133,6 @@ class OppgaveKlientAutoConfigurationTest {
                 assertThat(context.getBean<OppgaveOboKlient>()).isSameAs(oboKlient)
                 assertThat(context.getBean<OppgaveHybridKlient>()).isSameAs(hybridKlient)
                 assertThat(context.getBean<OppgaveMaskinKlient>()).isSameAs(maskinKlient)
-                assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
                 verify(exactly = 0) { factory.lagOboRestKlient(any(), any()) }
                 verify(exactly = 0) { factory.lagHybridRestKlient(any(), any()) }
                 verify(exactly = 0) { factory.lagMaskinTilMaskinRestKlient(any()) }

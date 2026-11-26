@@ -31,7 +31,7 @@ Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Mapper, ko
 
 ## Klientvarianter
 
-`OppgaveKlient` er den interne HTTP-implementasjonen av de fire operasjonene. Hver offentlig variant har sin egen private `OppgaveKlient` med en auth-konfigurert `RestClient`, og delegerer operasjonene til den. Variantene har ingen felles klientbasetype. Ingen variant er `@Primary`.
+`OppgaveKlient` er en forseglet basisklasse med den felles HTTP-implementasjonen av de fire operasjonene. Alle tre variantene arver fra denne klassen. Ingen variant er `@Primary`.
 
 Injiser den konkrete klienttypen for å velge auth-variant eksplisitt, uten `@Qualifier`:
 
@@ -41,9 +41,9 @@ class Konsument(
 )
 ```
 
-Bare de konkrete variantene registreres som Spring-beans. `OppgaveKlient` er `internal` og kan ikke refereres til fra Kotlin-kode i konsumentmodulen. Konsumenten må derfor velge en konkret variant også når bare én klientbean finnes. Kotlin-synligheten er ikke en JVM-sikkerhetsgrense mot Java eller refleksjon.
+Basetypen `OppgaveKlient` uttrykker ikke hvilken auth-variant konsumenten bruker, og Spring tillater fortsatt injeksjon av basetypen. Bruk derfor en av de konkrete typene også når bare én klientbean finnes.
 
-I konsumenttester kan du mocke den konkrete klienttypen. Autokonfigurasjonen kan slås av med `familie.felles.klient.oppgave.enabled=false`.
+I konsumenttester kan du mocke den konkrete klienttypen. Basisklassen er forseglet og kan ikke arves av egne fakes utenfor modulen. Autokonfigurasjonen kan slås av med `familie.felles.klient.oppgave.enabled=false`.
 
 | Type | Tokenflyt |
 |---|---|
@@ -184,7 +184,7 @@ Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisi
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
 
-HTTP-testene bruker maskinklienten og verifiserer den felles HTTP-implementasjonen gjennom delegeringen. Variantvalget, konkret injeksjon uten `@Qualifier` og fravær av interne klientbeans testes i autokonfigurasjonen. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
+HTTP-testene bruker én konkret variant fordi alle tre arver de samme `final`-metodene i `OppgaveKlient`. Variantvalget og konkret injeksjon uten `@Qualifier` testes i autokonfigurasjonen. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
 
 Testene mocker HTTP-transporten og tokenfabrikken. De verifiserer ikke faktiske tilganger i Oppgave, tokenisolasjon i Nais eller konsumentens eksterne instrumentering. Kjør også full regresjonsbygging og repoets sikkerhetskontroller før publisering.
 
