@@ -188,10 +188,17 @@ class OppgaveFeilhåndteringTest {
     }
 
     @Test
-    fun `POST HTTP 503 gir HTTP-feil`() {
+    fun `POST HTTP 503 med oppgaveId i body gir HTTP-feil uten gjenfinning`() {
         // Arrange
-        val body = """{"feilmelding":"syntetisk utilgjengelig"}"""
-        val request = OpprettOppgaveRequest(LocalDate.parse("2026-01-01"), "TEST", "NORM", "BID")
+        val body = """{"feilmelding":"syntetisk utilgjengelig","oppgaveId":321}"""
+        val request =
+            OpprettOppgaveRequest(
+                aktivDato = LocalDate.parse("2026-01-01"),
+                oppgavetype = "TEST",
+                prioritet = "NORM",
+                tema = "BID",
+                uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
+            )
         server
             .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver"))
             .andExpect(method(HttpMethod.POST))

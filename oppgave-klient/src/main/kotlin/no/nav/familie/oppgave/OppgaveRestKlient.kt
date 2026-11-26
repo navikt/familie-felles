@@ -45,16 +45,24 @@ sealed class OppgaveRestKlient(
         request: OpprettOppgaveRequest,
         korrelasjonsId: String?,
     ): Oppgave =
-        utfør(OppgaveOperasjon.OPPRETT_OPPGAVE, korrelasjonsId) { valgtKorrelasjonsId ->
-            restClient
-                .post()
-                .uri(byggUri())
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
-                .header(KORRELASJONS_ID_HEADER, valgtKorrelasjonsId)
-                .body(request)
-                .retrieve()
-                .body<Oppgave>()
+        try {
+            utfør(OppgaveOperasjon.OPPRETT_OPPGAVE, korrelasjonsId) { valgtKorrelasjonsId ->
+                restClient
+                    .post()
+                    .uri(byggUri())
+                    .accept(APPLICATION_JSON)
+                    .contentType(APPLICATION_JSON)
+                    .header(KORRELASJONS_ID_HEADER, valgtKorrelasjonsId)
+                    .body(request)
+                    .retrieve()
+                    .body<Oppgave>()
+            }
+        } catch (feil: OppgaveException) {
+            if (feil.httpStatus != 409) throw feil
+            val httpFeil = feil.cause as? RestClientResponseException ?: throw feil
+            val oppgaveId = lesEksisterendeOppgaveId(httpFeil) ?: throw feil
+
+            hentOppgave(oppgaveId, feil.korrelasjonsId)
         }
 
     final override fun hentOppgave(
@@ -147,6 +155,16 @@ sealed class OppgaveRestKlient(
                 ?.takeIf { it.isString }
                 ?.asString()
                 ?.takeIf(String::isNotBlank)
+        }.getOrNull()
+
+    private fun lesEksisterendeOppgaveId(feil: RestClientResponseException): Long? =
+        runCatching {
+            feilMapper
+                .readTree(feil.responseBodyAsString)
+                ?.get("oppgaveId")
+                ?.takeIf { it.isIntegralNumber && it.canConvertToLong() }
+                ?.asLong()
+                ?.takeIf { it > 0 }
         }.getOrNull()
 
     private fun byggUri(endepunkt: String = ""): URI =

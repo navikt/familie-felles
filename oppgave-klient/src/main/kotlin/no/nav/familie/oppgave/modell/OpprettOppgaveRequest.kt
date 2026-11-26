@@ -10,6 +10,11 @@ data class OpprettOppgaveRequest(
     val oppgavetype: String,
     val prioritet: String,
     val tema: String,
+    /**
+     * Konsumenten må lage og lagre én UUID per logisk oppretting og gjenbruke den ved retry og etter omstart.
+     * UUID-en må ikke utledes fra personopplysninger eller callId.
+     */
+    val uuid: UUID,
     val personident: String? = null,
     val orgnr: String? = null,
     val samhandlernr: String? = null,
@@ -22,7 +27,6 @@ data class OpprettOppgaveRequest(
     val behandlingstema: String? = null,
     val behandlingstype: String? = null,
     val fristFerdigstillelse: LocalDate? = null,
-    val uuid: UUID? = null,
 ) {
     override fun toString(): String = "OpprettOppgaveRequest"
 }

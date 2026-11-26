@@ -13,6 +13,18 @@ Typet REST-klient for Oppgaves v1-API, med egne DTO-er og miljøbasert URL og sc
 
 Et søk henter én side. Konsumenten styrer `limit` og `offset`. Utelatte verdier overlates til Oppgave. Klienten gjentar ikke Oppgave-kall automatisk, heller ikke ved timeout eller versjonskonflikt.
 
+### Oppretting og duplikater
+
+`OpprettOppgaveRequest.uuid` er obligatorisk og har ingen standardverdi. Kode som tidligere utelot UUID-en, må oppdateres til å sende den eksplisitt. Konsumenten må lage én UUID per logisk oppretting og gjenbruke den ved retry. Lagre UUID-en før første POST, slik at retry og omstart bruker samme UUID. Bruk en ny UUID for en annen oppgave, og ikke utled den fra personopplysninger eller korrelasjons-ID.
+
+Ved POST 409 med en gyldig, positiv `oppgaveId` i feilresponsen henter klienten den eksisterende oppgaven med `GET /api/v1/oppgaver/{id}`. `opprettOppgave` returnerer da GET-resultatet som en vanlig `Oppgave`, med samme klientvariant og korrelasjons-ID på begge kall. Den returnerer ikke en ny HTTP 201. Ett opprettingsforsøk kan dermed utføre ett POST og ett GET.
+
+Serveren kontrollerer UUID-en, ikke om requestinnholdet er likt. Gjenbruk av UUID for et annet formål kan derfor returnere feil oppgave. Den gjenfunne oppgaven returneres i sin nåværende tilstand, som kan være endret siden første oppretting. Klienten garanterer ikke «exactly once» eller beskyttelse mot samtidige opprettinger.
+
+Andre 409-responser eller en uleselig duplikatrespons gir original `OppgaveException` uten GET. Hvis GET feiler, kaster klienten GET-kallets exception uendret. PATCH-konflikter gjenfinnes ikke.
+
+Ved 5xx eller timeout må konsumenten selv avgjøre om POST skal prøves igjen, med samme UUID. Klienten utfører ikke automatisk POST-retry eller lager en ny opprettings-UUID.
+
 Tokeninnhentingen kan gjentas én gang ved transportfeil eller HTTP 5xx. Det skjer før Oppgave-kallet og gjentar ikke et kall som allerede er sendt til Oppgave.
 
 Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Mapper, kodeverk, hendelser, kommentaroppslag og v2 er utenfor omfanget. Strukturert kommentar i v1-PATCH inngår.
