@@ -31,17 +31,19 @@ Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Mapper, ko
 
 ## Klientvarianter
 
-`OppgaveKlient` er et interface med de fire operasjonene. `OppgaveRestKlient` inneholder den felles HTTP-implementasjonen. Alle tre variantene implementerer interfacet gjennom denne klassen. Ingen variant er `@Primary`.
+`OppgaveKlient` er den interne HTTP-implementasjonen av de fire operasjonene. Hver offentlig variant har sin egen private `OppgaveKlient` med en auth-konfigurert `RestClient`, og delegerer operasjonene til den. Variantene har ingen felles klientbasetype. Ingen variant er `@Primary`.
 
-Konsumenten kan avhenge av `OppgaveKlient` og bruke en egen fake i tester, uten HTTP- eller tokenoppsett. Når flere klientbeans finnes i Spring, må auth-variant fortsatt velges eksplisitt, enten med konkret type eller `@Qualifier`:
+Injiser den konkrete klienttypen for å velge auth-variant eksplisitt, uten `@Qualifier`:
 
 ```kotlin
 class Konsument(
-    @Qualifier("oppgaveOboKlient") private val oppgaveKlient: OppgaveKlient,
+    private val oppgaveKlient: OppgaveOboKlient,
 )
 ```
 
-Når du registrerer en fake som Spring-bean i tester, kan du slå av autokonfigurasjonen med `familie.felles.klient.oppgave.enabled=false`. En fake som bare implementerer interfacet, erstatter ikke automatisk de konkrete klientbeansene.
+Bare de konkrete variantene registreres som Spring-beans. `OppgaveKlient` er `internal` og kan ikke refereres til fra Kotlin-kode i konsumentmodulen. Konsumenten må derfor velge en konkret variant også når bare én klientbean finnes. Kotlin-synligheten er ikke en JVM-sikkerhetsgrense mot Java eller refleksjon.
+
+I konsumenttester kan du mocke den konkrete klienttypen. Autokonfigurasjonen kan slås av med `familie.felles.klient.oppgave.enabled=false`.
 
 | Type | Tokenflyt |
 |---|---|
@@ -106,19 +108,19 @@ Ved `409` må konsumenten ta stilling til konflikten. Klienten henter ikke ny ve
 
 ## Feil og personopplysninger
 
-Metodene tar en valgfri `String` som `korrelasjonsId`. `OppgaveRestKlient` velger verdien for `X-Correlation-ID` ved hvert metodekall i denne rekkefølgen:
+Metodene tar en valgfri `String` som `korrelasjonsId`. `OppgaveKlient` velger verdien for `X-Correlation-ID` ved hvert metodekall i denne rekkefølgen:
 
 1. Eksplisitt `korrelasjonsId`, hvis den er oppgitt.
 2. `MDC.get(MDCConstants.MDC_CALL_ID)`, altså `callId`, hvis konteksten har en verdi.
 3. En ny tilfeldig UUID som streng når begge mangler.
 
-Konsumenter som bruker `LogFilter`, trenger ikke å sende korrelasjons-ID ved hvert kall. Interfacet og alternative implementasjoner er uavhengige av MDC. MDC-verdier brukes uten UUID-konvertering, og exceptionens `korrelasjonsId` er samme streng som ble sendt i headeren. En eksplisitt UUID-verdi kan sendes med `uuid.toString()`.
+Konsumenter som bruker `LogFilter`, trenger ikke å sende korrelasjons-ID ved hvert kall. MDC-verdier brukes uten UUID-konvertering, og exceptionens `korrelasjonsId` er samme streng som ble sendt i headeren. En eksplisitt UUID-verdi kan sendes med `uuid.toString()`.
 
 Klienten leser MDC når kallet utføres, ikke når singleton-bean-en opprettes, og skriver ikke til MDC. Konsumenten må selv etablere og videreføre konteksten, også ved trådbytte og i coroutines. Korrelasjons-ID-er skal være tekniske verdier, aldri personopplysninger eller verdier utledet fra dem.
 
 Klientfabrikkens MDC-interceptor setter `Nav-Call-Id` og `X-Request-Id` fra MDC. En eksplisitt overstyring av `X-Correlation-ID` endrer ikke disse headerne eller MDC-konteksten.
 
-HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveRestKlient`. `runCatching` og `fold` skiller responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions. `Error` kastes videre uendret.
+HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveKlient`. `runCatching` og `fold` skiller responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions. `Error` kastes videre uendret.
 
 `OppgaveException` inneholder operasjon, feiltype, eventuell HTTP-status og korrelasjons-ID. Original exception bevares som `cause`, med opprinnelig cause-kjede og stacktrace.
 
@@ -182,7 +184,7 @@ Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisi
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
 
-HTTP-testene bruker én konkret variant fordi alle tre arver de samme `final`-metodene i `OppgaveRestKlient`. Variantvalget testes i autokonfigurasjonen. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
+HTTP-testene bruker maskinklienten og verifiserer den felles HTTP-implementasjonen gjennom delegeringen. Variantvalget, konkret injeksjon uten `@Qualifier` og fravær av interne klientbeans testes i autokonfigurasjonen. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
 
 Testene mocker HTTP-transporten og tokenfabrikken. De verifiserer ikke faktiske tilganger i Oppgave, tokenisolasjon i Nais eller konsumentens eksterne instrumentering. Kjør også full regresjonsbygging og repoets sikkerhetskontroller før publisering.
 

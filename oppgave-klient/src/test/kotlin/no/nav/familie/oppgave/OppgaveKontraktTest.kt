@@ -43,7 +43,7 @@ import java.util.UUID
 class OppgaveKontraktTest {
     private val builder = RestClient.builder()
     private val server = MockRestServiceServer.bindTo(builder).build()
-    private val klient: OppgaveKlient = OppgaveMaskinKlient(URI.create("$BASE_URL/"), builder.build())
+    private val klient = OppgaveMaskinKlient(URI.create("$BASE_URL/"), builder.build())
     private var originalCallId: String? = null
 
     @BeforeEach

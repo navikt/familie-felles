@@ -21,6 +21,8 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.web.client.RestClient
 import java.net.URI
 
@@ -42,12 +44,11 @@ class OppgaveKlientAutoConfigurationTest {
             .run { context ->
                 // Assert
                 assertThat(context.startupFailure).isNull()
-                assertThat(context.getBeansOfType(OppgaveKlient::class.java).keys)
-                    .containsExactlyInAnyOrder("oppgaveOboKlient", "oppgaveHybridKlient", "oppgaveMaskinKlient")
-                assertThat(context.getBeansOfType(OppgaveOboKlient::class.java)).hasSize(1)
-                assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java)).hasSize(1)
-                assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java)).hasSize(1)
-                context.getBeanNamesForType(OppgaveKlient::class.java).forEach { name ->
+                assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+                assertThat(context.getBeansOfType(OppgaveOboKlient::class.java).keys).containsExactly("oppgaveOboKlient")
+                assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java).keys).containsExactly("oppgaveHybridKlient")
+                assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
+                listOf("oppgaveOboKlient", "oppgaveHybridKlient", "oppgaveMaskinKlient").forEach { name ->
                     assertThat(context.beanFactory.getBeanDefinition(name).isPrimary).isFalse()
                 }
                 verify(exactly = 1) { factory.lagOboRestKlient(SCOPE, any()) }
@@ -64,10 +65,36 @@ class OppgaveKlientAutoConfigurationTest {
         applicationContextRunner().run { context ->
             // Assert
             assertThat(context.startupFailure).isNull()
-            assertThat(context.getBeansOfType(OppgaveKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
+            assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveOboKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java).keys).containsExactly("oppgaveMaskinKlient")
             verify(exactly = 0) { factory.lagOboRestKlient(any(), any()) }
             verify(exactly = 0) { factory.lagHybridRestKlient(any(), any()) }
             verify(exactly = 1) { factory.lagMaskinTilMaskinRestKlient(SCOPE) }
+        }
+    }
+
+    @Test
+    fun `konsument injiserer alle klientvarianter uten qualifier`() {
+        // Arrange
+        val runner =
+            applicationContextRunner()
+                .withBean(KlientTokenProvider::class.java, { KlientTokenProvider { "token" } })
+                .withUserConfiguration(OppgaveKlientKonsumentKonfigurasjon::class.java)
+
+        // Act
+        runner.run { context ->
+            // Assert
+            assertThat(context.startupFailure).isNull()
+            val konsument = context.getBean(OppgaveKlientKonsument::class.java)
+            assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+            assertThat(konsument.oboKlient).isSameAs(context.getBean(OppgaveOboKlient::class.java))
+            assertThat(konsument.hybridKlient).isSameAs(context.getBean(OppgaveHybridKlient::class.java))
+            assertThat(konsument.maskinKlient).isSameAs(context.getBean(OppgaveMaskinKlient::class.java))
+            assertThat(OppgaveOboKlient::class.java.superclass).isEqualTo(Any::class.java)
+            assertThat(OppgaveHybridKlient::class.java.superclass).isEqualTo(Any::class.java)
+            assertThat(OppgaveMaskinKlient::class.java.superclass).isEqualTo(Any::class.java)
         }
     }
 
@@ -84,6 +111,9 @@ class OppgaveKlientAutoConfigurationTest {
             // Assert
             assertThat(context.startupFailure).isNull()
             assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveOboKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveHybridKlient::class.java)).isEmpty()
+            assertThat(context.getBeansOfType(OppgaveMaskinKlient::class.java)).isEmpty()
             assertThat(context.getBeansOfType(OppgaveKlientProperties::class.java)).isEmpty()
         }
     }
@@ -106,6 +136,7 @@ class OppgaveKlientAutoConfigurationTest {
                 assertThat(context.getBean<OppgaveOboKlient>()).isSameAs(oboKlient)
                 assertThat(context.getBean<OppgaveHybridKlient>()).isSameAs(hybridKlient)
                 assertThat(context.getBean<OppgaveMaskinKlient>()).isSameAs(maskinKlient)
+                assertThat(context.getBeansOfType(OppgaveKlient::class.java)).isEmpty()
                 verify(exactly = 0) { factory.lagOboRestKlient(any(), any()) }
                 verify(exactly = 0) { factory.lagHybridRestKlient(any(), any()) }
                 verify(exactly = 0) { factory.lagMaskinTilMaskinRestKlient(any()) }
@@ -157,3 +188,13 @@ class OppgaveKlientAutoConfigurationTest {
         val restClient: RestClient = RestClient.builder().build()
     }
 }
+
+@Configuration(proxyBeanMethods = false)
+@Import(OppgaveKlientKonsument::class)
+private class OppgaveKlientKonsumentKonfigurasjon
+
+private class OppgaveKlientKonsument(
+    val oboKlient: OppgaveOboKlient,
+    val hybridKlient: OppgaveHybridKlient,
+    val maskinKlient: OppgaveMaskinKlient,
+)
