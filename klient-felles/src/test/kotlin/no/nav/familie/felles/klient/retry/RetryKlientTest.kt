@@ -19,40 +19,53 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class KlientRetryTest {
+class RetryKlientTest {
     @Test
     fun `suksess returnerer samme verdi`() {
+        // Arrange
         val forventet = Any()
+        val klient = TestKlient(retryKonfig())
 
-        assertThat(KlientRetry(retryKonfig()).utfør { forventet }).isSameAs(forventet)
+        // Act
+        val resultat = klient.kall { forventet }
+
+        // Assert
+        assertThat(resultat).isSameAs(forventet)
     }
 
     @ParameterizedTest
     @ValueSource(ints = [502, 503, 504])
     fun `midlertidige HTTP-feil gir nytt forsøk`(status: Int) {
+        // Arrange
         val antallKall = AtomicInteger()
+        val klient = TestKlient(retryKonfig())
 
+        // Act
         val resultat =
-            KlientRetry(retryKonfig()).utfør {
+            klient.kall {
                 if (antallKall.incrementAndGet() == 1) throw serverfeil(status)
                 "ferdig"
             }
 
+        // Assert
         assertThat(resultat).isEqualTo("ferdig")
         assertThat(antallKall.get()).isEqualTo(2)
     }
 
     @Test
     fun `500 transportfeil og 503 i årsakskjeden gir ikke nytt forsøk`() {
+        // Arrange
         listOf(
             serverfeil(500),
             ResourceAccessException("Transportfeil", SocketTimeoutException("Read timed out")),
             IllegalStateException("Innpakket feil", serverfeil(503)),
         ).forEach { feil ->
             val antallKall = AtomicInteger()
+            val klient = TestKlient(retryKonfig())
 
+            // Act og Assert
             assertThatThrownBy {
-                KlientRetry(retryKonfig()).utfør {
+                klient.kall {
                     antallKall.incrementAndGet()
                     throw feil
                 }
@@ -65,11 +78,14 @@ class KlientRetryTest {
     @ParameterizedTest
     @ValueSource(longs = [0, 1, 5])
     fun `antall kall er første kall pluss max-retries og sluttfeilen får ikke suppressed`(maxRetries: Long) {
+        // Arrange
         val feil = serverfeil(503)
         val antallKall = AtomicInteger()
+        val klient = TestKlient(retryKonfig(maxRetries = maxRetries))
 
+        // Act og Assert
         assertThatThrownBy {
-            KlientRetry(retryKonfig(maxRetries = maxRetries)).utfør {
+            klient.kall {
                 antallKall.incrementAndGet()
                 throw feil
             }
@@ -81,10 +97,13 @@ class KlientRetryTest {
 
     @Test
     fun `deaktivert retry gjør bare ett kall`() {
+        // Arrange
         val antallKall = AtomicInteger()
+        val klient = TestKlient(retryKonfig(enabled = false))
 
+        // Act og Assert
         assertThatThrownBy {
-            KlientRetry(retryKonfig(enabled = false)).utfør {
+            klient.kall {
                 antallKall.incrementAndGet()
                 throw serverfeil(503)
             }
@@ -95,11 +114,13 @@ class KlientRetryTest {
 
     @Test
     fun `ventetiden er konstant med jitter på inntil en halv delay`() {
+        // Arrange
         val backoff =
-            KlientRetry(retryKonfig(maxRetries = 2, delay = Duration.ofMillis(100)))
+            TestKlient(retryKonfig(maxRetries = 2, delay = Duration.ofMillis(100)))
                 .retryTemplate.retryPolicy.backOff
                 .start()
 
+        // Act og Assert
         assertThat(backoff.nextBackOff()).isBetween(100L, 150L)
         assertThat(backoff.nextBackOff()).isBetween(100L, 150L)
         assertThat(backoff.nextBackOff()).isEqualTo(BackOffExecution.STOP)
@@ -107,16 +128,17 @@ class KlientRetryTest {
 
     @Test
     fun `avbrudd under venting stopper forsøk og kaster siste feil med flagget satt`() {
+        // Arrange
         val førsteKallUtført = CountDownLatch(1)
         val antallKall = AtomicInteger()
         val sisteFeil = serverfeil(503)
         val fangetFeil = AtomicReference<Throwable?>()
         val avbruddsflaggSatt = AtomicBoolean()
-        val retry = KlientRetry(retryKonfig(maxRetries = 2, delay = Duration.ofSeconds(1)))
+        val klient = TestKlient(retryKonfig(maxRetries = 2, delay = Duration.ofSeconds(1)))
         val tråd =
             Thread {
                 try {
-                    retry.utfør {
+                    klient.kall {
                         antallKall.incrementAndGet()
                         førsteKallUtført.countDown()
                         throw sisteFeil
@@ -127,12 +149,14 @@ class KlientRetryTest {
                 }
             }
 
+        // Act
         tråd.start()
         try {
             assertThat(førsteKallUtført.await(5, TimeUnit.SECONDS)).isTrue()
             tråd.interrupt()
             tråd.join(TimeUnit.SECONDS.toMillis(5))
 
+            // Assert
             assertThat(tråd.isAlive).isFalse()
             assertThat(antallKall.get()).isEqualTo(1)
             assertThat(fangetFeil.get()).isSameAs(sisteFeil)
@@ -147,13 +171,16 @@ class KlientRetryTest {
 
     @Test
     fun `allerede avbrutt tråd gjør første kall men ingen nye forsøk`() {
+        // Arrange
         val antallKall = AtomicInteger()
         val feil = serverfeil(503)
+        val klient = TestKlient(retryKonfig(maxRetries = 2))
         Thread.currentThread().interrupt()
 
         try {
+            // Act og Assert
             assertThatThrownBy {
-                KlientRetry(retryKonfig(maxRetries = 2)).utfør {
+                klient.kall {
                     antallKall.incrementAndGet()
                     throw feil
                 }
@@ -171,6 +198,12 @@ class KlientRetryTest {
         maxRetries: Long = 1,
         delay: Duration = Duration.ofMillis(1),
     ) = KlientRetryProperties(enabled, maxRetries, delay)
+
+    private class TestKlient(
+        props: KlientRetryProperties,
+    ) : RetryKlient(props) {
+        fun <T> kall(kall: () -> T) = retryVedMidlertidigFeil(kall)
+    }
 
     private fun serverfeil(status: Int) =
         HttpServerErrorException.create(
