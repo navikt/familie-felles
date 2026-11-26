@@ -1,6 +1,6 @@
 # Oppgave-klient
 
-Typet REST-klient for Oppgaves v1-API, med egne DTO-er og miljøvalg fra `klient-felles`.
+Typet REST-klient for Oppgaves v1-API, med egne DTO-er og miljøbasert URL og scope.
 
 ## Operasjoner
 
@@ -13,9 +13,9 @@ Typet REST-klient for Oppgaves v1-API, med egne DTO-er og miljøvalg fra `klient
 
 Et søk henter én side. Konsumenten styrer `limit` og `offset`. Utelatte verdier overlates til Oppgave. Klienten gjentar ikke Oppgave-kall automatisk, heller ikke ved timeout eller versjonskonflikt.
 
-Dette gjelder kall til Oppgave. Den gjenbrukte `TokenHenter` i `token-klient` kan gjenta selve tokeninnhentingen én gang ved transportfeil eller HTTP 5xx. Det skjer før Oppgave-kallet og gjentar ikke et kall som allerede er sendt til Oppgave.
+Tokeninnhentingen kan gjentas én gang ved transportfeil eller HTTP 5xx. Det skjer før Oppgave-kallet og gjentar ikke et kall som allerede er sendt til Oppgave.
 
-Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Klienten har ingen forretningslogikk fra `OppgaveService`. Mapper, kodeverk, hendelser, kommentaroppslag og v2 er utenfor omfanget. Strukturert kommentar i v1-PATCH inngår.
+Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Mapper, kodeverk, hendelser, kommentaroppslag og v2 er utenfor omfanget. Strukturert kommentar i v1-PATCH inngår.
 
 ## Klientvarianter
 
@@ -24,7 +24,7 @@ Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Klienten h
 Konsumenten kan avhenge av `OppgaveKlient` og bruke en egen fake i tester, uten HTTP- eller tokenoppsett. Når flere klientbeans finnes i Spring, må auth-variant fortsatt velges eksplisitt, enten med konkret type eller `@Qualifier`:
 
 ```kotlin
-class OppgaveService(
+class Konsument(
     @Qualifier("oppgaveOboKlient") private val oppgaveKlient: OppgaveKlient,
 )
 ```
@@ -34,12 +34,12 @@ Når du registrerer en fake som Spring-bean i tester, kan du slå av autokonfigu
 | Type | Tokenflyt |
 |---|---|
 | `OppgaveOboKlient` | Krever brukertoken og bruker OBO. |
-| `OppgaveHybridKlient` | OBO når tokenet har `preferred_username`, ellers M2M, som PDL-klienten. |
+| `OppgaveHybridKlient` | OBO når tokenet har `preferred_username`, ellers M2M. |
 | `OppgaveMaskinKlient` | Bruker alltid M2M. |
 
 `OppgaveOboKlient` og `OppgaveHybridKlient` krever en `KlientTokenProvider`-bean. Den skal levere token fra en allerede validert Entra ID-kontekst. `preferred_username` avgjør tokenvalg, men validerer ikke tokenet.
 
-**Hybrid gir systemtilgang når token mangler, ikke kan parses som JWT eller mangler `preferred_username`.** Dette er samme tokenvalg som PDL-klienten, ikke tokenvalidering. Konsumenten må autorisere disse kallene. Velg `OppgaveOboKlient` når handlinger alltid skal utføres på vegne av en medarbeider. Feil ved OBO-utveksling eller avslag fra Oppgave fører ikke til et nytt forsøk med M2M.
+**Hybrid gir systemtilgang når token mangler, ikke kan parses som JWT eller mangler `preferred_username`.** Dette er tokenvalg, ikke tokenvalidering. Konsumenten må autorisere disse kallene. Velg `OppgaveOboKlient` når handlinger alltid skal utføres på vegne av en medarbeider. Feil ved OBO-utveksling eller avslag fra Oppgave fører ikke til et nytt forsøk med M2M.
 
 Konsumenten har ansvar for behandlingsgrunnlag, tilgang til aktuelle temaer og korrekt bruk av systemtilgang. Tilgang til Oppgave må avtales med Team Oppgavehåndtering.
 
@@ -64,13 +64,13 @@ Properties under `familie.felles.klient.oppgave`:
 
 Timeouts må være mellom 1 og 2 147 483 647 millisekunder. Uten miljø må både URL og scope settes. Egne beans kan erstatte autokonfigurasjonen per klienttype.
 
-HTTP støttes for lokale miljøer og tester, som i PDL-klienten. Bruk HTTPS mot eksterne tjenester og i produksjon. Miljøstandardene bruker HTTPS. Klienten har ingen ekstra protokollsjekk ved manuell oppretting.
+HTTP støttes for lokale miljøer og tester. Bruk HTTPS mot eksterne tjenester og i produksjon. Miljøstandardene bruker HTTPS. Klienten har ingen ekstra protokollsjekk ved manuell oppretting.
 
-Oppsettet bruker `JdkClientHttpRequestFactory`, som støtter PATCH, og følger ikke redirects. PDL-klientens `SimpleClientHttpRequestFactory` kan ikke brukes her fordi den ikke støtter PATCH.
+Oppsettet bruker `JdkClientHttpRequestFactory`, som støtter PATCH, og følger ikke redirects.
 
 ## DTO-er og PATCH
 
-Modulen eier DTO-ene foreløpig og avhenger ikke av `familie-kontrakter`. Responsmodellene ignorerer ukjente felter. Kodeverdier som status, prioritet og tema er strenger slik at nye verdier kan leses uten bibliotekoppgradering. Konsumenten må håndtere ukjente verdier uten å tolke dem som en kjent verdi.
+Pakken inneholder egne DTO-er. Responsmodellene ignorerer ukjente felter. Kodeverdier som status, prioritet og tema er strenger slik at nye verdier kan leses uten bibliotekoppgradering. Konsumenten må håndtere ukjente verdier uten å tolke dem som en kjent verdi.
 
 Request- og responsmodellene bruker dataklassenes vanlige `toString()`, som inkluderer feltinnhold. `PatchFelt` bruker også standard tekstrepresentasjon. Disse representasjonene er ikke maskert og må ikke brukes som logginnhold uten at opplysningene er vurdert og filtrert.
 
@@ -98,13 +98,13 @@ Metodene tar en valgfri `String` som `korrelasjonsId`. `OppgaveRestKlient` velge
 2. `MDC.get(MDCConstants.MDC_CALL_ID)`, altså `callId`, hvis konteksten har en verdi.
 3. En ny tilfeldig UUID som streng når begge mangler.
 
-Konsumenter som bruker `LogFilter`, trenger ikke å sende korrelasjons-ID ved hvert kall. Interfacet og alternative implementasjoner er uavhengige av MDC. Eksisterende MDC-verdier bevares uten UUID-konvertering, og exceptionens `korrelasjonsId` er samme streng som ble sendt i headeren. En eksplisitt UUID-verdi kan sendes med `uuid.toString()`.
+Konsumenter som bruker `LogFilter`, trenger ikke å sende korrelasjons-ID ved hvert kall. Interfacet og alternative implementasjoner er uavhengige av MDC. MDC-verdier brukes uten UUID-konvertering, og exceptionens `korrelasjonsId` er samme streng som ble sendt i headeren. En eksplisitt UUID-verdi kan sendes med `uuid.toString()`.
 
 Klienten leser MDC når kallet utføres, ikke når singleton-bean-en opprettes, og skriver ikke til MDC. Konsumenten må selv etablere og videreføre konteksten, også ved trådbytte og i coroutines. Korrelasjons-ID-er skal være tekniske verdier, aldri personopplysninger eller verdier utledet fra dem.
 
-Den eksisterende factory-interceptoren setter fortsatt `Nav-Call-Id` og `X-Request-Id` fra MDC. En eksplisitt overstyring av `X-Correlation-ID` endrer ikke disse headerne eller MDC-konteksten.
+Klientfabrikkens MDC-interceptor setter `Nav-Call-Id` og `X-Request-Id` fra MDC. En eksplisitt overstyring av `X-Correlation-ID` endrer ikke disse headerne eller MDC-konteksten.
 
-HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveRestKlient`. Som i PDL skiller `runCatching` og `fold` responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions i samme rekkefølge. `Error` kastes videre uendret.
+HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveRestKlient`. `runCatching` og `fold` skiller responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions. `Error` kastes videre uendret.
 
 `OppgaveException` inneholder operasjon, feiltype, eventuell HTTP-status og korrelasjons-ID. Original exception bevares som `cause`, med opprinnelig cause-kjede og stacktrace.
 
@@ -116,7 +116,7 @@ Ved HTTP-feil brukes feilresponsens `feilmelding` som `message` når feltet er e
 | `TRANSPORT` | Kallet kunne ikke gjennomføres, for eksempel ved timeout. Andre tekniske feil, også mot tokenendepunktet, havner her. |
 | `UGYLDIG_RESPONS` | Svaret manglet body eller kunne ikke leses som forventet JSON. |
 
-Klienten bruker samme enkle auth-oppsett som PDL og skiller ikke mellom tokenfeil og feil hos Oppgave. En HTTP-status i exceptionen kan derfor stamme fra begge endepunktene. `404` oversettes ikke til `null`.
+Klienten skiller ikke mellom tokenfeil og feil hos Oppgave. En HTTP-status i exceptionen kan derfor stamme fra begge endepunktene. `404` oversettes ikke til `null`.
 
 Klienten søker ikke gjennom cause-kjeden for feilklassifisering. Ved en direkte `InterruptedException` bevares trådens interrupt-flagg. Når svaret mangler body, finnes ingen opprinnelig exception å bevare.
 
@@ -147,7 +147,7 @@ Bruk operasjonsnavn, rutemal, HTTP-status og varighet. Ikke bruk faktisk URL, qu
 
 V1-søk sender personopplysninger i query. Klienten beholder observasjonsoppsettet til den injiserte `RestClient` uten å overstyre registeret. Et aktivt register kan dermed gi HTTP-metrikker og spans. Standardfabrikken setter ikke et aktivt register selv.
 
-Konsumenten må rense eller deaktivere instrumentering som eksporterer sensitive URL-, query- eller feildetaljer. Dette gjelder Spring-observasjoner, Java-agenten, proxylogger og lavnivålogging i HTTP-transporten, inkludert `url.full`, `url.query`, eldre `http.url`, body-, header- og exception-opptak. Ikke aktiver JDKs sensitive transportlogging med `jdk.httpclient.HttpClient.log`. Den gjenbrukte tokenklientens trafikk må også beskyttes mot logging av tokens i body. Biblioteket kan ikke garantere konfigurasjonen utenfor egen kontroll.
+Konsumenten må rense eller deaktivere instrumentering som eksporterer sensitive URL-, query- eller feildetaljer. Dette gjelder Spring-observasjoner, Java-agenten, proxylogger og lavnivålogging i HTTP-transporten, inkludert `url.full`, `url.query`, eldre `http.url`, body-, header- og exception-opptak. Ikke aktiver JDKs sensitive transportlogging med `jdk.httpclient.HttpClient.log`. Trafikk til tokenendepunktet må også beskyttes mot logging av tokens i body. Biblioteket kan ikke garantere konfigurasjonen utenfor egen kontroll.
 
 Konsumentappen må ha Entra-oppsett og eksplisitt Nais outbound-policy til riktig Oppgave-host. Biblioteket oppretter ingen Nais-ressurser. Forretningsmetrikker og alarmer tilhører konsumentappen.
 
@@ -168,14 +168,12 @@ Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisi
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
 
-HTTP-testene bruker én konkret variant fordi alle tre arver de samme `final`-metodene i `OppgaveRestKlient`. Variantvalget testes i autokonfigurasjonen. Vi gjentar ikke tokenbibliotekets grant-logikk eller generelle rammeverksmekanismer i separate tester. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
+HTTP-testene bruker én konkret variant fordi alle tre arver de samme `final`-metodene i `OppgaveRestKlient`. Variantvalget testes i autokonfigurasjonen. Logging og ekstern instrumentering må verifiseres i konsumentappen med dens faktiske konfigurasjon.
 
 Testene mocker HTTP-transporten og tokenfabrikken. De verifiserer ikke faktiske tilganger i Oppgave, tokenisolasjon i Nais eller konsumentens eksterne instrumentering. Kjør også full regresjonsbygging og repoets sikkerhetskontroller før publisering.
 
 Før første bruk i PREPROD må konsumenten verifisere miljø, scope og tokenvariant med syntetiske testdata. Skrivekall må kontrolleres mot de oppgavene som faktisk ble opprettet eller endret.
 
-## Påvirkning og rollback
+## Rollback
 
-Modulen er et additivt bibliotek. Ingen eksisterende konsumenter migreres, og felles tokenlogikk endres ikke. Eksisterende CI bygger Maven-reaktoren uten en egen modulliste. Ingen workflow-endring inngår.
-
-Hvis en konsument tar klienten i bruk og må rulle tilbake, må den gå tilbake til tidligere bibliotekversjon og tidligere kallsti. Rollback av biblioteket angrer ikke oppgaver som allerede er opprettet eller endret i Oppgave.
+Hvis en konsument må rulle tilbake, må den gå tilbake til tidligere bibliotekversjon og tidligere kallsti. Rollback av biblioteket angrer ikke oppgaver som allerede er opprettet eller endret i Oppgave.
