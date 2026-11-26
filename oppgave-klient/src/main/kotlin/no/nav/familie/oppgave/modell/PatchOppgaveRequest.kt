@@ -24,4 +24,6 @@ data class PatchOppgaveRequest(
     val fristFerdigstillelse: PatchFelt<LocalDate> = PatchFelt.Utelatt,
     val aktivDato: PatchFelt<LocalDate> = PatchFelt.Utelatt,
     val kommentar: PatchFelt<RegistrerKommentarJson> = PatchFelt.Utelatt,
-)
+) {
+    override fun toString(): String = "PatchOppgaveRequest"
+}

@@ -72,7 +72,9 @@ Oppsettet bruker `JdkClientHttpRequestFactory`, som støtter PATCH, og følger i
 
 Pakken inneholder egne DTO-er. Responsmodellene ignorerer ukjente felter. Kodeverdier som status, prioritet og tema er strenger slik at nye verdier kan leses uten bibliotekoppgradering. Konsumenten må håndtere ukjente verdier uten å tolke dem som en kjent verdi.
 
-Request- og responsmodellene bruker dataklassenes vanlige `toString()`, som inkluderer feltinnhold. `PatchFelt` bruker også standard tekstrepresentasjon. Disse representasjonene er ikke maskert og må ikke brukes som logginnhold uten at opplysningene er vurdert og filtrert.
+`OpprettOppgaveRequest` og `PatchOppgaveRequest` har en maskert `toString()` som skriver ut typenavnet og ingenting annet. Den beskytter tekstrepresentasjonen som `DefaultRestClient` bruker ved DEBUG-logging av request-body. Faktisk JSON-innhold og serialisering er uendret.
+
+Responsmodellene, `FinnOppgaverRequest` og `PatchFelt` bruker standard tekstrepresentasjon med feltinnhold. Disse representasjonene er ikke maskert og må ikke brukes som logginnhold uten at opplysningene er vurdert og filtrert.
 
 Datoer bruker `LocalDate`, responstidspunkter bruker `OffsetDateTime`, og tidsgrensene i søk bruker `LocalDateTime` på formatet `yyyy-MM-dd'T'HH:mm:ss`.
 
@@ -128,9 +130,9 @@ Bruk `message` for serverens forklaring og `cause` for originalfeilen. Ved HTTP-
 
 ## Telemetri og konsumentoppsett
 
-**Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. Det kan inkludere personidentifikatorer, Nav-ident, beskrivelser og kommentarer. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
+**Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. De to request-body-klassene skjuler feltinnhold i denne tekstutskriften, men maskeringen beskytter ikke faktisk JSON, URL-er, headere, feil eller trafikk til tokenendepunktet. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
 
-Hold `org.springframework.web.client.DefaultRestClient` på INFO eller strengere. Ikke sett root-loggeren eller bredere Spring-/HTTP-pakker til DEBUG/TRACE slik at klienten arver nivået. Eksempel på konsumentoppsett:
+Hold `org.springframework.web.client.DefaultRestClient` på INFO eller strengere. Ikke sett root-loggeren eller bredere Spring- og HTTP-pakker til DEBUG eller TRACE, siden klienten da arver nivået. Eksempel på konsumentoppsett:
 
 ```yaml
 logging:

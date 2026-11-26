@@ -1,5 +1,9 @@
 package no.nav.familie.oppgave
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.oppgave.modell.FinnOppgaverRequest
 import no.nav.familie.oppgave.modell.OpprettOppgaveRequest
@@ -11,6 +15,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -316,6 +321,96 @@ class OppgaveKontraktTest {
             // Assert
             assertThat(oppgave.id).isEqualTo(321)
             assertThat(oppgave.versjon).isEqualTo(4)
+        }
+    }
+
+    @Test
+    fun `skriver ikke requestfelter i DEBUG logging ved opprettelse og patch`() {
+        // Arrange
+        val opprettPersonident = "syntetisk-opprett-personident-markor"
+        val opprettBeskrivelse = "syntetisk-opprett-beskrivelse-markor"
+        val patchPersonident = "syntetisk-patch-personident-markor"
+        val patchBeskrivelse = "syntetisk-patch-beskrivelse-markor"
+        val patchKommentar = "syntetisk-patch-kommentar-markor"
+        val logger = LoggerFactory.getLogger("org.springframework.web.client.DefaultRestClient") as Logger
+        val opprinneligNiva = logger.level
+        val appender =
+            ListAppender<ILoggingEvent>().apply {
+                context = logger.loggerContext
+                start()
+            }
+        try {
+            logger.level = Level.DEBUG
+            logger.addAppender(appender)
+            server
+                .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(
+                    content().json(
+                        """
+                        {
+                          "aktivDato": "2026-04-03",
+                          "oppgavetype": "JFR",
+                          "prioritet": "NORM",
+                          "tema": "BAR",
+                          "personident": "$opprettPersonident",
+                          "beskrivelse": "$opprettBeskrivelse"
+                        }
+                        """.trimIndent(),
+                        JsonCompareMode.STRICT,
+                    ),
+                ).andRespond(withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(OPPGAVE_JSON))
+            server
+                .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver/321"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(
+                    content().json(
+                        """
+                        {
+                          "versjon": 4,
+                          "beskrivelse": "$patchBeskrivelse",
+                          "personident": "$patchPersonident",
+                          "kommentar": {
+                            "tekst": "$patchKommentar",
+                            "automatiskGenerert": false
+                          }
+                        }
+                        """.trimIndent(),
+                        JsonCompareMode.STRICT,
+                    ),
+                ).andRespond(withSuccess(OPPGAVE_JSON, MediaType.APPLICATION_JSON))
+
+            // Act
+            klient.opprettOppgave(
+                OpprettOppgaveRequest(
+                    aktivDato = LocalDate.of(2026, 4, 3),
+                    oppgavetype = "JFR",
+                    prioritet = "NORM",
+                    tema = "BAR",
+                    personident = opprettPersonident,
+                    beskrivelse = opprettBeskrivelse,
+                ),
+            )
+            klient.patchOppgave(
+                321,
+                PatchOppgaveRequest(
+                    versjon = 4,
+                    beskrivelse = PatchFelt.Verdi(patchBeskrivelse),
+                    personident = PatchFelt.Verdi(patchPersonident),
+                    kommentar = PatchFelt.Verdi(RegistrerKommentarJson(tekst = patchKommentar, automatiskGenerert = false)),
+                ),
+            )
+
+            // Assert
+            val loggOutput = appender.list.joinToString("\n") { it.formattedMessage }
+            assertThat(loggOutput).contains("Writing [OpprettOppgaveRequest]")
+            assertThat(loggOutput).contains("Writing [PatchOppgaveRequest]")
+            assertThat(loggOutput)
+                .doesNotContain(opprettPersonident, opprettBeskrivelse, patchPersonident, patchBeskrivelse, patchKommentar)
+        } finally {
+            logger.detachAppender(appender)
+            logger.level = opprinneligNiva
+            appender.stop()
         }
     }
 

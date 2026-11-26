@@ -23,4 +23,6 @@ data class OpprettOppgaveRequest(
     val behandlingstype: String? = null,
     val fristFerdigstillelse: LocalDate? = null,
     val uuid: UUID? = null,
-)
+) {
+    override fun toString(): String = "OpprettOppgaveRequest"
+}
