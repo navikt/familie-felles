@@ -23,11 +23,13 @@ Serveren kontrollerer UUID-en, ikke om requestinnholdet er likt. Gjenbruk av UUI
 
 Andre 409-responser eller en uleselig duplikatrespons gir original `OppgaveException` uten GET. Hvis GET feiler, kaster klienten GET-kallets exception uendret. PATCH-konflikter gjenfinnes ikke.
 
+En ukjent enumverdi i POST-responsen eller GET etter 409 gir `UGYLDIG_RESPONS`, selv om oppgaven allerede er lagret. Klienten sender ikke en ny POST. Konsumenten må undersøke utfallet og beholde samme UUID ved et nytt forsøk.
+
 Ved 5xx eller timeout må konsumenten selv avgjøre om POST skal prøves igjen, med samme UUID. Klienten utfører ikke automatisk POST-retry eller lager en ny opprettings-UUID.
 
 Tokeninnhentingen kan gjentas én gang ved transportfeil eller HTTP 5xx. Det skjer før Oppgave-kallet og gjentar ikke et kall som allerede er sendt til Oppgave.
 
-Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. Mapper, kodeverk, hendelser, kommentaroppslag og v2 er utenfor omfanget. Strukturert kommentar i v1-PATCH inngår.
+Fordeling, ferdigstilling og andre endringer uttrykkes gjennom PATCH. `mappeId` finnes i oppretting, PATCH, søk og respons. Serveren avgjør om verdien kan brukes. Egne mappeoperasjoner, PUT, bulk-PATCH, kodeverksoppslag, hendelser, kommentaroppslag og v2 er utenfor omfanget. v1-PATCH støtter strukturert kommentar.
 
 ## Klientvarianter
 
@@ -84,13 +86,13 @@ Oppsettet bruker `JdkClientHttpRequestFactory`, som støtter PATCH, og følger i
 
 ## DTO-er og PATCH
 
-Pakken inneholder egne DTO-er. Responsmodellene ignorerer ukjente felter. Kodeverdier som status, prioritet og tema er strenger slik at nye verdier kan leses uten bibliotekoppgradering. Konsumenten må håndtere ukjente verdier uten å tolke dem som en kjent verdi.
+Pakken inneholder egne DTO-er. Responsmodellene ignorerer ukjente felter. Status, prioritet, statuskategori, brukertype, identgruppe, metadata-nøkler og sortering bruker enums. Ukjente enumverdier avvises ved lesing. Tema, oppgavetype og behandlingskategorier er fortsatt strenger, siden de følger eksterne kodeverk.
 
-`OpprettOppgaveRequest` og `PatchOppgaveRequest` har en maskert `toString()` som skriver ut typenavnet og ingenting annet. Den beskytter tekstrepresentasjonen som `DefaultRestClient` bruker ved DEBUG-logging av request-body. Faktisk JSON-innhold og serialisering er uendret.
+Enumene erstatter tidligere strengtyper i klientens offentlige API. Kall som brukte for eksempel `prioritet = "NORM"`, må bruke `prioritet = Prioritet.NORM`. `SokOppgaverResponse` krever både `antallTreffTotalt` og `oppgaver`.
 
-Responsmodellene, `FinnOppgaverRequest` og `PatchFelt` bruker standard tekstrepresentasjon med feltinnhold. Disse representasjonene er ikke maskert og må ikke brukes som logginnhold uten at opplysningene er vurdert og filtrert.
+Request-, søke- og responsmodellene, nestede modeller og `PatchFelt.Verdi` har verdifri `toString()`. Dette beskytter tekstrepresentasjonen, ikke JSON-innhold, felttilgang, URL-er eller ekstern instrumentering.
 
-Datoer bruker `LocalDate`, responstidspunkter bruker `OffsetDateTime`, og tidsgrensene i søk bruker `LocalDateTime` på formatet `yyyy-MM-dd'T'HH:mm:ss`.
+Datoer bruker `LocalDate`, responstidspunkter bruker `OffsetDateTime`, og tidsgrensene i søk bruker `LocalDateTime` med `ISO_LOCAL_DATE_TIME`. Brøkdeler av sekund beholdes.
 
 Jackson 3s standardmapper normaliserer offset ved lesing til UTC. Tidspunktet beholdes, men opprinnelig offset er ikke garantert.
 
@@ -105,6 +107,26 @@ Jackson 3s standardmapper normaliserer offset ved lesing til UTC. Tidspunktet be
 Serialiseringen bruker annotasjoner på klientens egne typer, uten å endre konsumentens globale `ObjectMapper`. Bare `Utelatt` utelates. Tom streng og `false` beholdes, og nullstilling uttrykkes med `PatchFelt.Null`, ikke `PatchFelt.Verdi(null)`.
 
 Ved `409` må konsumenten ta stilling til konflikten. Klienten henter ikke ny versjon og overskriver automatisk.
+
+### Feltdekning og metadata
+
+Opprettingsmodellen utelater `npidOrFolkeregisterIdent` og aliaset `navPersonIdent` fra serverens v1-kontrakt. Bruk `personident` for personkobling. `aktoerId` er også modellert for serverens eldre kontrakt. PATCH følger serverens dokumenterte PATCH-felt. Søk støtter serverens v1-query-parametere, inkludert mapper, metadata og sortering.
+
+Metadata bruker `Map<MetadataKey, String>`. JSON-nøklene er enum-navn, for eksempel `NORM_DATO` og `SOKNAD_ID`, ikke `normDato` og `søknadId`. Klienten legger ikke til egne formater eller lengdekrav for metadataverdier som serverkontrakten ikke definerer.
+
+**Metadata og søkefilteret `metadataverdi` skal ikke tas i bruk før innhold, datakategorier og behandlingsgrunnlag er avklart med Team Oppgavehåndtering.** Verdiene behandles som potensielt sensitive personopplysninger. Søkefilteret sender dem i URL-en.
+
+Responsen modellerer også `identer`, metadata og serverens øvrige tilleggsfelt. At `kommentar` finnes i responsemodellen, garanterer ikke at serveren fyller feltet i ordinære responser. `personident` er et skrivefelt, ikke et responsefelt.
+
+### Validering hos konsumenten
+
+Klienten kjører ikke requestvalidering. Vil konsumenten validere lokalt, må den utløse de eksisterende Jakarta-feltannotasjonene før klientkallet. Den kan kalle `Validator.validate(request)` og håndtere resultatet, eller bruke `@Validated` på sin egen Spring-bean og `@Valid` på request-parameteren. `@Validated` på requestklassen alene utløser ikke validering.
+
+Ved Spring-metodevalidering må kallet gå gjennom beanens proxy, og Spring må kunne avskjære metoden. Klientens egne metoder er `final` og har ingen proxybasert requestvalidering. Legg derfor `@Validated` på konsumentens egen bean. Kall fra samme bean og objekter opprettet direkte med konstruktøren går utenom Spring-proxyen.
+
+Opprettingsmodellen har `@NotNull`, `@NotBlank` og `@Size` på de aktuelle feltene. `OpprettOppgaveRequest.uuid` er obligatorisk uten standardverdi. Søkemodellen har `@Max(1000)` på `limit`. Annotasjonene kontrollerer ikke organisasjonsnummerets kontrollsiffer, identkombinasjoner eller om søket har minst ett kvalifiserende filter. PATCH-modellen har ingen Jakarta-valideringsregler for `PatchFelt`.
+
+Oppgave-serveren validerer requestene, inkludert særregler, kodeverk, tilgang og oppgaven etter PATCH-merge. Klienten sender verdiene uten å gjenskape disse kontrollene. Serveravslag gir `OppgaveException` med feiltype `HTTP`. Konsumentens lokale valideringsfeil håndteres ikke av klienten og kan inneholde ugyldige feltverdier. Behandle dem som potensielt sensitive.
 
 ## Feil og personopplysninger
 
@@ -122,7 +144,7 @@ Klientfabrikkens MDC-interceptor setter `Nav-Call-Id` og `X-Request-Id` fra MDC.
 
 HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveKlient`. `runCatching` og `fold` skiller responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions. `Error` kastes videre uendret.
 
-`OppgaveException` inneholder operasjon, feiltype, eventuell HTTP-status og korrelasjons-ID. Original exception bevares som `cause`, med opprinnelig cause-kjede og stacktrace.
+`OppgaveException` inneholder operasjon, feiltype, eventuell HTTP-status og korrelasjons-ID. Original exception bevares som `cause` ved HTTP-, transport- og parsingfeil. Konsumentens lokale valideringsfeil håndteres ikke av klienten.
 
 Ved HTTP-feil brukes feilresponsens `feilmelding` som `message` når feltet er en ikke-blank JSON-streng. Meldingen bevares uendret, også med linjeskift eller kontrolltegn. Ved tom, ukjent eller ugyldig feilrespons brukes en generell melding med metadata. Parsing av feilresponsen erstatter ikke originalfeilen og legger ikke til en parsingfeil som `suppressed`.
 
@@ -144,7 +166,7 @@ Bruk `message` for serverens forklaring og `cause` for originalfeilen. Ved HTTP-
 
 ## Telemetri og konsumentoppsett
 
-**Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. De to request-body-klassene skjuler feltinnhold i denne tekstutskriften, men maskeringen beskytter ikke faktisk JSON, URL-er, headere, feil eller trafikk til tokenendepunktet. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
+**Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. Modellene skjuler feltinnhold i denne tekstutskriften, men maskeringen beskytter ikke faktisk JSON, URL-er, headere, feil eller trafikk til tokenendepunktet. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
 
 Hold `org.springframework.web.client.DefaultRestClient` på INFO eller strengere. Ikke sett root-loggeren eller bredere Spring- og HTTP-pakker til DEBUG eller TRACE, siden klienten da arver nivået. Eksempel på konsumentoppsett:
 
@@ -163,6 +185,8 @@ Bruk operasjonsnavn, rutemal, HTTP-status og varighet. Ikke bruk faktisk URL, qu
 
 V1-søk sender personopplysninger i query. Klienten beholder observasjonsoppsettet til den injiserte `RestClient` uten å overstyre registeret. Et aktivt register kan dermed gi HTTP-metrikker og spans. Standardfabrikken setter ikke et aktivt register selv.
 
+Søk registrerer en URI-mal med `{queryN}`-plassholdere i Spring-observasjonen. Verdiene finnes fortsatt i den faktiske request-URL-en. En verdifri mal beskytter derfor ikke attributter som inneholder hele URL-en.
+
 Konsumenten må rense eller deaktivere instrumentering som eksporterer sensitive URL-, query- eller feildetaljer. Dette gjelder Spring-observasjoner, Java-agenten, proxylogger og lavnivålogging i HTTP-transporten, inkludert `url.full`, `url.query`, eldre `http.url`, body-, header- og exception-opptak. Ikke aktiver JDKs sensitive transportlogging med `jdk.httpclient.HttpClient.log`. Trafikk til tokenendepunktet må også beskyttes mot logging av tokens i body. Biblioteket kan ikke garantere konfigurasjonen utenfor egen kontroll.
 
 Konsumentappen må ha Entra-oppsett og eksplisitt Nais outbound-policy til riktig Oppgave-host. Biblioteket oppretter ingen Nais-ressurser. Forretningsmetrikker og alarmer tilhører konsumentappen.
@@ -179,7 +203,9 @@ Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisi
 
 | Testklasse | Hva den verifiserer |
 |---|---|
-| `OppgaveKontraktTest` | HTTP-metode, path, query-parametere, headere, JSON-body, PATCH-tilstander og responsmapping. |
+| `OppgaveKontraktTest` | HTTP-metode, path, query-parametere, headere, JSON-body, responsmapping og at requests sendes uten lokal validering. |
+| `OppgaveModellKontraktTest` | PATCH-tilstander, metadata-nøkler, identaliaser og at `toString()` skjuler feltinnhold. |
+| `OppgaveFeltannotasjonerTest` | At POST-feltkrav og `@Max(1000)` på `limit` virker når Bean Validation utløses. |
 | `OppgaveFeilhåndteringTest` | Servermelding, fallback, ugyldig respons, original cause, avbrudd og fravær av automatisk gjentakelse av skrivekall. |
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
