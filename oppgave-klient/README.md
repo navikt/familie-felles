@@ -140,7 +140,7 @@ Konsumenter som bruker `LogFilter`, trenger ikke å sende korrelasjons-ID ved hv
 
 Klienten leser MDC når kallet utføres, ikke når singleton-bean-en opprettes, og skriver ikke til MDC. Konsumenten må selv etablere og videreføre konteksten, også ved trådbytte og i coroutines. Korrelasjons-ID-er skal være tekniske verdier, aldri personopplysninger eller verdier utledet fra dem.
 
-Klientfabrikkens MDC-interceptor setter `Nav-Call-Id` og `X-Request-Id` fra MDC. En eksplisitt overstyring av `X-Correlation-ID` endrer ikke disse headerne eller MDC-konteksten.
+Klientfabrikkens MDC-interceptor bruker `callId` og `requestId` fra MDC når de finnes. Hvis `callId` mangler, genereres en ID. Hvis `requestId` mangler, brukes call-ID-en. En eksplisitt overstyring av `X-Correlation-ID` endrer ikke disse headerne eller MDC-konteksten. Uten MDC kan `X-Correlation-ID` og `Nav-Call-Id` derfor genereres separat.
 
 HTTP-implementasjonen av de fire metodene bruker en privat `utfør`-metode i `OppgaveKlient`. `runCatching` og `fold` skiller responsbehandling fra `håndterThrowable`. Metoden håndterer HTTP-feil, ukjent innholdstype, direkte konverteringsfeil og øvrige exceptions. `Error` kastes videre uendret.
 
@@ -175,13 +175,15 @@ val uriMedOppgaveId = oppgaveKlient.uriForLogging(oppgaveId)
 
 URI-en bruker klientens konfigurerte adresse og endpointsti, men utelater query, fragment og brukerinformasjon, også når disse finnes i baseadressen. Oppgave-ID beholdes i stien når den er oppgitt. Metoden gjør ingen HTTP-kall, logger ingenting og endrer ikke MDC.
 
-Rensingen gjelder bare denne URI-en. Den endrer ikke den faktiske request-URI-en og beskytter ikke feilmeldinger, response body, cause eller annen instrumentering. Konsumenten har fortsatt ansvar for hva den logger.
+Rensingen gjelder bare denne URI-en. Den faktiske request-URI-en arver query, fragment og brukerinformasjon fra en overstyrt baseadresse. Bruk en baseadresse uten disse komponentene. Metoden endrer ikke request-URI-en og beskytter ikke feilmeldinger, response body, cause eller annen instrumentering. Konsumenten har fortsatt ansvar for hva den logger.
 
 ## Telemetri og konsumentoppsett
 
-**Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. Modellene skjuler feltinnhold i denne tekstutskriften, men maskeringen beskytter ikke faktisk JSON, URL-er, headere, feil eller trafikk til tokenendepunktet. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
+Spring `DefaultRestClient` bruker `toString()` på request-bodyen i DEBUG-loggen. Oppgave-modellene skjuler feltinnhold i denne utskriften. Denne utskriften viser ikke den serialiserte JSON-bodyen, URL-en, headerne eller response body.
 
-Hold `org.springframework.web.client.DefaultRestClient` på INFO eller strengere. Ikke sett root-loggeren eller bredere Spring- og HTTP-pakker til DEBUG eller TRACE, siden klienten da arver nivået. Eksempel på konsumentoppsett:
+**Hold likevel `org.springframework.web.client.DefaultRestClient` på INFO eller høyere (WARN eller ERROR).** Dette loggernavnet gjelder også tokenklientens HTTP-kall. Ved OBO-tokenutveksling sendes `user_token` i en vanlig `Map`, og mapens `toString()` viser tokenverdien. Maskeringen i Oppgave-modellene dekker ikke denne requesten. En egen `secureLogger` endrer ikke hvor Spring logger, og tokenverdier skal aldri logges.
+
+DEBUG eller TRACE på root-loggeren eller bredere Spring-pakker kan også aktivere tokenlogging hvis det ikke finnes en mer spesifikk overstyring. Eksempel på konsumentoppsett:
 
 ```yaml
 logging:
@@ -192,7 +194,7 @@ logging:
     org.springframework.http: INFO
 ```
 
-Konsumenten må også unngå å logge DTO-er eller JSON-payload manuelt i vanlige applikasjonslogger. INFO-nivå alene hindrer ikke slik eksplisitt logging av sensitive opplysninger.
+DTO-enes `toString()` skjuler feltinnhold, men direkte logging av felt eller serialisert JSON gjør ikke det. Konsumenten må unngå å logge slikt innhold i vanlige applikasjonslogger. INFO-nivå alene hindrer ikke eksplisitt logging av sensitive opplysninger. Andre HTTP-loggere og instrumentering kan også registrere URL-er, headere, body og feil uavhengig av `toString()`.
 
 Bruk operasjonsnavn, rutemal, HTTP-status og varighet. Ikke bruk faktisk URL, query-parametere, oppgaveinnhold eller personidentifikatorer som labels eller span-attributter.
 
@@ -212,14 +214,14 @@ Kjør modulens og avhengighetenes tester fra repoets rot:
 mvn -pl oppgave-klient -am verify
 ```
 
-Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisitte `// Arrange`-, `// Act`- og `// Assert`-kommentarer.
+Testene er organisert rundt klientens eget ansvar.
 
 | Testklasse | Hva den verifiserer |
 |---|---|
 | `OppgaveKontraktTest` | HTTP-metode, path, query-parametere, headere, JSON-body, responsmapping og at requests sendes uten lokal validering. |
 | `OppgaveModellKontraktTest` | PATCH-tilstander, metadata-nøkler, identaliaser og at `toString()` skjuler feltinnhold. |
-| `OppgaveFeltannotasjonerTest` | At POST-feltkrav og `@Max(1000)` på `limit` virker når Bean Validation utløses. |
-| `OppgaveLoggUriTest` | At logg-URI-en beholder host og sti, utelater sensitive URI-komponenter og ikke gjør HTTP-kall, logger eller endrer MDC. |
+| `OppgaveFeltannotasjonerTest` | Feltannotasjoner for `tema`, `oppgavetype`, `uuid` og grensen for søkets `limit` ved Bean Validation. |
+| `OppgaveLoggUriTest` | At logg-URI-en samsvarer med faktisk request på host og sti, fjerner query, fragment og brukerinformasjon og ikke utløser et ekstra HTTP-kall. |
 | `OppgaveFeilhåndteringTest` | Servermelding, fallback, ugyldig respons, original cause, avbrudd og fravær av automatisk gjentakelse av skrivekall. |
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
