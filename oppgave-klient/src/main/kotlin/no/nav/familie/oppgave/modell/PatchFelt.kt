@@ -31,7 +31,6 @@ class PatchFeltSerializer : StdSerializer<PatchFelt<*>>(PatchFelt::class.java) {
         gen: JsonGenerator,
         ctxt: SerializationContext,
     ) {
-        // Rød sone: tom streng, false og eksplisitt null er verdier, ikke utelatte felt.
         when (value) {
             PatchFelt.Utelatt -> error("Utelatt patchfelt skal filtreres bort før serialisering")
             PatchFelt.Null -> gen.writeNull()
