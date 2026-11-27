@@ -174,7 +174,8 @@ sealed class OppgaveKlient(
 
     private fun byggUri(endepunkt: String = ""): URI =
         UriComponentsBuilder
-            .fromUriString("${url.toString().trimEnd('/')}/api/v1/oppgaver$endepunkt")
+            .fromUri(url)
+            .path("api/v1/oppgaver$endepunkt")
             .build()
             .encode()
             .toUri()
@@ -182,7 +183,8 @@ sealed class OppgaveKlient(
     private fun byggSokeUri(request: FinnOppgaverRequest): URI {
         val builder =
             UriComponentsBuilder
-                .fromUriString("${url.toString().trimEnd('/')}/api/v1/oppgaver")
+                .fromUri(url)
+                .path("api/v1/oppgaver")
         val queryValues = mutableMapOf<String, Any>()
         var placeholderIndex = 0
 

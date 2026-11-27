@@ -17,19 +17,17 @@ enum class OppgaveFeiltype {
  * Kan inneholde sensitive opplysninger i message, cause og stacktrace.
  * Klienten logger ikke exceptionen automatisk. Ikke serialiser den som et svar til sluttbrukeren.
  */
-class OppgaveException
-    @JvmOverloads
-    constructor(
-        val operasjon: OppgaveOperasjon,
-        val feiltype: OppgaveFeiltype,
-        val httpStatus: Int?,
-        val korrelasjonsId: String,
-        message: String? = null,
-        cause: Throwable? = null,
-    ) : RuntimeException(
-            message ?: (
-                "Oppgave-kall feilet: operasjon=$operasjon, feiltype=$feiltype, " +
+class OppgaveException(
+    val operasjon: OppgaveOperasjon,
+    val feiltype: OppgaveFeiltype,
+    val httpStatus: Int?,
+    val korrelasjonsId: String,
+    message: String? = null,
+    cause: Throwable? = null,
+) : RuntimeException(
+    message ?: (
+            "Oppgave-kall feilet: operasjon=$operasjon, feiltype=$feiltype, " +
                     "httpStatus=$httpStatus, korrelasjonsId=$korrelasjonsId"
             ),
-            cause,
-        )
+    cause,
+)
