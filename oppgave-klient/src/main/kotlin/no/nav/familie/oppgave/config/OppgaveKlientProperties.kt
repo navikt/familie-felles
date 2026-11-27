@@ -29,9 +29,9 @@ class OppgaveKlientProperties(
     internal fun hentUrl(miljø: KlientMiljø?): String =
         url
             ?: when (miljø) {
-                PREPROD -> "https://oppgave.dev-fss-pub.nais.io"
+                PREPROD -> "https://oppgave.intern.dev.nav.no"
 
-                PROD -> "https://oppgave.prod-fss-pub.nais.io"
+                PROD -> "https://oppgave.intern.nav.no"
 
                 null -> throw IllegalStateException(
                     "Konfigurer familie.felles.klient.miljo eller familie.felles.klient.oppgave.url",
