@@ -174,6 +174,18 @@ sealed class OppgaveKlient(
                 ?.takeIf { it > 0 }
         }.getOrNull()
 
+    /**
+     * Returnerer en URI til logging hos konsumenten, uten query, fragment og brukerinformasjon.
+     */
+    fun uriForLogging(oppgaveId: Long? = null): URI =
+        UriComponentsBuilder
+            .fromUri(byggUri(oppgaveId?.let { "/$it" } ?: ""))
+            .replaceQuery(null)
+            .fragment(null)
+            .userInfo(null)
+            .build(true)
+            .toUri()
+
     private fun byggUri(endepunkt: String = ""): URI =
         UriComponentsBuilder
             .fromUri(url)

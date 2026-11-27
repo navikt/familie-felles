@@ -164,6 +164,19 @@ Biblioteket logger ikke exceptionen automatisk og serialiserer den ikke som et A
 
 Bruk `message` for serverens forklaring og `cause` for originalfeilen. Ved HTTP-feil finnes hele feilresponsen i den opprinnelige `RestClientResponseException`. Konsumenten må behandle feilmeldinger som data, ikke som ferdige logglinjer.
 
+## URI til logging
+
+`uriForLogging(oppgaveId: Long? = null)` returnerer en URI som konsumenten kan bruke til logging. Uten oppgave-ID brukes stien for oppretting og søk. Med oppgave-ID brukes stien for henting og PATCH.
+
+```kotlin
+val uri = oppgaveKlient.uriForLogging()
+val uriMedOppgaveId = oppgaveKlient.uriForLogging(oppgaveId)
+```
+
+URI-en bruker klientens konfigurerte adresse og endpointsti, men utelater query, fragment og brukerinformasjon, også når disse finnes i baseadressen. Oppgave-ID beholdes i stien når den er oppgitt. Metoden gjør ingen HTTP-kall, logger ingenting og endrer ikke MDC.
+
+Rensingen gjelder bare denne URI-en. Den endrer ikke den faktiske request-URI-en og beskytter ikke feilmeldinger, response body, cause eller annen instrumentering. Konsumenten har fortsatt ansvar for hva den logger.
+
 ## Telemetri og konsumentoppsett
 
 **Ikke aktiver DEBUG eller TRACE for HTTP-klienten.** Spring `DefaultRestClient` skriver request-objektets `toString()` ved DEBUG. Modellene skjuler feltinnhold i denne tekstutskriften, men maskeringen beskytter ikke faktisk JSON, URL-er, headere, feil eller trafikk til tokenendepunktet. Å ha en egen `secureLogger` flytter ikke Springs interne logger til denne loggkanalen.
@@ -206,6 +219,7 @@ Testene er organisert rundt klientens eget ansvar. Alle testmetoder har eksplisi
 | `OppgaveKontraktTest` | HTTP-metode, path, query-parametere, headere, JSON-body, responsmapping og at requests sendes uten lokal validering. |
 | `OppgaveModellKontraktTest` | PATCH-tilstander, metadata-nøkler, identaliaser og at `toString()` skjuler feltinnhold. |
 | `OppgaveFeltannotasjonerTest` | At POST-feltkrav og `@Max(1000)` på `limit` virker når Bean Validation utløses. |
+| `OppgaveLoggUriTest` | At logg-URI-en beholder host og sti, utelater sensitive URI-komponenter og ikke gjør HTTP-kall, logger eller endrer MDC. |
 | `OppgaveFeilhåndteringTest` | Servermelding, fallback, ugyldig respons, original cause, avbrudd og fravær av automatisk gjentakelse av skrivekall. |
 | `OppgaveKlientAutoConfigurationTest` | Klientens beanvalg, factory/scope-kobling, egne overstyringer og OBO-tokenleverandør. |
 | `OppgaveKlientPropertiesTest` | Miljø til URL/scope, eksplisitte overstyringer og manglende konfigurasjon. |
