@@ -43,7 +43,7 @@ sealed class OppgaveKlient(
 
     /**
      * Oppretter en oppgave, eller henter den eksisterende oppgaven ved UUID-duplikat (HTTP 409 med oppgaveId).
-     * Konsumenten må gjenbruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
+     * Må bruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
      * Serveren sammenligner bare UUID, ikke requestinnhold. En gjenfunnet oppgave returneres i sin nåværende tilstand.
      * Klienten gjentar ikke POST automatisk. Feil ved gjenfinning sendes videre som feil fra GET-kallet.
      */
@@ -102,7 +102,6 @@ sealed class OppgaveKlient(
                 .body<Oppgave>()
         }
 
-    // Rød sone: feilrespons og original cause bevares, men skal ikke logges automatisk her.
     private fun <T> utfør(
         operasjon: OppgaveOperasjon,
         korrelasjonsId: String?,
