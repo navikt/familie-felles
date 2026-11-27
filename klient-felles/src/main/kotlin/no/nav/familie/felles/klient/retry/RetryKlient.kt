@@ -6,20 +6,19 @@ import org.springframework.core.retry.RetryTemplate
 import org.springframework.web.client.RestClientResponseException
 
 /**
- * Gjentar et kall ved HTTP 502, 503 og 504, med konstant ventetid og jitter mellom forsøkene.
+ * Felles grunnklasse for klienter som gjentar kall ved HTTP 502, 503 og 504, med konstant ventetid og jitter.
  *
- * Bare feilen på toppnivå vurderes. Feilen kan komme fra tjenesten eller fra en interceptor på `RestClient`, for
- * eksempel tokenhenting. Hvert nytt forsøk kjører hele kallet på nytt, så interceptorene må tåle å bli kjørt flere
- * ganger. Bruk bare for kall uten bivirkninger.
+ * Bare feilen på toppnivå vurderes. Hvert nytt forsøk kjører hele kallet på nytt, også interceptorene på `RestClient`.
+ * Bruk [retryVedMidlertidigFeil] bare rundt kall uten bivirkninger.
  *
  * Spring `RetryTemplate` logger hvert mislykkede forsøk med exception og stacktrace på DEBUG-nivå. For HTTP-feil kan
  * meldingen inneholde responsbodyen. Ikke slå på DEBUG for `org.springframework.core.retry` i produksjon.
  */
-class KlientRetry(
-    retryKonfigurasjon: KlientRetryProperties,
+abstract class RetryKlient(
+    retryProperties: KlientRetryProperties,
 ) {
     internal val retryTemplate =
-        with(retryKonfigurasjon) {
+        with(retryProperties) {
             RetryTemplate(
                 RetryPolicy
                     .builder()
@@ -31,7 +30,7 @@ class KlientRetry(
             )
         }
 
-    fun <T> utfør(kall: () -> T): T =
+    protected fun <T> retryVedMidlertidigFeil(kall: () -> T): T =
         try {
             retryTemplate.execute { kall() }
         } catch (feil: RetryException) {

@@ -224,9 +224,9 @@ Klienten logger ikke selv. Appen har ansvaret for hva som logges.
 ## Retry
 
 Klienten prøver på nytt ved midlertidige feil. Retry er på som standard og gjelder alle tre klientvariantene.
-Bruk klienten bare til GraphQL-queries som leser data, ikke mutations. Mekanismen er `KlientRetry` fra
-`klient-felles`, som bygger på Spring `RetryTemplate` og `RetryPolicy`. Den krever ingen Spring-proxy og virker
-også når klienten opprettes med en konstruktør.
+Bruk klienten bare til GraphQL-queries som leser data, ikke mutations. Mekanismen er grunnklassen `RetryKlient` fra
+`klient-felles`, som `PdlKlient` arver. Den bygger på Spring `RetryTemplate` og `RetryPolicy`, krever ingen
+Spring-proxy og virker også når klienten opprettes med en konstruktør.
 
 Følgende properties finnes under `familie.felles.klient.pdl.retry`:
 

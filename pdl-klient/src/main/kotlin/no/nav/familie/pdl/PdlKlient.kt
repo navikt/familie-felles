@@ -1,7 +1,7 @@
 package no.nav.familie.pdl
 
-import no.nav.familie.felles.klient.retry.KlientRetry
 import no.nav.familie.felles.klient.retry.KlientRetryProperties
+import no.nav.familie.felles.klient.retry.RetryKlient
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.converter.HttpMessageConversionException
@@ -17,9 +17,7 @@ sealed class PdlKlient(
     internal val restClient: RestClient,
     internal val behandlingsnummer: String?,
     retryKonfig: KlientRetryProperties,
-) {
-    private val retry = KlientRetry(retryKonfig)
-
+) : RetryKlient(retryKonfig) {
     /** Adressen klienten sender GraphQL-spørringene til. */
     val graphqlUrl: URI = URI.create(url.toString().trimEnd('/') + "/graphql")
 
@@ -58,7 +56,7 @@ sealed class PdlKlient(
         behandlingsnummer: String,
         responstype: ParameterizedTypeReference<PdlRespons<T>>,
     ): PdlRespons<T>? =
-        retry.utfør {
+        retryVedMidlertidigFeil {
             restClient
                 .post()
                 .uri(graphqlUrl)
