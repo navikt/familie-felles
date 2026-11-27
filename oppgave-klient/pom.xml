@@ -8,7 +8,7 @@
         <version>${revision}${sha1}${changelist}</version>
     </parent>
     <artifactId>oppgave-klient</artifactId>
-    <name>Felle - Oppgave-klient</name>
+    <name>Felles - Oppgave-klient</name>
     <dependencies>
         <dependency>
             <groupId>no.nav.familie.felles</groupId>
