@@ -18,7 +18,7 @@ class OppgaveKlientPropertiesTest {
         val scope = properties.hentScope(PREPROD)
 
         // Assert
-        assertThat(url).isEqualTo("https://oppgave.dev-fss-pub.nais.io")
+        assertThat(url).isEqualTo("https://oppgave.intern.dev.nav.no")
         assertThat(scope).isEqualTo("api://dev-fss.oppgavehandtering.oppgave/.default")
         assertThat(properties.connectTimeout).isEqualTo(Duration.ofSeconds(2))
         assertThat(properties.readTimeout).isEqualTo(Duration.ofSeconds(10))
@@ -34,7 +34,7 @@ class OppgaveKlientPropertiesTest {
         val scope = properties.hentScope(PROD)
 
         // Assert
-        assertThat(url).isEqualTo("https://oppgave.prod-fss-pub.nais.io")
+        assertThat(url).isEqualTo("https://oppgave.intern.nav.no")
         assertThat(scope).isEqualTo("api://prod-fss.oppgavehandtering.oppgave/.default")
         assertThat(properties.connectTimeout).isEqualTo(Duration.ofSeconds(2))
         assertThat(properties.readTimeout).isEqualTo(Duration.ofSeconds(10))
