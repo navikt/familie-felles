@@ -3,6 +3,7 @@ package no.nav.familie.oppgave
 import no.nav.familie.log.mdc.MDCConstants
 import no.nav.familie.oppgave.modell.OpprettOppgaveRequest
 import no.nav.familie.oppgave.modell.PatchOppgaveRequest
+import no.nav.familie.oppgave.modell.Prioritet
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -195,9 +196,10 @@ class OppgaveFeilhåndteringTest {
             OpprettOppgaveRequest(
                 aktivDato = LocalDate.parse("2026-01-01"),
                 oppgavetype = "TEST",
-                prioritet = "NORM",
+                prioritet = Prioritet.NORM,
                 tema = "BID",
                 uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
+                tildeltEnhetsnr = "0000",
             )
         server
             .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver"))
@@ -213,6 +215,58 @@ class OppgaveFeilhåndteringTest {
         assertThat(feil.operasjon).isEqualTo(OppgaveOperasjon.OPPRETT_OPPGAVE)
         assertThat(feil.cause).isInstanceOf(RestClientResponseException::class.java)
         assertThat((feil.cause as RestClientResponseException).responseBodyAsString).isEqualTo(body)
+    }
+
+    @Test
+    fun `POST med ukjent enum i respons gir ugyldig respons uten automatisk retry`() {
+        // Arrange
+        val request = gyldigOpprettRequest()
+        val body = oppgaveJson(prioritet = "UKJENT_PRIORITET")
+        server
+            .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver"))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(header(CORRELATION_ID_HEADER, CORRELATION_ID))
+            .andRespond(withSuccess(body, MediaType.APPLICATION_JSON))
+
+        // Act
+        val feil = assertThrows<OppgaveException> { klient.opprettOppgave(request, CORRELATION_ID) }
+
+        // Assert
+        assertThat(feil.feiltype).isEqualTo(OppgaveFeiltype.UGYLDIG_RESPONS)
+        assertThat(feil.operasjon).isEqualTo(OppgaveOperasjon.OPPRETT_OPPGAVE)
+        assertThat(feil.httpStatus).isNull()
+        assertThat(feil.korrelasjonsId).isEqualTo(CORRELATION_ID)
+        assertThat(feil.cause).isNotNull()
+    }
+
+    @Test
+    fun `POST 409 med ukjent enum i gjenfunnet oppgave gir ugyldig GET-respons med samme korrelasjons-id`() {
+        // Arrange
+        val request = gyldigOpprettRequest()
+        server
+            .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver"))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(header(CORRELATION_ID_HEADER, CORRELATION_ID))
+            .andRespond(
+                withStatus(HttpStatus.CONFLICT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("""{"oppgaveId":321}"""),
+            )
+        server
+            .expect(once(), requestTo("$BASE_URL/api/v1/oppgaver/321"))
+            .andExpect(method(HttpMethod.GET))
+            .andExpect(header(CORRELATION_ID_HEADER, CORRELATION_ID))
+            .andRespond(withSuccess(oppgaveJson(status = "UKJENT_STATUS"), MediaType.APPLICATION_JSON))
+
+        // Act
+        val feil = assertThrows<OppgaveException> { klient.opprettOppgave(request, CORRELATION_ID) }
+
+        // Assert
+        assertThat(feil.feiltype).isEqualTo(OppgaveFeiltype.UGYLDIG_RESPONS)
+        assertThat(feil.operasjon).isEqualTo(OppgaveOperasjon.HENT_OPPGAVE)
+        assertThat(feil.httpStatus).isNull()
+        assertThat(feil.korrelasjonsId).isEqualTo(CORRELATION_ID)
+        assertThat(feil.cause).isNotNull()
     }
 
     @Test
@@ -290,6 +344,22 @@ class OppgaveFeilhåndteringTest {
                 .build()
         return OppgaveMaskinKlient(URI.create(BASE_URL), restClient)
     }
+
+    private fun gyldigOpprettRequest() =
+        OpprettOppgaveRequest(
+            aktivDato = LocalDate.parse("2026-01-01"),
+            oppgavetype = "TEST",
+            prioritet = Prioritet.NORM,
+            tema = "BID",
+            uuid = java.util.UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
+            tildeltEnhetsnr = "0000",
+        )
+
+    private fun oppgaveJson(
+        prioritet: String = "NORM",
+        status: String = "OPPRETTET",
+    ) =
+        """{"id":321,"tildeltEnhetsnr":"0000","tema":"BID","oppgavetype":"TEST","versjon":1,"prioritet":"$prioritet","status":"$status","aktivDato":"2026-01-01"}"""
 
     private companion object {
         const val BASE_URL = "https://oppgave.test"

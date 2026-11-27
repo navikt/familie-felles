@@ -7,12 +7,12 @@ import java.time.LocalDate
 data class PatchOppgaveRequest(
     val versjon: Int,
     val orgnr: PatchFelt<String> = PatchFelt.Utelatt,
-    val status: PatchFelt<String> = PatchFelt.Utelatt,
+    val status: PatchFelt<Oppgavestatus> = PatchFelt.Utelatt,
     val endretAvEnhetsnr: PatchFelt<String> = PatchFelt.Utelatt,
     val beskrivelse: PatchFelt<String> = PatchFelt.Utelatt,
     val tilordnetRessurs: PatchFelt<String> = PatchFelt.Utelatt,
     val tildeltEnhetsnr: PatchFelt<String> = PatchFelt.Utelatt,
-    val prioritet: PatchFelt<String> = PatchFelt.Utelatt,
+    val prioritet: PatchFelt<Prioritet> = PatchFelt.Utelatt,
     val behandlingstema: PatchFelt<String> = PatchFelt.Utelatt,
     val behandlingstype: PatchFelt<String> = PatchFelt.Utelatt,
     val oppgavetype: PatchFelt<String> = PatchFelt.Utelatt,
@@ -23,7 +23,8 @@ data class PatchOppgaveRequest(
     val personident: PatchFelt<String> = PatchFelt.Utelatt,
     val fristFerdigstillelse: PatchFelt<LocalDate> = PatchFelt.Utelatt,
     val aktivDato: PatchFelt<LocalDate> = PatchFelt.Utelatt,
-    val kommentar: PatchFelt<RegistrerKommentarJson> = PatchFelt.Utelatt,
+    val mappeId: PatchFelt<Long> = PatchFelt.Utelatt,
+    val kommentar: PatchFelt<RegistrerKommentar> = PatchFelt.Utelatt,
 ) {
     override fun toString(): String = "PatchOppgaveRequest"
 }

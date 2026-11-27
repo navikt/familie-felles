@@ -34,7 +34,7 @@ sealed class OppgaveKlient(
             val uri = byggSokeUri(request)
             restClient
                 .get()
-                .uri(uri)
+                .uri(uri.mal) { _ -> uri.verdi }
                 .accept(APPLICATION_JSON)
                 .header(KORRELASJONS_ID_HEADER, valgtKorrelasjonsId)
                 .retrieve()
@@ -43,9 +43,11 @@ sealed class OppgaveKlient(
 
     /**
      * Oppretter en oppgave, eller henter den eksisterende oppgaven ved UUID-duplikat (HTTP 409 med oppgaveId).
-     * Må bruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
+     * Konsumenten må bruke samme request-UUID for samme logiske oppretting ved retry og etter omstart.
      * Serveren sammenligner bare UUID, ikke requestinnhold. En gjenfunnet oppgave returneres i sin nåværende tilstand.
      * Klienten gjentar ikke POST automatisk. Feil ved gjenfinning sendes videre som feil fra GET-kallet.
+     * Ukjente enumverdier i POST-responsen eller GET etter 409 gir UGYLDIG_RESPONS selv om oppgaven er lagret.
+     * Et nytt opprettingsforsøk må fortsatt bruke samme UUID.
      */
     fun opprettOppgave(
         request: OpprettOppgaveRequest,
@@ -180,7 +182,12 @@ sealed class OppgaveKlient(
             .encode()
             .toUri()
 
-    private fun byggSokeUri(request: FinnOppgaverRequest): URI {
+    private class SokeUri(
+        val mal: String,
+        val verdi: URI,
+    )
+
+    private fun byggSokeUri(request: FinnOppgaverRequest): SokeUri {
         val builder =
             UriComponentsBuilder
                 .fromUri(url)
@@ -197,7 +204,7 @@ sealed class OppgaveKlient(
             queryValues[placeholder] = verdi
         }
 
-        request.statuskategori?.let { leggTil("statuskategori", it) }
+        request.statuskategori?.let { leggTil("statuskategori", it.name) }
         request.tema?.forEach { leggTil("tema", it) }
         request.oppgavetype?.forEach { leggTil("oppgavetype", it) }
         request.aktoerId?.forEach { leggTil("aktoerId", it) }
@@ -212,14 +219,34 @@ sealed class OppgaveKlient(
         request.ferdigstiltTom?.let { leggTil("ferdigstiltTom", it.format(LOKAL_DATO_TID_FORMAT)) }
         request.limit?.let { leggTil("limit", it.toString()) }
         request.offset?.let { leggTil("offset", it.toString()) }
+        request.status?.forEach { leggTil("status", it.name) }
+        request.tildeltRessurs?.let { leggTil("tildeltRessurs", it.toString()) }
+        request.erUtenMappe?.let { leggTil("erUtenMappe", it.toString()) }
+        request.mappeId?.forEach { leggTil("mappeId", it.toString()) }
+        request.opprettetAv?.let { leggTil("opprettetAv", it) }
+        request.opprettetAvEnhetsnr?.let { leggTil("opprettetAvEnhetsnr", it) }
+        request.behandlesAvApplikasjon?.let { leggTil("behandlesAvApplikasjon", it) }
+        request.aktivDatoFom?.let { leggTil("aktivDatoFom", it.toString()) }
+        request.aktivDatoTom?.let { leggTil("aktivDatoTom", it.toString()) }
+        request.opprettetFom?.let { leggTil("opprettetFom", it.format(LOKAL_DATO_TID_FORMAT)) }
+        request.opprettetTom?.let { leggTil("opprettetTom", it.format(LOKAL_DATO_TID_FORMAT)) }
+        request.fristFom?.let { leggTil("fristFom", it.toString()) }
+        request.fristTom?.let { leggTil("fristTom", it.toString()) }
+        request.bnr?.forEach { leggTil("bnr", it) }
+        request.samhandlernr?.forEach { leggTil("samhandlernr", it) }
+        request.metadatanokkel?.let { leggTil("metadatanokkel", it.name) }
+        request.metadataverdi?.forEach { leggTil("metadataverdi", it) }
+        request.sorteringsrekkefolge?.let { leggTil("sorteringsrekkefolge", it.name) }
+        request.sorteringsfelt?.let { leggTil("sorteringsfelt", it.name) }
+        request.presisMatchTemakategorisering?.let { leggTil("presisMatchTemakategorisering", it.toString()) }
 
-        return builder.encode().buildAndExpand(queryValues).toUri()
+        val mal = builder.build().toUriString()
+        return SokeUri(mal, builder.encode().buildAndExpand(queryValues).toUri())
     }
 
     companion object {
         private const val KORRELASJONS_ID_HEADER = "X-Correlation-ID"
-        private val LOKAL_DATO_TID_FORMAT: DateTimeFormatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        private val LOKAL_DATO_TID_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     }
 }
 

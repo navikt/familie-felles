@@ -7,7 +7,7 @@ import tools.jackson.databind.ser.std.StdSerializer
 
 /**
  * Skiller mellom utelatt felt, eksplisitt null og en konkret verdi.
- * Feltinkluderingen på PatchOppgaveRequest utelater bare Utelatt, ikke Null eller tomme verdier.
+ * PatchOppgaveRequest utelater bare Utelatt fra JSON, ikke Null eller tomme verdier.
  */
 @JsonSerialize(using = PatchFeltSerializer::class)
 sealed class PatchFelt<out T> {
@@ -17,7 +17,9 @@ sealed class PatchFelt<out T> {
 
     data class Verdi<T : Any>(
         val verdi: T,
-    ) : PatchFelt<T>()
+    ) : PatchFelt<T>() {
+        override fun toString(): String = "Verdi"
+    }
 }
 
 class PatchFeltSerializer : StdSerializer<PatchFelt<*>>(PatchFelt::class.java) {

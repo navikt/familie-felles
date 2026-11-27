@@ -25,9 +25,9 @@ class OppgaveException(
     message: String? = null,
     cause: Throwable? = null,
 ) : RuntimeException(
-    message ?: (
+        message ?: (
             "Oppgave-kall feilet: operasjon=$operasjon, feiltype=$feiltype, " +
-                    "httpStatus=$httpStatus, korrelasjonsId=$korrelasjonsId"
-            ),
-    cause,
-)
+                "httpStatus=$httpStatus, korrelasjonsId=$korrelasjonsId"
+        ),
+        cause,
+    )
